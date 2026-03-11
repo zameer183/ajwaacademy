@@ -1,0 +1,15 @@
+{
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "ajwaacademy.com"
+        }
+      ],
+      "destination": "https://www.ajwaacademy.com/:path*",
+      "permanent": true
+    }
+  ]
+}

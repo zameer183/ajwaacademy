@@ -1,0 +1,361 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  color-scheme: light;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #ffffff;
+    --foreground: #171717;
+  }
+}
+
+html,
+body {
+  background: #ffffff;
+  color: #171717;
+  font-family: var(--font-sans);
+  scroll-behavior: smooth;
+  color-scheme: light;
+}
+
+html.dark,
+body.dark {
+  background: #ffffff;
+  color: #171717;
+  color-scheme: light;
+}
+
+
+/* Custom utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+
+/* Dark mode adjustments */
+.dark .prose {
+  color: var(--tw-prose-body);
+}
+
+.dark .prose :where(p):not(:where([class~="not-prose"] *)) {
+  color: var(--tw-prose-body);
+}
+
+.dark .prose :where(h1, h2, h3, h4, h5, h6):not(:where([class~="not-prose"] *)) {
+  color: var(--tw-prose-headings);
+}
+
+.responsive-blog-image {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  margin: 2rem 0;
+  border-radius: 16px;
+  background: #f3f4f6;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+  object-fit: cover;
+}
+
+.blog-detail-content h1,
+.blog-detail-content h2,
+.blog-detail-content h3,
+.blog-detail-content h4,
+.blog-detail-content h5,
+.blog-detail-content h6 {
+  text-align: center;
+  font-weight: 700;
+}
+
+/* Center editor-styled bold headings within content */
+.blog-detail-content b,
+.blog-detail-content strong {
+  display: block;
+  text-align: center;
+}
+
+.blog-detail-content img,
+.blog-detail-content .responsive-blog-image {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  min-height: 360px;
+  margin: 2rem auto;
+  border-radius: 16px;
+  background: transparent;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+  object-fit: contain;
+  object-position: center;
+}
+
+/* Handle editor-inserted inline spans wrapping images */
+.blog-detail-content span[style*="display: inline-block"] {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  margin: 2rem auto !important;
+}
+
+.blog-detail-content span[style*="display: inline-block"] > img {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 360px !important;
+  max-height: none !important;
+  margin: 0 auto !important;
+  border-radius: 16px;
+  background: transparent;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+  object-fit: contain;
+  object-position: center;
+}
+
+@media (min-width: 768px) {
+  .blog-detail-content img,
+  .blog-detail-content .responsive-blog-image,
+  .blog-detail-content span[style*="display: inline-block"] > img {
+    min-height: 460px !important;
+  }
+}
+
+/* Navbar hover underline */
+.nav-underline {
+  position: relative;
+  display: inline-block;
+}
+.nav-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 2px;
+  background: rgba(0, 0, 102, 1);
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.nav-underline::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -2px;
+  height: 2px;
+  background: rgba(0, 0, 102, 1);
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.nav-underline:hover::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+.nav-underline:hover::before {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 18s linear infinite;
+}
+
+/* Why choose cards (Uiverse.io by Smit-Prajapati) */
+.why-choose .why-card-parent {
+  width: 290px;
+  height: 300px;
+  perspective: 1000px;
+}
+
+.why-choose .why-card {
+  height: 100%;
+  border-radius: 50px;
+  background: linear-gradient(135deg, rgba(0, 91, 187, 1) 0%, rgba(0, 0, 102, 1) 100%);
+  transition: all 0.5s ease-in-out;
+  transform-style: preserve-3d;
+  box-shadow: none;
+  position: relative;
+}
+
+.why-choose .why-card .glass {
+  transform-style: preserve-3d;
+  position: absolute;
+  inset: 8px;
+  border-radius: 55px;
+  border-top-right-radius: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(77, 183, 255, 0.18) 100%);
+  transform: translate3d(0px, 0px, 25px);
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.5s ease-in-out;
+}
+
+.why-choose .why-card .content {
+  padding: 90px 50px 0px 28px;
+  transform: translate3d(0, 0, 26px);
+}
+
+.why-choose .why-card .content .title {
+  display: block;
+  color: #fff;
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.why-choose .why-card .content .text {
+  display: block;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  margin-top: 16px;
+}
+
+
+.why-choose .why-card .bottom {
+  padding: 10px 14px;
+  transform-style: preserve-3d;
+  position: absolute;
+  bottom: 18px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  transform: translate3d(0, 0, 26px);
+}
+
+.why-choose .why-card .bottom .package-label {
+  color: #fff;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.why-choose .why-card .logo {
+  position: absolute;
+  right: 0;
+  top: 0;
+  transform-style: preserve-3d;
+}
+
+.why-choose .why-card .logo .circle {
+  display: block;
+  position: absolute;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  top: 0;
+  right: 0;
+  box-shadow: rgba(100, 100, 111, 0.2) -10px 10px 20px 0px;
+  background: rgba(255, 255, 255, 0.22);
+  transition: all 0.5s ease-in-out;
+}
+
+.why-choose .why-card .logo .circle1 {
+  width: 170px;
+  transform: translate3d(0, 0, 20px);
+  top: 8px;
+  right: 8px;
+}
+
+.why-choose .why-card .logo .circle2 {
+  width: 140px;
+  transform: translate3d(0, 0, 40px);
+  top: 10px;
+  right: 10px;
+  transition-delay: 0.4s;
+}
+
+.why-choose .why-card .logo .circle3 {
+  width: 110px;
+  transform: translate3d(0, 0, 60px);
+  top: 17px;
+  right: 17px;
+  transition-delay: 0.8s;
+}
+
+.why-choose .why-card .logo .circle4 {
+  width: 80px;
+  transform: translate3d(0, 0, 80px);
+  top: 23px;
+  right: 23px;
+  transition-delay: 1.2s;
+}
+
+.why-choose .why-card .logo .circle5 {
+  width: 50px;
+  transform: translate3d(0, 0, 100px);
+  top: 30px;
+  right: 30px;
+  display: grid;
+  place-content: center;
+  transition-delay: 1.6s;
+}
+
+.why-choose .why-card .logo .circle5 .brand-letter {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-content: center;
+  background: rgba(0, 0, 102, 1);
+  color: #fff;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.why-choose .why-card-parent:hover .why-card {
+  transform: rotate3d(1, 1, 0, 30deg);
+  box-shadow: none;
+}
+
+.why-choose .why-card-parent:hover .why-card .logo .circle2 {
+  transform: translate3d(0, 0, 60px);
+}
+
+.why-choose .why-card-parent:hover .why-card .logo .circle3 {
+  transform: translate3d(0, 0, 80px);
+}
+
+.why-choose .why-card-parent:hover .why-card .logo .circle4 {
+  transform: translate3d(0, 0, 100px);
+}
+
+.why-choose .why-card-parent:hover .why-card .logo .circle5 {
+  transform: translate3d(0, 0, 120px);
+}
+
+/* Animation utilities removed */
