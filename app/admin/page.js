@@ -187,6 +187,7 @@ export default function AdminPage() {
   const [formErrors, setFormErrors] = useState({});
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -582,9 +583,25 @@ export default function AdminPage() {
   };
 
   const handleEdit = (record) => {
+    const nextRecord =
+      activeTable === 'blog_posts'
+        ? (() => {
+            const defaults = deriveBlogDefaults(record?.content || '');
+            return {
+              ...record,
+              title: record?.title || defaults.title,
+              category: record?.category || defaults.category,
+              author: record?.author || defaults.author,
+              excerpt: record?.excerpt || defaults.excerpt,
+              image: record?.image || defaults.image,
+              slug: record?.slug || makeSlug(record?.title || defaults.title),
+            };
+          })()
+        : record;
     setEditingId(record.id);
-    setFormData(record);
+    setFormData(nextRecord);
     setFormErrors({});
+    setSuccessMessage('');
     setShowForm(true);
   };
 
@@ -649,6 +666,7 @@ export default function AdminPage() {
       return;
     }
     setError('');
+    setSuccessMessage('');
     setFormErrors({});
     const blogEditorHtml =
       activeTable === 'blog_posts'
@@ -746,12 +764,21 @@ export default function AdminPage() {
 
       const runSave = async () => {
         if (editingId) {
-          const { data: updatedRow, error: updateError } = await supabase
+          let { data: updatedRow, error: updateError } = await supabase
             .from(activeTable)
             .update(payload)
             .eq('id', editingId)
             .select('*')
             .single();
+          if (updateError && activeTable === 'blog_posts' && /blog_posts_slug_key/i.test(updateError.message)) {
+            const uniqueSlug = `${makeSlug(payload.title || formData.title || 'blog-post')}-${Date.now()}`;
+            ({ data: updatedRow, error: updateError } = await supabase
+              .from(activeTable)
+              .update({ ...payload, slug: uniqueSlug })
+              .eq('id', editingId)
+              .select('*')
+              .single());
+          }
           if (updateError) throw updateError;
           if (updatedRow) {
             setRecords((prev) =>
@@ -796,6 +823,11 @@ export default function AdminPage() {
       setFormErrors({});
       setEditingId(null);
       setShowForm(false);
+      setSuccessMessage(
+        editingId
+          ? `${config?.label || 'Record'} updated successfully.`
+          : `${config?.label || 'Record'} saved successfully.`
+      );
     } catch (err) {
       if (err?.name === 'AbortError') {
         setError('Request was interrupted. Please click Save again.');
@@ -934,6 +966,7 @@ export default function AdminPage() {
                       setShowForm(false);
                       setRecords([]);
                       setError('');
+                      setSuccessMessage('');
                       setLoading(true);
                     }}
                     className={`w-full text-left px-4 py-2.5 rounded-md text-sm font-semibold transition-colors ${
@@ -965,6 +998,7 @@ export default function AdminPage() {
                       setShowForm(true);
                       setEditingId(null);
                       setFormData({});
+                      setSuccessMessage('');
                     }}
                     className="bg-[rgba(0,0,102)] text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(51,102,153)] transition-colors"
                   >
@@ -973,6 +1007,7 @@ export default function AdminPage() {
                 </div>
               </div>
               {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+              {successMessage && <p className="text-emerald-600 text-sm mb-4">{successMessage}</p>}
               {records.length === 0 ? (
                 <p className="text-gray-600">No records found.</p>
               ) : (
@@ -1050,7 +1085,10 @@ export default function AdminPage() {
                           {editingId ? 'Editing existing entry' : 'New draft'}
                         </span>
                         <button
-                          onClick={() => setShowForm(false)}
+                          onClick={() => {
+                            setShowForm(false);
+                            setSuccessMessage('');
+                          }}
                           className="rounded-full border border-white/50 px-3 py-1 text-xs font-semibold text-white transition hover:bg-white/10"
                         >
                           Close
@@ -1436,7 +1474,10 @@ export default function AdminPage() {
                     <div className="flex items-center gap-3">
                       <button
                         type="button"
-                        onClick={() => setShowForm(false)}
+                        onClick={() => {
+                          setShowForm(false);
+                          setSuccessMessage('');
+                        }}
                         className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-white"
                       >
                         Cancel
