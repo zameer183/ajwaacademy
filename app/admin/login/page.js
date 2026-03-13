@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authAPI } from '@/lib/static-api';
 import { supabase, supabaseEnabled } from '@/lib/supabase';
+import { getAdminAccessSnapshot } from '@/lib/admin-auth';
 
 const supabaseDisabledMessage =
   'Supabase is not configured. Admin login requires NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.';
@@ -20,8 +21,8 @@ export default function AdminLoginPage() {
   useEffect(() => {
     if (!supabaseReady) return;
     const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data?.session?.user) {
+      const snapshot = await getAdminAccessSnapshot(supabase);
+      if (snapshot.isAdmin) {
         router.replace('/admin');
       }
     };
@@ -39,22 +40,20 @@ export default function AdminLoginPage() {
     setInfo('');
     setLoading(true);
     try {
-      if (typeof window !== 'undefined') {
-        window.sessionStorage.setItem('adminOverride', 'true');
-        window.sessionStorage.setItem('adminEmail', formData.email);
-      }
       const result = await authAPI.login(formData.email, formData.password);
       if (!result.success) {
         setError(result.error?.detail || 'Login failed.');
         return;
       }
-      if (typeof window !== 'undefined') {
-        window.sessionStorage.setItem('adminOverride', 'true');
-        window.sessionStorage.setItem('adminEmail', formData.email);
-        window.location.assign('/admin');
-      } else {
-        router.push('/admin');
+
+      const snapshot = await getAdminAccessSnapshot(supabase);
+      if (!snapshot.isAdmin) {
+        await authAPI.logout();
+        setError('This account does not have admin permissions.');
+        return;
       }
+
+      window.location.assign('/admin');
     } catch (submitError) {
       setError('Login failed. Please try again.');
     } finally {

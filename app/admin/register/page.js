@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authAPI } from '@/lib/static-api';
 import { supabase, supabaseEnabled } from '@/lib/supabase';
+import { getAdminAccessSnapshot } from '@/lib/admin-auth';
 
 const supabaseDisabledMessage =
   'Supabase is not configured. Admin signup requires NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.';
@@ -20,8 +21,8 @@ export default function AdminRegisterPage() {
   useEffect(() => {
     if (!supabaseReady) return;
     const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data?.session?.user) {
+      const snapshot = await getAdminAccessSnapshot(supabase);
+      if (snapshot.isAdmin) {
         router.replace('/admin');
       }
     };
@@ -48,8 +49,18 @@ export default function AdminRegisterPage() {
         setError(result.error?.detail || 'Signup failed.');
         return;
       }
-      setSuccess('Account created. Admin access requires role assignment in profiles.');
-      router.push('/admin');
+
+      const snapshot = await getAdminAccessSnapshot(supabase);
+      if (snapshot.isAdmin) {
+        router.push('/admin');
+        return;
+      }
+
+      if (result.data?.session?.user) {
+        await authAPI.logout();
+      }
+
+      setSuccess('Account created. Verify the email if required, then assign admin role in profiles before login.');
     } catch (submitError) {
       setError('Signup failed. Please try again.');
     } finally {

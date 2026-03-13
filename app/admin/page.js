@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { supabase, supabaseEnabled } from '@/lib/supabase';
 import { deleteMediaByUrl, uploadMedia } from '@/lib/supabase-storage';
+import { getAdminAccessSnapshot } from '@/lib/admin-auth';
 
 const tableConfigs = [
   {
@@ -200,12 +201,6 @@ export default function AdminPage() {
   const [uploadErrors, setUploadErrors] = useState({});
   const [uploadStatus, setUploadStatus] = useState({});
   const uploadQueueRef = useRef(Promise.resolve());
-  const adminAllowlist = [
-    'ajwaacademyofficial@gmail.com',
-    'ajwaacadmeyofficial@gmail.com',
-    'admin@gmail.com',
-    'muhammad@gmail.com',
-  ];
   const supabaseReady = supabaseEnabled && Boolean(supabase);
   const supabaseDisabledMessage =
     'Supabase is not configured. Admin dashboard features require NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.';
@@ -244,77 +239,25 @@ export default function AdminPage() {
         setAuthLoading(true);
       }
       try {
-        const { data: sessionData } = await supabase.auth.getSession();
-        let user = sessionData?.session?.user;
+        const snapshot = await getAdminAccessSnapshot(supabase);
+        const user = snapshot.user;
         if (!user) {
-          const { data: userData } = await supabase.auth.getUser();
-          user = userData?.user || null;
-        }
-        if (!user) {
-          const hasOverride = typeof window !== 'undefined' && window.sessionStorage.getItem('adminOverride') === 'true';
-          if (hasOverride && isMounted) {
-            const email = (typeof window !== 'undefined' && window.sessionStorage.getItem('adminEmail')) || '';
-            const nextProfile = {
-              id: 'admin-override',
-              name: email || 'Admin',
-              email,
-              role: 'admin',
-              is_admin: true,
-            };
-            setProfile(nextProfile);
-            setAuthLoading(false);
-            return;
-          }
           if (isMounted) {
             setProfile(null);
+            if (typeof window !== 'undefined') {
+              window.sessionStorage.removeItem('adminProfile');
+            }
           }
           return;
         }
-
-        const hasOverride = typeof window !== 'undefined' && window.sessionStorage.getItem('adminOverride') === 'true';
-        if (hasOverride && isMounted) {
-          const email = user.email || '';
-          const nextProfile = {
-            id: user.id,
-            name: user.user_metadata?.name || email,
-            email,
-            role: user.user_metadata?.role || '',
-            is_admin: true,
-          };
-          setProfile(nextProfile);
-          if (typeof window !== 'undefined') {
-            window.sessionStorage.setItem('adminProfile', JSON.stringify(nextProfile));
-          }
-          setAuthLoading(false);
-          return;
-        }
-
-        let profileData = null;
-        try {
-          const { data } = await supabase
-            .from('profiles')
-            .select('id, name, email, role, is_admin')
-            .eq('id', user.id)
-            .maybeSingle();
-          profileData = data;
-        } catch {
-          profileData = null;
-        }
-
-        const email = profileData?.email || user.email || '';
-        const isAdminFromProfile = profileData?.is_admin || profileData?.role === 'admin';
-        const isAdminFromMeta = user.user_metadata?.is_admin || user.user_metadata?.role === 'admin';
-        const isAdminFromAllowlist = adminAllowlist.includes(String(email).toLowerCase());
-
-        const isAdminFromOverride = typeof window !== 'undefined' && window.sessionStorage.getItem('adminOverride') === 'true';
 
         if (isMounted) {
           const nextProfile = {
             id: user.id,
-            name: profileData?.name || user.user_metadata?.name || email,
-            email,
-            role: profileData?.role || user.user_metadata?.role || '',
-            is_admin: Boolean(isAdminFromProfile || isAdminFromMeta || isAdminFromAllowlist || isAdminFromOverride),
+            name: snapshot.profile?.name || user.user_metadata?.name || snapshot.email,
+            email: snapshot.email,
+            role: snapshot.profile?.role || user.user_metadata?.role || '',
+            is_admin: snapshot.isAdmin,
           };
           setProfile(nextProfile);
           if (typeof window !== 'undefined') {
@@ -969,6 +912,8 @@ export default function AdminPage() {
                     } finally {
                       if (typeof window !== 'undefined') {
                         window.sessionStorage.removeItem('adminProfile');
+                        window.sessionStorage.removeItem('adminOverride');
+                        window.sessionStorage.removeItem('adminEmail');
                       }
                       window.location.replace('/');
                     }

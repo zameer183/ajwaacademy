@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { courseAPI } from '../lib/static-api';
+import HomeContactCard from '../components/HomeContactCard';
 import ProfilesSection from '../components/ProfilesSection';
 
 export default function HomePage() {
@@ -616,88 +617,94 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="bg-[rgba(0,0,102,0.03)] py-20">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-              <div>
-                <img
-                  src="/online%20quran.jfif"
-                  alt="Online Quran Classes FAQs"
-                  className="w-full h-auto object-cover"
-                  loading="lazy"
-                  width="600"
-                  height="600"
-                />
+        <section className="bg-[rgba(0,0,102,0.03)] py-20 lg:py-24">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1.4fr)_24rem] xl:gap-12 xl:items-start">
+              <div className="grid grid-cols-1 gap-8 lg:grid-cols-[0.72fr_1fr] lg:items-start">
+                <div className="overflow-hidden rounded-3xl border border-[rgba(0,0,102,0.08)] bg-white shadow-lg">
+                  <img
+                    src="/online%20quran.jfif"
+                    alt="Online Quran Classes FAQs"
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                    width="600"
+                    height="600"
+                  />
+                </div>
+                <div>
+                  <div className="text-left mb-8">
+                    <span className="text-[rgba(0,0,102)] font-bold text-sm tracking-widest">FAQS</span>
+                    <h2 className="text-3xl font-bold text-[rgba(0,0,102)] mt-2">
+                      Online Quran Classes FAQs
+                    </h2>
+                    <p className="text-gray-600 mt-4 max-w-xl">
+                      Answers to common questions about online Quran classes, online Quran lessons, and how to
+                      learn Quran online with Ajwa Academy.
+                    </p>
+                  </div>
+                  <div className="w-full rounded-3xl bg-white px-6 py-3 shadow-sm">
+                    {[
+                      {
+                        q: "What are online Quran classes?",
+                        a: "Online Quran classes are live lessons where students learn Quran reading, Tajweed, and Islamic studies through the internet. At Ajwa Academy, students can learn Quran online with qualified teachers in one-to-one online Quran classes from anywhere in the world.",
+                      },
+                      {
+                        q: "How can I learn Quran online with a teacher?",
+                        a: "You can learn Quran online by joining live online Quran classes with a qualified teacher. Students receive personalized lessons, correct Tajweed guidance, and step-by-step Quran reading instruction through structured Quran courses online.",
+                      },
+                      {
+                        q: "Who can join your online Quran classes?",
+                        a: "Our online Quran classes are open for children, teenagers, and adults. Whether you are a beginner or someone who wants to improve Tajweed and Quran recitation, our online Quran teachers guide students according to their level.",
+                      },
+                      {
+                        q: "Do you offer one-to-one online Quran classes?",
+                        a: "Yes, Ajwa Academy provides one-to-one online Quran classes so each student receives personal attention from a qualified online Quran teacher. This helps students learn Quran online faster and with better pronunciation.",
+                      },
+                      {
+                        q: "Which countries can join Ajwa Academy online Quran classes?",
+                        a: "Students from the UK, USA, Canada, Australia, UAE, and other countries can join our online Quran classes. Flexible schedules allow students to learn Quran online according to their time zone.",
+                      },
+                      {
+                        q: "Do you offer a free trial Quran class?",
+                        a: "Yes, we offer a free trial online Quran class so students and parents can understand the teaching method before enrolling in regular online Quran classes.",
+                      },
+                      {
+                        q: "What courses do you offer in your online Quran academy?",
+                        a: "Our academy offers Quran reading, Tajweed courses, Quran memorization, and Quran with Tafseer classes. These structured Quran courses online help students learn Quran online with proper understanding.",
+                      },
+                      {
+                        q: "Why choose Ajwa Academy for online Quran learning?",
+                        a: "Ajwa Academy provides qualified online Quran teachers, one-to-one online Quran classes, flexible schedules, and structured Quran courses online designed for students worldwide.",
+                      },
+                    ].map((item) => (
+                      <details key={item.q} className="border-b border-gray-200 last:border-b-0">
+                        <summary className="flex items-center justify-between py-4 text-left font-semibold text-lg cursor-pointer">
+                          {item.q}
+                          <svg
+                            width="15"
+                            height="15"
+                            viewBox="0 0 15 15"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 shrink-0 text-gray-500 transition-transform duration-200"
+                          >
+                            <path
+                              d="M3.13523 6.15803C3.3241 5.95657 3.64052 5.94637 3.84197 6.13523L7.5 9.56464L11.158 6.13523C11.3595 5.94637 11.6759 5.95657 11.8648 6.15803C12.0536 6.35949 12.0434 6.67591 11.842 6.86477L7.84197 10.6148C7.64964 10.7951 7.35036 10.7951 7.15803 10.6148L3.15803 6.86477C2.95657 6.67591 2.94637 6.35949 3.13523 6.15803Z"
+                              fill="currentColor"
+                              fillRule="evenodd"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </summary>
+                        <div className="pb-4 text-gray-600 leading-relaxed">{item.a}</div>
+                      </details>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <div>
-                <div className="text-left mb-8">
-                  <span className="text-[rgba(0,0,102)] font-bold text-sm tracking-widest">FAQS</span>
-                  <h2 className="text-3xl font-bold text-[rgba(0,0,102)] mt-2">
-                    Online Quran Classes FAQs
-                  </h2>
-                  <p className="text-gray-600 mt-4 max-w-xl">
-                    Answers to common questions about online Quran classes, online Quran lessons, and how to
-                    learn Quran online with Ajwa Academy.
-                  </p>
-                </div>
-                <div className="w-full">
-                  {[
-                    {
-                      q: "What are online Quran classes?",
-                      a: "Online Quran classes are live lessons where students learn Quran reading, Tajweed, and Islamic studies through the internet. At Ajwa Academy, students can learn Quran online with qualified teachers in one-to-one online Quran classes from anywhere in the world.",
-                    },
-                    {
-                      q: "How can I learn Quran online with a teacher?",
-                      a: "You can learn Quran online by joining live online Quran classes with a qualified teacher. Students receive personalized lessons, correct Tajweed guidance, and step-by-step Quran reading instruction through structured Quran courses online.",
-                    },
-                    {
-                      q: "Who can join your online Quran classes?",
-                      a: "Our online Quran classes are open for children, teenagers, and adults. Whether you are a beginner or someone who wants to improve Tajweed and Quran recitation, our online Quran teachers guide students according to their level.",
-                    },
-                    {
-                      q: "Do you offer one-to-one online Quran classes?",
-                      a: "Yes, Ajwa Academy provides one-to-one online Quran classes so each student receives personal attention from a qualified online Quran teacher. This helps students learn Quran online faster and with better pronunciation.",
-                    },
-                    {
-                      q: "Which countries can join Ajwa Academy online Quran classes?",
-                      a: "Students from the UK, USA, Canada, Australia, UAE, and other countries can join our online Quran classes. Flexible schedules allow students to learn Quran online according to their time zone.",
-                    },
-                    {
-                      q: "Do you offer a free trial Quran class?",
-                      a: "Yes, we offer a free trial online Quran class so students and parents can understand the teaching method before enrolling in regular online Quran classes.",
-                    },
-                    {
-                      q: "What courses do you offer in your online Quran academy?",
-                      a: "Our academy offers Quran reading, Tajweed courses, Quran memorization, and Quran with Tafseer classes. These structured Quran courses online help students learn Quran online with proper understanding.",
-                    },
-                    {
-                      q: "Why choose Ajwa Academy for online Quran learning?",
-                      a: "Ajwa Academy provides qualified online Quran teachers, one-to-one online Quran classes, flexible schedules, and structured Quran courses online designed for students worldwide.",
-                    },
-                  ].map((item) => (
-                    <details key={item.q} className="border-b border-gray-200">
-                      <summary className="flex items-center justify-between py-4 text-left font-semibold text-lg cursor-pointer">
-                        {item.q}
-                        <svg
-                          width="15"
-                          height="15"
-                          viewBox="0 0 15 15"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 shrink-0 text-gray-500 transition-transform duration-200"
-                        >
-                          <path
-                            d="M3.13523 6.15803C3.3241 5.95657 3.64052 5.94637 3.84197 6.13523L7.5 9.56464L11.158 6.13523C11.3595 5.94637 11.6759 5.95657 11.8648 6.15803C12.0536 6.35949 12.0434 6.67591 11.842 6.86477L7.84197 10.6148C7.64964 10.7951 7.35036 10.7951 7.15803 10.6148L3.15803 6.86477C2.95657 6.67591 2.94637 6.35949 3.13523 6.15803Z"
-                            fill="currentColor"
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </summary>
-                      <div className="pb-4 text-gray-600 leading-relaxed">{item.a}</div>
-                    </details>
-                  ))}
-                </div>
+
+              <div className="xl:self-start">
+                <HomeContactCard className="xl:ml-auto" />
               </div>
             </div>
           </div>
