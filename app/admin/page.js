@@ -171,17 +171,122 @@ const wordpressFieldHints = {
   image: 'Hero image used for OG sharing. Recommended 1200x630 JPG/PNG.',
 };
 
+const nonCacheableAdminTables = new Set(['blog_posts']);
+const adminRequestTimeoutMs = 30000;
+const adminRecordsPageSize = 100;
+const blogSchemaOptionalFields = new Set(['meta_title', 'meta_description', 'status', 'tags']);
+
+const getAdminRecordsCachePrefix = (table) => `adminRecords:${table}:page:`;
+
+const getAdminRecordsCacheKey = (table, page = 0) => `${getAdminRecordsCachePrefix(table)}${page}`;
+
+const clearSessionStorageKeysByPrefix = (prefix) => {
+  if (typeof window === 'undefined') return;
+  try {
+    const keys = [];
+    for (let index = 0; index < window.sessionStorage.length; index += 1) {
+      const key = window.sessionStorage.key(index);
+      if (key?.startsWith(prefix)) {
+        keys.push(key);
+      }
+    }
+    keys.forEach((key) => {
+      try {
+        window.sessionStorage.removeItem(key);
+      } catch {}
+    });
+  } catch {}
+};
+
+const clearCachedAdminRecords = (table) => {
+  clearSessionStorageKeysByPrefix(getAdminRecordsCachePrefix(table));
+};
+
+const readSessionStorageJson = (key) => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const rawValue = window.sessionStorage.getItem(key);
+    return rawValue ? JSON.parse(rawValue) : null;
+  } catch {
+    return null;
+  }
+};
+
+const writeSessionStorageValue = (key, value, options = {}) => {
+  if (typeof window === 'undefined') return false;
+  const recoveryKeys = Array.isArray(options.recoveryKeys) ? options.recoveryKeys : [];
+  try {
+    window.sessionStorage.setItem(key, value);
+    return true;
+  } catch {
+    recoveryKeys.forEach((recoveryKey) => {
+      try {
+        window.sessionStorage.removeItem(recoveryKey);
+      } catch {}
+    });
+    try {
+      window.sessionStorage.setItem(key, value);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+};
+
+const readCachedAdminRecords = (table, page = 0) => {
+  if (typeof window === 'undefined') return [];
+  if (nonCacheableAdminTables.has(table)) {
+    clearCachedAdminRecords(table);
+    return [];
+  }
+  const cacheKey = getAdminRecordsCacheKey(table, page);
+  const parsed = readSessionStorageJson(cacheKey);
+  return Array.isArray(parsed) ? parsed : [];
+};
+
+const writeCachedAdminRecords = (table, records, page = 0) => {
+  if (typeof window === 'undefined') return false;
+  if (nonCacheableAdminTables.has(table)) {
+    clearCachedAdminRecords(table);
+    return false;
+  }
+  const cacheKey = getAdminRecordsCacheKey(table, page);
+  return writeSessionStorageValue(cacheKey, JSON.stringify(records), {
+    recoveryKeys: [getAdminRecordsCacheKey('blog_posts', 0)],
+  });
+};
+
+const extractMissingColumn = (message) => {
+  if (!message) return '';
+  const patterns = [
+    /Could not find the '([^']+)' column/i,
+    /column\s+([a-zA-Z0-9_.]+)\s+does not exist/i,
+    /column "([^"]+)"/i,
+    /column '([^']+)'/i,
+  ];
+  for (const pattern of patterns) {
+    const match = String(message).match(pattern);
+    if (match?.[1]) {
+      return String(match[1]).split('.').pop();
+    }
+  }
+  return '';
+};
+
+const escapeHtml = (value) =>
+  String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
 export default function AdminPage() {
   const [activeTable, setActiveTable] = useState(tableConfigs[0].name);
   const [records, setRecords] = useState(() => {
-    if (typeof window === 'undefined') return [];
-    try {
-      const cached = window.sessionStorage.getItem(`adminRecords:${tableConfigs[0].name}`);
-      return cached ? JSON.parse(cached) : [];
-    } catch {
-      return [];
-    }
+    return readCachedAdminRecords(tableConfigs[0].name, 0);
   });
+  const [pageIndex, setPageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({});
   const [formErrors, setFormErrors] = useState({});
@@ -189,19 +294,33 @@ export default function AdminPage() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [saving, setSaving] = useState(false);
+  const [saveAction, setSaveAction] = useState('');
   const [profile, setProfile] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const loadingRef = useRef(false);
+  const loadAbortControllerRef = useRef(null);
+  const loadRequestIdRef = useRef(0);
+  const saveAbortControllerRef = useRef(null);
+  const saveRequestIdRef = useRef(0);
   const [uploadingFields, setUploadingFields] = useState({});
   const [courseOptions, setCourseOptions] = useState([]);
   const [sectionOptions, setSectionOptions] = useState([]);
   const richTextRef = useRef(null);
   const richSelectionRef = useRef(null);
+  const coverImageInputRef = useRef(null);
+  const inlineImageInputRef = useRef(null);
   const [uploadErrors, setUploadErrors] = useState({});
   const [uploadStatus, setUploadStatus] = useState({});
   const uploadQueueRef = useRef(Promise.resolve());
+  const [draftSavedAt, setDraftSavedAt] = useState(null);
+  const [isBlogImageDragActive, setIsBlogImageDragActive] = useState(false);
+  const [inlineToolbarState, setInlineToolbarState] = useState({
+    visible: false,
+    top: 0,
+    left: 0,
+  });
   const supabaseReady = supabaseEnabled && Boolean(supabase);
   const supabaseDisabledMessage =
     'Supabase is not configured. Admin dashboard features require NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.';
@@ -219,6 +338,30 @@ export default function AdminPage() {
     return fields;
   }, [config, activeTable]);
 
+  const isBlogEditor = showForm && activeTable === 'blog_posts';
+  const canGoToPreviousPage = pageIndex > 0;
+  const canGoToNextPage = records.length === adminRecordsPageSize;
+  const visibleRecordStart = records.length > 0 ? pageIndex * adminRecordsPageSize + 1 : 0;
+  const visibleRecordEnd = pageIndex * adminRecordsPageSize + records.length;
+
+  const blogCategoryOptions = useMemo(() => {
+    if (activeTable !== 'blog_posts') return [];
+    const options = new Set(
+      records
+        .map((record) => record?.category)
+        .filter((value) => typeof value === 'string' && value.trim())
+    );
+    options.add(formData.category || 'General');
+    return Array.from(options);
+  }, [activeTable, formData.category, records]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    nonCacheableAdminTables.forEach((table) => {
+      clearCachedAdminRecords(table);
+    });
+  }, []);
+
   useEffect(() => {
     if (!supabaseReady) {
       setProfile(null);
@@ -229,9 +372,9 @@ export default function AdminPage() {
     const loadAuth = async () => {
       let hasCache = false;
       if (typeof window !== 'undefined') {
-        const cached = window.sessionStorage.getItem('adminProfile');
+        const cached = readSessionStorageJson('adminProfile');
         if (cached) {
-          setProfile(JSON.parse(cached));
+          setProfile(cached);
           setAuthLoading(false);
           hasCache = true;
         }
@@ -262,15 +405,17 @@ export default function AdminPage() {
           };
           setProfile(nextProfile);
           if (typeof window !== 'undefined') {
-            window.sessionStorage.setItem('adminProfile', JSON.stringify(nextProfile));
+            writeSessionStorageValue('adminProfile', JSON.stringify(nextProfile), {
+              recoveryKeys: [getAdminRecordsCacheKey('blog_posts', 0)],
+            });
           }
         }
       } catch {
         if (isMounted) {
           if (typeof window !== 'undefined') {
-            const cached = window.sessionStorage.getItem('adminProfile');
+            const cached = readSessionStorageJson('adminProfile');
             if (cached) {
-              setProfile(JSON.parse(cached));
+              setProfile(cached);
             } else {
               setProfile(null);
             }
@@ -365,34 +510,66 @@ export default function AdminPage() {
 
   const loadRecords = async () => {
     if (!profile?.is_admin) return;
-    if (loadingRef.current) return;
     if (!supabaseReady || !supabase) {
       setLoading(false);
       return;
     }
+    if (loadAbortControllerRef.current) {
+      loadAbortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    const requestId = loadRequestIdRef.current + 1;
+    const rangeStart = pageIndex * adminRecordsPageSize;
+    const rangeEnd = rangeStart + adminRecordsPageSize - 1;
+    let didTimeOut = false;
+    loadAbortControllerRef.current = controller;
+    loadRequestIdRef.current = requestId;
     loadingRef.current = true;
-    setLoading((prev) => prev || records.length === 0);
+    setLoading(true);
     setError('');
+    const timeoutId = setTimeout(() => {
+      didTimeOut = true;
+      controller.abort();
+    }, adminRequestTimeoutMs);
     try {
       const { data, error: loadError } = await supabase
         .from(activeTable)
         .select('*')
-        .order('id', { ascending: false });
+        .order('id', { ascending: false })
+        .range(rangeStart, rangeEnd)
+        .abortSignal(controller.signal);
+      if (requestId !== loadRequestIdRef.current) {
+        return;
+      }
       if (loadError) throw loadError;
       const next = data || [];
-      setRecords(next);
-      if (typeof window !== 'undefined') {
-        window.sessionStorage.setItem(`adminRecords:${activeTable}`, JSON.stringify(next));
+      if (next.length === 0 && pageIndex > 0) {
+        setPageIndex((prev) => Math.max(0, prev - 1));
+        return;
       }
+      setRecords(next);
+      writeCachedAdminRecords(activeTable, next, pageIndex);
     } catch (err) {
+      if (requestId !== loadRequestIdRef.current) {
+        return;
+      }
+      if (didTimeOut) {
+        setError(`Loading ${config?.label || 'records'} timed out after 30 seconds. Try Refresh or move to another page.`);
+        return;
+      }
       if (err?.name === 'AbortError') {
-        setError('Request was interrupted. Please click Refresh once.');
         return;
       }
       setError(err?.message || JSON.stringify(err) || 'Failed to load records.');
     } finally {
-      setLoading(false);
-      loadingRef.current = false;
+      clearTimeout(timeoutId);
+      if (requestId === loadRequestIdRef.current) {
+        setLoading(false);
+        loadingRef.current = false;
+        if (loadAbortControllerRef.current === controller) {
+          loadAbortControllerRef.current = null;
+        }
+      }
     }
   };
 
@@ -400,19 +577,24 @@ export default function AdminPage() {
     if (!profile?.is_admin) return;
     if (!supabaseReady) return;
     loadRecords();
-  }, [activeTable, profile, supabaseReady]);
+  }, [activeTable, pageIndex, profile, supabaseReady]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    try {
-      const cached = window.sessionStorage.getItem(`adminRecords:${activeTable}`);
-      if (cached) {
-        setRecords(JSON.parse(cached));
-        setLoading(false);
-        setError('');
-      }
-    } catch {}
-  }, [activeTable]);
+    const cached = readCachedAdminRecords(activeTable, pageIndex);
+    if (cached.length > 0) {
+      setRecords(cached);
+      setLoading(false);
+      setError('');
+    }
+  }, [activeTable, pageIndex]);
+
+  useEffect(() => {
+    return () => {
+      loadAbortControllerRef.current?.abort();
+      saveAbortControllerRef.current?.abort();
+    };
+  }, []);
 
   // Keep the editor value in sync only when the modal opens or switches context.
   useEffect(() => {
@@ -428,14 +610,33 @@ export default function AdminPage() {
     if (activeTable !== 'blog_posts') return;
     const handleSelection = () => {
       const selection = window.getSelection();
-      if (!selection || selection.rangeCount === 0) return;
+      if (!selection || selection.rangeCount === 0) {
+        setInlineToolbarState((prev) => ({ ...prev, visible: false }));
+        return;
+      }
       const range = selection.getRangeAt(0);
       if (richTextRef.current && richTextRef.current.contains(range.commonAncestorContainer)) {
         richSelectionRef.current = range;
+        const rect = range.getBoundingClientRect();
+        const hasTextSelection = !selection.isCollapsed && rect.width > 0;
+        if (hasTextSelection) {
+          setInlineToolbarState({
+            visible: true,
+            top: Math.max(rect.top - 56, 16),
+            left: rect.left + rect.width / 2,
+          });
+        } else {
+          setInlineToolbarState((prev) => ({ ...prev, visible: false }));
+        }
+      } else {
+        setInlineToolbarState((prev) => ({ ...prev, visible: false }));
       }
     };
     document.addEventListener('selectionchange', handleSelection);
-    return () => document.removeEventListener('selectionchange', handleSelection);
+    return () => {
+      document.removeEventListener('selectionchange', handleSelection);
+      setInlineToolbarState((prev) => ({ ...prev, visible: false }));
+    };
   }, [activeTable]);
 
   const focusEditor = () => {
@@ -500,6 +701,16 @@ export default function AdminPage() {
     return plain.split(/\s+/).filter(Boolean).length;
   }, [formData.content]);
 
+  const contentReadingTime = useMemo(() => {
+    if (!contentWordCount) return '0 min read';
+    return `${Math.max(1, Math.ceil(contentWordCount / 220))} min read`;
+  }, [contentWordCount]);
+
+  const isBlogContentEmpty = useMemo(() => {
+    const plain = extractPlainText(formData.content || '');
+    return !plain && !/<img/i.test(String(formData.content || ''));
+  }, [formData.content]);
+
   const ToolbarButton = ({ children, onClick, title }) => (
     <button
       type="button"
@@ -522,7 +733,7 @@ export default function AdminPage() {
       excerpt,
       image,
       category: 'General',
-      author: 'Admin',
+      author: profile?.name || 'Admin',
     };
   };
 
@@ -533,6 +744,45 @@ export default function AdminPage() {
       .trim()
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-');
+
+  const blogSupportsField = (field) =>
+    activeTable === 'blog_posts' &&
+    records.some((record) => Object.prototype.hasOwnProperty.call(record || {}, field));
+
+  const normalizeBlogFormData = (baseData = {}) => {
+    const defaults = deriveBlogDefaults(baseData?.content || '');
+    return {
+      ...baseData,
+      title: baseData?.title || '',
+      image: baseData?.image || defaults.image || '',
+      content: baseData?.content || '',
+      category: baseData?.category || defaults.category,
+      author: baseData?.author || defaults.author,
+      excerpt: baseData?.excerpt || defaults.excerpt,
+      slug: baseData?.slug || makeSlug(baseData?.title || defaults.title),
+      status: baseData?.status || 'draft',
+      tagsInput: Array.isArray(baseData?.tags)
+        ? baseData.tags.join(', ')
+        : String(baseData?.tagsInput || ''),
+      meta_title: baseData?.meta_title || baseData?.title || '',
+      meta_description: baseData?.meta_description || defaults.excerpt || '',
+    };
+  };
+
+  const getBlogDraftKey = (id) => `adminBlogDraft:${id || 'new'}`;
+
+  const hydrateBlogDraft = (baseData = {}, id = null) => {
+    const normalized = normalizeBlogFormData(baseData);
+    if (typeof window === 'undefined') return normalized;
+    try {
+      const rawDraft = window.sessionStorage.getItem(getBlogDraftKey(id));
+      if (!rawDraft) return normalized;
+      const parsedDraft = JSON.parse(rawDraft);
+      return normalizeBlogFormData({ ...normalized, ...parsedDraft });
+    } catch {
+      return normalized;
+    }
+  };
 
   const restoreRichSelection = () => {
     const range = richSelectionRef.current;
@@ -585,24 +835,133 @@ export default function AdminPage() {
   const handleEdit = (record) => {
     const nextRecord =
       activeTable === 'blog_posts'
-        ? (() => {
-            const defaults = deriveBlogDefaults(record?.content || '');
-            return {
-              ...record,
-              title: record?.title || defaults.title,
-              category: record?.category || defaults.category,
-              author: record?.author || defaults.author,
-              excerpt: record?.excerpt || defaults.excerpt,
-              image: record?.image || defaults.image,
-              slug: record?.slug || makeSlug(record?.title || defaults.title),
-            };
-          })()
+        ? hydrateBlogDraft(record, record?.id)
         : record;
     setEditingId(record.id);
     setFormData(nextRecord);
     setFormErrors({});
     setSuccessMessage('');
     setShowForm(true);
+  };
+
+  useEffect(() => {
+    if (!isBlogEditor || typeof window === 'undefined') return;
+    const draftSnapshot = normalizeBlogFormData(formData);
+    const timeoutId = window.setTimeout(() => {
+      writeSessionStorageValue(getBlogDraftKey(editingId), JSON.stringify(draftSnapshot), {
+        recoveryKeys: [getAdminRecordsCacheKey('blog_posts', 0)],
+      });
+      setDraftSavedAt(new Date());
+    }, 700);
+    return () => window.clearTimeout(timeoutId);
+  }, [
+    isBlogEditor,
+    editingId,
+    formData.title,
+    formData.image,
+    formData.content,
+    formData.category,
+    formData.status,
+    formData.tagsInput,
+    formData.meta_title,
+    formData.meta_description,
+  ]);
+
+  useEffect(() => {
+    if (!isBlogEditor || typeof window === 'undefined') return;
+    const handleKeyDown = (event) => {
+      const isModifier = event.metaKey || event.ctrlKey;
+      if (!isModifier) return;
+      const key = event.key.toLowerCase();
+      if (key === 's') {
+        event.preventDefault();
+        handleSave({ status: 'draft' });
+        return;
+      }
+      if (!richTextRef.current || !richTextRef.current.contains(document.activeElement)) return;
+      if (key === 'b') {
+        event.preventDefault();
+        applyRichCommand('bold');
+      } else if (key === 'i') {
+        event.preventDefault();
+        applyRichCommand('italic');
+      } else if (key === 'k') {
+        event.preventDefault();
+        const url = window.prompt('Enter URL (https://...)');
+        if (url) applyLink(url.trim());
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isBlogEditor, formData.title, formData.content, formData.status]);
+
+  const handleBlogCoverUpload = async (file) => {
+    if (!file) return;
+    setUploadingFields((prev) => ({ ...prev, blog_header_image: true }));
+    try {
+      await handleUpload('image', file);
+    } finally {
+      setUploadingFields((prev) => ({ ...prev, blog_header_image: false }));
+    }
+  };
+
+  const handleBlogCoverDrop = async (event) => {
+    event.preventDefault();
+    setIsBlogImageDragActive(false);
+    const file = event.dataTransfer?.files?.[0];
+    if (file) {
+      await handleBlogCoverUpload(file);
+    }
+  };
+
+  const handlePreview = () => {
+    if (activeTable !== 'blog_posts') return;
+    const previewWindow = window.open('about:blank', '_blank');
+    if (!previewWindow) {
+      setError('Please allow popups to preview the article.');
+      return;
+    }
+    try {
+      previewWindow.opener = null;
+    } catch {}
+    try {
+      setError('');
+      const title = formData.title || 'Untitled article';
+      const rawContent = richTextRef.current?.innerHTML || formData.content || '';
+      const content = rawContent.includes('<') ? rawContent : convertMarkdownToHtml(rawContent);
+      const imageMarkup = formData.image
+        ? `<img src="${escapeHtml(formData.image)}" alt="${escapeHtml(title)}" style="width:100%;max-height:360px;object-fit:cover;border-radius:20px;margin:0 0 24px;" />`
+        : '';
+      previewWindow.document.open();
+      previewWindow.document.write(`<!DOCTYPE html>
+        <html>
+          <head>
+            <title>${escapeHtml(title)}</title>
+            <style>
+              body{margin:0;background:#f8f9fb;color:#0f172a;font-family:Arial,sans-serif}
+              main{max-width:860px;margin:0 auto;padding:48px 20px 72px}
+              h1{font-size:42px;line-height:1.1;margin:0 0 16px}
+              article{background:#fff;border-radius:24px;box-shadow:0 16px 40px rgba(15,23,42,.08);padding:32px}
+              p,li,blockquote{font-size:18px;line-height:1.8}
+              blockquote{border-left:4px solid #1e3a8a;padding-left:16px;color:#334155}
+              img{max-width:100%;height:auto}
+            </style>
+          </head>
+          <body>
+            <main>
+              <h1>${escapeHtml(title)}</h1>
+              <article>
+                ${imageMarkup}
+                ${content}
+              </article>
+            </main>
+          </body>
+        </html>`);
+      previewWindow.document.close();
+    } catch (err) {
+      previewWindow.close?.();
+      setError(err?.message || 'Preview could not be opened.');
+    }
   };
 
   const handleDelete = async (id) => {
@@ -617,10 +976,8 @@ export default function AdminPage() {
       return;
     }
     setRecords((prev) => prev.filter((item) => item.id !== id));
-    if (typeof window !== 'undefined') {
-      const next = records.filter((item) => item.id !== id);
-      window.sessionStorage.setItem(`adminRecords:${activeTable}`, JSON.stringify(next));
-    }
+    const next = records.filter((item) => item.id !== id);
+    writeCachedAdminRecords(activeTable, next, pageIndex);
     loadRecords();
   };
 
@@ -660,7 +1017,7 @@ export default function AdminPage() {
     );
   };
 
-  const handleSave = async () => {
+  const handleSave = async (saveOptions = {}) => {
     if (!supabaseReady || !supabase) {
       setError(supabaseDisabledMessage);
       return;
@@ -668,6 +1025,11 @@ export default function AdminPage() {
     setError('');
     setSuccessMessage('');
     setFormErrors({});
+    const currentEditingId = editingId;
+    const requestedBlogStatus = saveOptions?.status || formData.status || 'draft';
+    const requestedSaveAction =
+      requestedBlogStatus === 'published' ? 'published' : saveOptions?.status === 'draft' ? 'draft' : 'save';
+    const activeDraftKey = activeTable === 'blog_posts' ? getBlogDraftKey(currentEditingId) : null;
     const blogEditorHtml =
       activeTable === 'blog_posts'
         ? (richTextRef.current?.innerHTML ?? formData.content ?? '')
@@ -697,6 +1059,7 @@ export default function AdminPage() {
     }
     try {
       setSaving(true);
+      setSaveAction(requestedSaveAction);
       const payload = {};
       const allFields = [
         ...(config?.fields || []),
@@ -748,6 +1111,10 @@ export default function AdminPage() {
         const defaults = deriveBlogDefaults(
           richContent.includes('<') ? richContent : convertMarkdownToHtml(richContent)
         );
+        const normalizedTags = String(formData.tagsInput || '')
+          .split(',')
+          .map((value) => value.trim())
+          .filter(Boolean);
         if (!payload.category) payload.category = defaults.category;
         if (!payload.author) payload.author = defaults.author;
         if (!payload.excerpt) payload.excerpt = defaults.excerpt;
@@ -760,72 +1127,158 @@ export default function AdminPage() {
             ? richContent
             : convertMarkdownToHtml(richContent);
         }
+        if (blogSupportsField('tags')) {
+          payload.tags = normalizedTags;
+        }
+        payload.status = requestedBlogStatus;
+        if (blogSupportsField('meta_title')) {
+          payload.meta_title = formData.meta_title?.trim() || null;
+        }
+        if (blogSupportsField('meta_description')) {
+          payload.meta_description = formData.meta_description?.trim() || null;
+        }
       }
 
-      const runSave = async () => {
-        if (editingId) {
-          let { data: updatedRow, error: updateError } = await supabase
-            .from(activeTable)
-            .update(payload)
-            .eq('id', editingId)
-            .select('*')
-            .single();
-          if (updateError && activeTable === 'blog_posts' && /blog_posts_slug_key/i.test(updateError.message)) {
-            const uniqueSlug = `${makeSlug(payload.title || formData.title || 'blog-post')}-${Date.now()}`;
-            ({ data: updatedRow, error: updateError } = await supabase
+      const runSave = async (savePayload) => {
+        if (saveAbortControllerRef.current) {
+          saveAbortControllerRef.current.abort();
+        }
+        const controller = new AbortController();
+        const requestId = saveRequestIdRef.current + 1;
+        let didTimeOut = false;
+        saveAbortControllerRef.current = controller;
+        saveRequestIdRef.current = requestId;
+        const timeoutId = setTimeout(() => {
+          didTimeOut = true;
+          controller.abort();
+        }, adminRequestTimeoutMs);
+        const buildLocalSavedRecord = (savedId, appliedPayload) => {
+          const matchingRecord =
+            records.find((item) => item.id === (savedId ?? currentEditingId)) || {};
+          return {
+            ...matchingRecord,
+            ...appliedPayload,
+            id: savedId ?? currentEditingId,
+          };
+        };
+
+        try {
+          if (currentEditingId) {
+            let { data: updatedRow, error: updateError } = await supabase
               .from(activeTable)
-              .update({ ...payload, slug: uniqueSlug })
-              .eq('id', editingId)
-              .select('*')
-              .single());
+              .update(savePayload)
+              .eq('id', currentEditingId)
+              .select('id')
+              .single()
+              .abortSignal(controller.signal);
+            if (updateError && activeTable === 'blog_posts' && /blog_posts_slug_key/i.test(updateError.message)) {
+              const uniqueSlug = `${makeSlug(savePayload.title || formData.title || 'blog-post')}-${Date.now()}`;
+              ({ data: updatedRow, error: updateError } = await supabase
+                .from(activeTable)
+                .update({ ...savePayload, slug: uniqueSlug })
+                .eq('id', currentEditingId)
+                .select('id')
+                .single()
+                .abortSignal(controller.signal));
+            }
+            if (updateError) throw updateError;
+            return buildLocalSavedRecord(updatedRow?.id || currentEditingId, savePayload);
           }
-          if (updateError) throw updateError;
-          if (updatedRow) {
-            setRecords((prev) =>
-              prev.map((item) => (item.id === editingId ? updatedRow : item))
-            );
-          }
-          return;
-        }
-        let { data: insertedRow, error: insertError } = await supabase
-          .from(activeTable)
-          .insert(payload)
-          .select('*')
-          .single();
-        if (insertError && activeTable === 'blog_posts' && /blog_posts_slug_key/i.test(insertError.message)) {
-          const uniqueSlug = `${payload.slug || 'blog-post'}-${Date.now()}`;
-          ({ data: insertedRow, error: insertError } = await supabase
+
+          let { data: insertedRow, error: insertError } = await supabase
             .from(activeTable)
-            .insert({ ...payload, slug: uniqueSlug })
-            .select('*')
-            .single());
-        }
-        if (insertError) throw insertError;
-        if (insertedRow) {
-          setRecords((prev) => [insertedRow, ...prev]);
+            .insert(savePayload)
+            .select('id')
+            .single()
+            .abortSignal(controller.signal);
+          if (insertError && activeTable === 'blog_posts' && /blog_posts_slug_key/i.test(insertError.message)) {
+            const uniqueSlug = `${savePayload.slug || 'blog-post'}-${Date.now()}`;
+            ({ data: insertedRow, error: insertError } = await supabase
+              .from(activeTable)
+              .insert({ ...savePayload, slug: uniqueSlug })
+              .select('id')
+              .single()
+              .abortSignal(controller.signal));
+          }
+          if (insertError) throw insertError;
+          if (!insertedRow?.id) {
+            throw new Error('Save completed but the new record id was not returned.');
+          }
+          return buildLocalSavedRecord(insertedRow.id, savePayload);
+        } catch (err) {
+          if (didTimeOut) {
+            throw new Error('Saving timed out. Please check your connection and try again.');
+          }
+          throw err;
+        } finally {
+          clearTimeout(timeoutId);
+          if (saveRequestIdRef.current === requestId && saveAbortControllerRef.current === controller) {
+            saveAbortControllerRef.current = null;
+          }
         }
       };
 
+      let savedRecord = null;
       let attempt = 0;
-      while (attempt < 2) {
+      let payloadToSave = { ...payload };
+      while (attempt < 3) {
         try {
-          await runSave();
+          savedRecord = await runSave(payloadToSave);
           break;
         } catch (err) {
+          const missingField =
+            activeTable === 'blog_posts' ? extractMissingColumn(err?.message || err?.details || '') : '';
+          if (
+            missingField &&
+            blogSchemaOptionalFields.has(missingField) &&
+            Object.prototype.hasOwnProperty.call(payloadToSave, missingField)
+          ) {
+            delete payloadToSave[missingField];
+            continue;
+          }
           attempt += 1;
           if (attempt >= 2) throw err;
           await new Promise((resolve) => setTimeout(resolve, 400));
         }
       }
 
-      await loadRecords();
+      if (savedRecord) {
+        if (currentEditingId) {
+          const nextRecords = records.map((item) =>
+            item.id === currentEditingId ? { ...item, ...savedRecord } : item
+          );
+          setRecords(nextRecords);
+          writeCachedAdminRecords(activeTable, nextRecords, pageIndex);
+        } else {
+          clearCachedAdminRecords(activeTable);
+          if (pageIndex === 0) {
+            const nextRecords = [savedRecord, ...records.filter((item) => item.id !== savedRecord.id)].slice(
+              0,
+              adminRecordsPageSize
+            );
+            setRecords(nextRecords);
+            writeCachedAdminRecords(activeTable, nextRecords, 0);
+          } else {
+            setPageIndex(0);
+            setRecords([]);
+            setLoading(true);
+          }
+        }
+      }
+
+      if (activeDraftKey && typeof window !== 'undefined') {
+        window.sessionStorage.removeItem(activeDraftKey);
+      }
       setFormData({});
       setFormErrors({});
       setEditingId(null);
       setShowForm(false);
+      setDraftSavedAt(null);
       setSuccessMessage(
-        editingId
+        currentEditingId
           ? `${config?.label || 'Record'} updated successfully.`
+          : requestedBlogStatus === 'published'
+          ? `${config?.label || 'Record'} published successfully.`
           : `${config?.label || 'Record'} saved successfully.`
       );
     } catch (err) {
@@ -851,6 +1304,7 @@ export default function AdminPage() {
       setError(message || 'Save failed.');
     } finally {
       setSaving(false);
+      setSaveAction('');
     }
   };
 
@@ -927,6 +1381,446 @@ export default function AdminPage() {
     );
   }
 
+  if (isBlogEditor) {
+    return (
+      <div className="min-h-screen bg-white text-slate-900">
+        <div className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/95 backdrop-blur">
+          <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-10">
+            <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowForm(false);
+                  setError('');
+                  setSuccessMessage('');
+                  setDraftSavedAt(null);
+                }}
+                className="rounded-full border border-slate-200 px-3 py-1.5 font-semibold text-slate-600 transition hover:border-[#1e3a8a] hover:text-[#1e3a8a]"
+              >
+                Back
+              </button>
+              <span className="rounded-full bg-[#eef2ff] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#1e3a8a]">
+                {formData.status === 'published' ? 'Published' : 'Draft'}
+              </span>
+              <span className="hidden sm:inline">{contentReadingTime}</span>
+              <span className="hidden sm:inline">{contentWordCount} words</span>
+              <span className="hidden md:inline">
+                {draftSavedAt
+                  ? `Auto-saved ${draftSavedAt.toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}`
+                  : 'Auto-save on'}
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={handlePreview}
+                className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-[#1e3a8a] hover:text-[#1e3a8a]"
+              >
+                Preview
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSave({ status: 'draft' })}
+                disabled={saving}
+                className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-[#1e3a8a] hover:text-[#1e3a8a] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {saving && saveAction === 'draft' ? 'Saving…' : 'Save Draft'}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSave({ status: 'published' })}
+                disabled={saving}
+                className="rounded-full bg-[#1e3a8a] px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#172f6b] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {saving && saveAction === 'published' ? 'Publishing…' : 'Publish'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="mx-auto grid max-w-[1240px] gap-10 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,720px)_280px] lg:px-10 lg:py-12">
+          <section className="mx-auto w-full max-w-[720px]">
+            {error && (
+              <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                {error}
+              </div>
+            )}
+            {successMessage && (
+              <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                {successMessage}
+              </div>
+            )}
+
+            <div className="mb-10 space-y-4">
+              <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">
+                <span>Write story</span>
+                <span className="h-1 w-1 rounded-full bg-slate-300" />
+                <span>Distraction free</span>
+              </div>
+              <input
+                type="text"
+                autoFocus
+                value={formData.title || ''}
+                onChange={(event) => {
+                  const nextTitle = event.target.value;
+                  handleInputChange('title', nextTitle);
+                  if (!formData.slug || formData.slug === makeSlug(formData.title || '')) {
+                    handleInputChange('slug', makeSlug(nextTitle));
+                  }
+                  if (!formData.meta_title || formData.meta_title === formData.title) {
+                    handleInputChange('meta_title', nextTitle);
+                  }
+                }}
+                placeholder="Title"
+                className={`w-full border-0 p-0 font-serif text-[3.25rem] font-semibold leading-[0.98] tracking-tight text-slate-900 outline-none placeholder:text-slate-300 sm:text-[4.5rem] ${
+                  formErrors.title ? 'text-rose-600' : ''
+                }`}
+              />
+              <textarea
+                rows={2}
+                value={formData.excerpt || ''}
+                onChange={(event) => {
+                  handleInputChange('excerpt', event.target.value);
+                  if (!formData.meta_description || formData.meta_description === formData.excerpt) {
+                    handleInputChange('meta_description', event.target.value);
+                  }
+                }}
+                placeholder="Add a short subtitle or deck to frame the story."
+                className="w-full resize-none border-0 p-0 text-lg leading-8 text-slate-500 outline-none placeholder:text-slate-300 sm:text-[1.35rem]"
+              />
+              <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500">
+                <span className="font-medium text-slate-700">{formData.author || profile?.name || 'Admin'}</span>
+                <span className="h-1 w-1 rounded-full bg-slate-300" />
+                <span>{contentReadingTime}</span>
+                <span className="h-1 w-1 rounded-full bg-slate-300" />
+                <span>{contentWordCount} words</span>
+              </div>
+              {(formErrors.title || formErrors.excerpt) && (
+                <div className="space-y-1">
+                  {formErrors.title && <p className="text-sm text-rose-500">{formErrors.title}</p>}
+                  {formErrors.excerpt && <p className="text-sm text-rose-500">{formErrors.excerpt}</p>}
+                </div>
+              )}
+            </div>
+
+            <div className="mb-10">
+              <input
+                ref={coverImageInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) handleBlogCoverUpload(file);
+                  event.target.value = '';
+                }}
+              />
+              <div
+                onDragEnter={(event) => {
+                  event.preventDefault();
+                  setIsBlogImageDragActive(true);
+                }}
+                onDragOver={(event) => {
+                  event.preventDefault();
+                  setIsBlogImageDragActive(true);
+                }}
+                onDragLeave={(event) => {
+                  event.preventDefault();
+                  setIsBlogImageDragActive(false);
+                }}
+                onDrop={handleBlogCoverDrop}
+                className={`overflow-hidden rounded-[28px] border border-dashed transition ${
+                  isBlogImageDragActive
+                    ? 'border-[#1e3a8a]/40 bg-[#eff4ff]'
+                    : 'border-slate-200 bg-[#f8f9fb]'
+                }`}
+              >
+                {formData.image ? (
+                  <div>
+                    <img
+                      src={formData.image}
+                      alt={formData.title || 'Cover image'}
+                      className="h-[220px] w-full object-cover sm:h-[320px]"
+                    />
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-white px-5 py-4 text-sm text-slate-500">
+                      <span className="truncate">{uploadStatus.image || 'Cover image ready'}</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => coverImageInputRef.current?.click()}
+                          className="rounded-full border border-slate-200 px-3 py-1.5 font-semibold text-slate-700 transition hover:border-[#1e3a8a] hover:text-[#1e3a8a]"
+                        >
+                          Replace
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleInputChange('image', '')}
+                          className="rounded-full border border-slate-200 px-3 py-1.5 font-semibold text-slate-500 transition hover:border-rose-200 hover:text-rose-600"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => coverImageInputRef.current?.click()}
+                    className="flex w-full flex-col items-center justify-center gap-3 px-6 py-14 text-center sm:py-20"
+                  >
+                    <span className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-slate-500 shadow-sm">
+                      Optional cover image
+                    </span>
+                    <span className="font-serif text-2xl text-slate-900">Add a cover to set the tone</span>
+                    <span className="max-w-md text-sm leading-6 text-slate-500">
+                      Drop an image here or upload one. It appears in preview, sharing cards, and blog listings.
+                    </span>
+                  </button>
+                )}
+              </div>
+              {(uploadErrors.image || formErrors.image) && (
+                <p className="mt-3 text-sm text-rose-500">{uploadErrors.image || formErrors.image}</p>
+              )}
+            </div>
+
+            <div
+              onDragEnter={(event) => {
+                event.preventDefault();
+                setIsBlogImageDragActive(true);
+              }}
+              onDragOver={(event) => {
+                event.preventDefault();
+                setIsBlogImageDragActive(true);
+              }}
+              onDragLeave={(event) => {
+                event.preventDefault();
+                setIsBlogImageDragActive(false);
+              }}
+              onDrop={async (event) => {
+                event.preventDefault();
+                setIsBlogImageDragActive(false);
+                const file = event.dataTransfer?.files?.[0];
+                if (file) {
+                  await handleEditorImageUpload(file);
+                }
+              }}
+              className="relative"
+            >
+              {inlineToolbarState.visible && (
+                <div
+                  className="fixed z-50 flex -translate-x-1/2 items-center gap-1 rounded-full bg-slate-900 px-2 py-2 text-white shadow-2xl"
+                  style={{ top: inlineToolbarState.top, left: inlineToolbarState.left }}
+                >
+                  <button type="button" onClick={() => applyRichCommand('bold')} className="rounded-full px-3 py-1 text-xs font-semibold hover:bg-white/10">
+                    Bold
+                  </button>
+                  <button type="button" onClick={() => applyRichCommand('italic')} className="rounded-full px-3 py-1 text-xs font-semibold italic hover:bg-white/10">
+                    Italic
+                  </button>
+                  <button type="button" onClick={() => applyRichCommand('formatBlock', 'h2')} className="rounded-full px-3 py-1 text-xs font-semibold hover:bg-white/10">
+                    Heading
+                  </button>
+                  <button type="button" onClick={() => applyRichCommand('formatBlock', 'blockquote')} className="rounded-full px-3 py-1 text-xs font-semibold hover:bg-white/10">
+                    Quote
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const url = window.prompt('Enter URL (https://...)');
+                      if (url) applyLink(url.trim());
+                    }}
+                    className="rounded-full px-3 py-1 text-xs font-semibold hover:bg-white/10"
+                  >
+                    Link
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => inlineImageInputRef.current?.click()}
+                    className="rounded-full px-3 py-1 text-xs font-semibold hover:bg-white/10"
+                  >
+                    Image
+                  </button>
+                  <button type="button" onClick={() => applyRichCommand('formatBlock', 'pre')} className="rounded-full px-3 py-1 text-xs font-semibold hover:bg-white/10">
+                    Code
+                  </button>
+                </div>
+              )}
+
+              <input
+                ref={inlineImageInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) handleEditorImageUpload(file);
+                  event.target.value = '';
+                }}
+              />
+
+              <div
+                className={`relative overflow-hidden rounded-[32px] border border-slate-200 bg-white px-6 py-8 shadow-[0_18px_45px_rgba(15,23,42,0.06)] transition sm:px-10 sm:py-12 ${
+                  isBlogImageDragActive ? 'ring-2 ring-[#1e3a8a]/20' : ''
+                }`}
+              >
+                {isBlogContentEmpty && (
+                  <div className="pointer-events-none absolute inset-x-6 top-8 text-[1.28rem] leading-[1.95] text-slate-300 sm:inset-x-10 sm:top-12 sm:text-[1.35rem]">
+                    Tell your story. Select text to format, press Cmd/Ctrl + K for links, or drop an image inline.
+                  </div>
+                )}
+                <div
+                  ref={richTextRef}
+                  contentEditable
+                  suppressContentEditableWarning
+                  spellCheck={true}
+                  role="textbox"
+                  aria-label="Blog content editor"
+                  className="relative z-10 min-h-[58vh] w-full border-0 bg-transparent p-0 font-serif text-[1.28rem] leading-[1.95] text-slate-800 outline-none sm:text-[1.35rem] [&_a]:text-[#1e3a8a] [&_a]:underline [&_blockquote]:my-8 [&_blockquote]:border-l-4 [&_blockquote]:border-slate-300 [&_blockquote]:pl-6 [&_blockquote]:italic [&_code]:rounded [&_code]:bg-slate-100 [&_code]:px-1.5 [&_code]:py-0.5 [&_h1]:mt-10 [&_h1]:font-sans [&_h1]:text-4xl [&_h1]:font-bold [&_h2]:mt-8 [&_h2]:font-sans [&_h2]:text-3xl [&_h2]:font-bold [&_h3]:mt-6 [&_h3]:font-sans [&_h3]:text-2xl [&_h3]:font-semibold [&_img]:my-8 [&_img]:w-full [&_img]:rounded-[24px] [&_img]:object-cover [&_li]:my-2 [&_ol]:my-6 [&_ol]:list-decimal [&_ol]:pl-7 [&_p]:my-6 [&_pre]:my-8 [&_pre]:overflow-x-auto [&_pre]:rounded-2xl [&_pre]:bg-slate-950 [&_pre]:p-5 [&_pre]:font-mono [&_pre]:text-base [&_pre]:text-slate-100 [&_strong]:font-semibold [&_ul]:my-6 [&_ul]:list-disc [&_ul]:pl-7"
+                  onClick={(event) => {
+                    if (event.target?.tagName === 'A') {
+                      event.preventDefault();
+                    }
+                  }}
+                  onInput={(event) => handleInputChange('content', event.currentTarget.innerHTML)}
+                />
+              </div>
+              {formErrors.content && <p className="mt-4 text-sm text-rose-500">{formErrors.content}</p>}
+              <p className="mt-4 text-sm text-slate-400">
+                Minimal toolbar stays hidden until you select text. Shortcuts: Cmd/Ctrl + S save, B bold, I italic, K link.
+              </p>
+            </div>
+          </section>
+
+          <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+            <div className="rounded-[24px] border border-slate-200 bg-[#f8f9fb] p-5 shadow-[0_14px_35px_rgba(15,23,42,0.04)]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Story status</p>
+              <div className="mt-4 space-y-3 text-sm text-slate-600">
+                <div className="flex items-center justify-between gap-3">
+                  <span>Status</span>
+                  <span className="rounded-full bg-white px-3 py-1 font-semibold text-slate-700 shadow-sm">
+                    {formData.status === 'published' ? 'Published' : 'Draft'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span>Reading time</span>
+                  <span className="font-medium text-slate-900">{contentReadingTime}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span>Word count</span>
+                  <span className="font-medium text-slate-900">{contentWordCount}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span>Draft sync</span>
+                  <span className="font-medium text-slate-900">
+                    {draftSavedAt
+                      ? draftSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                      : 'Waiting'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_14px_35px_rgba(15,23,42,0.04)]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Story details</p>
+              <div className="mt-4 space-y-4">
+                <div>
+                  <label htmlFor="blog-author" className="mb-1.5 block text-sm font-medium text-slate-700">
+                    Author
+                  </label>
+                  <input
+                    id="blog-author"
+                    type="text"
+                    value={formData.author || ''}
+                    onChange={(event) => handleInputChange('author', event.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#1e3a8a]"
+                    placeholder="Writer name"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="blog-category" className="mb-1.5 block text-sm font-medium text-slate-700">
+                    Category
+                  </label>
+                  <input
+                    id="blog-category"
+                    list="blog-category-suggestions"
+                    type="text"
+                    value={formData.category || ''}
+                    onChange={(event) => handleInputChange('category', event.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#1e3a8a]"
+                    placeholder="General"
+                  />
+                  <datalist id="blog-category-suggestions">
+                    {blogCategoryOptions.map((option) => (
+                      <option key={option} value={option} />
+                    ))}
+                  </datalist>
+                </div>
+                <div>
+                  <label htmlFor="blog-tags" className="mb-1.5 block text-sm font-medium text-slate-700">
+                    Tags
+                  </label>
+                  <input
+                    id="blog-tags"
+                    type="text"
+                    value={formData.tagsInput || ''}
+                    onChange={(event) => handleInputChange('tagsInput', event.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#1e3a8a]"
+                    placeholder="quran, tajweed, online classes"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_14px_35px_rgba(15,23,42,0.04)]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">SEO</p>
+              <div className="mt-4 space-y-4">
+                <div>
+                  <label htmlFor="blog-meta-title" className="mb-1.5 block text-sm font-medium text-slate-700">
+                    Meta title
+                  </label>
+                  <input
+                    id="blog-meta-title"
+                    type="text"
+                    value={formData.meta_title || ''}
+                    onChange={(event) => handleInputChange('meta_title', event.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#1e3a8a]"
+                    placeholder="Search result title"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="blog-meta-description" className="mb-1.5 block text-sm font-medium text-slate-700">
+                    Meta description
+                  </label>
+                  <textarea
+                    id="blog-meta-description"
+                    rows={4}
+                    value={formData.meta_description || ''}
+                    onChange={(event) => handleInputChange('meta_description', event.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#1e3a8a]"
+                    placeholder="Short search summary"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {formData.image && (
+              <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-[0_14px_35px_rgba(15,23,42,0.04)]">
+                <img src={formData.image} alt={formData.title || 'Featured image'} className="h-40 w-full object-cover" />
+                <div className="px-5 py-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Featured image</p>
+                  <p className="mt-2 text-sm text-slate-500">This image appears in previews and listing cards.</p>
+                </div>
+              </div>
+            )}
+          </aside>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -960,13 +1854,16 @@ export default function AdminPage() {
                   <button
                     key={table.name}
                     onClick={() => {
+                      loadAbortControllerRef.current?.abort();
                       setActiveTable(table.name);
+                      setPageIndex(0);
                       setFormData({});
                       setEditingId(null);
                       setShowForm(false);
                       setRecords([]);
                       setError('');
                       setSuccessMessage('');
+                      setDraftSavedAt(null);
                       setLoading(true);
                     }}
                     className={`w-full text-left px-4 py-2.5 rounded-md text-sm font-semibold transition-colors ${
@@ -988,17 +1885,32 @@ export default function AdminPage() {
                 <h2 className="text-xl font-bold text-gray-900">{config?.label}</h2>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={loadRecords}
-                    className="border border-[rgba(0,0,102)] text-[rgba(0,0,102)] px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(0,0,102)] hover:text-white transition-colors"
+                    onClick={() => loadRecords()}
+                    disabled={loading}
+                    className="border border-[rgba(0,0,102)] text-[rgba(0,0,102)] px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(0,0,102)] hover:text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Refresh
+                    {loading ? 'Loading...' : 'Refresh'}
                   </button>
                   <button
                     onClick={() => {
                       setShowForm(true);
                       setEditingId(null);
-                      setFormData({});
+                      setFormData(
+                        activeTable === 'blog_posts'
+                          ? hydrateBlogDraft({
+                              title: '',
+                              image: '',
+                              content: '',
+                              category: 'General',
+                              status: 'draft',
+                              tagsInput: '',
+                              meta_title: '',
+                              meta_description: '',
+                            })
+                          : {}
+                      );
                       setSuccessMessage('');
+                      setDraftSavedAt(null);
                     }}
                     className="bg-[rgba(0,0,102)] text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(51,102,153)] transition-colors"
                   >
@@ -1006,9 +1918,41 @@ export default function AdminPage() {
                   </button>
                 </div>
               </div>
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-sm text-gray-500">
+                <p>
+                  {loading
+                    ? `Loading page ${pageIndex + 1}...`
+                    : records.length > 0
+                      ? `Showing ${visibleRecordStart}-${visibleRecordEnd} of the latest ${config?.label?.toLowerCase() || 'records'}.`
+                      : pageIndex > 0
+                        ? 'This page is empty.'
+                        : 'No records loaded yet.'}
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPageIndex((prev) => Math.max(0, prev - 1))}
+                    disabled={!canGoToPreviousPage || loading}
+                    className="rounded-md border border-slate-300 px-3 py-1.5 font-medium text-slate-600 transition hover:border-slate-400 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+                  <span className="min-w-16 text-center font-medium text-slate-600">Page {pageIndex + 1}</span>
+                  <button
+                    type="button"
+                    onClick={() => setPageIndex((prev) => prev + 1)}
+                    disabled={!canGoToNextPage || loading}
+                    className="rounded-md border border-slate-300 px-3 py-1.5 font-medium text-slate-600 transition hover:border-slate-400 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
               {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
               {successMessage && <p className="text-emerald-600 text-sm mb-4">{successMessage}</p>}
-              {records.length === 0 ? (
+              {loading ? (
+                <p className="text-gray-600">Loading records...</p>
+              ) : records.length === 0 ? (
                 <p className="text-gray-600">No records found.</p>
               ) : (
                 <div className="overflow-x-auto">
@@ -1066,7 +2010,7 @@ export default function AdminPage() {
               )}
             </div>
 
-            {showForm && (
+            {showForm && activeTable !== 'blog_posts' && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-4 py-6">
                 <div className="relative flex w-full max-w-5xl max-h-[95vh] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
                   <div className="border-b bg-gradient-to-r from-slate-900 via-indigo-900 to-sky-900 px-6 py-5 text-white">
@@ -1488,7 +2432,13 @@ export default function AdminPage() {
                         disabled={saving}
                         className="rounded-full bg-[rgba(0,0,102)] px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[rgba(51,102,153)] disabled:cursor-not-allowed disabled:opacity-70"
                       >
-                        {saving ? 'Saving…' : editingId ? 'Update Record' : 'Save Draft'}
+                        {saving
+                          ? saveAction === 'published'
+                            ? 'Publishing…'
+                            : 'Saving…'
+                          : editingId
+                          ? 'Update Record'
+                          : 'Save Draft'}
                       </button>
                     </div>
                   </div>
