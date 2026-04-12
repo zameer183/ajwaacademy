@@ -163,7 +163,7 @@ const tableConfigs = [
   },
 ];
 
-const wordpressQuickTags = ['Add Record', 'Title', 'Content*', 'Bold', 'Link', 'Heading', 'Italic', 'Left', 'Center', 'Right', 'Image', 'Color', 'Markdown'];
+const wordpressQuickTags = ['Write Article', 'Title', 'Content', 'Bold', 'Link', 'Heading', 'Image', 'Spacing', 'Category'];
 
 const wordpressFieldHints = {
   title: 'Appears across listing cards and SEO snippets. Aim for 60-70 characters.',
@@ -281,6 +281,172 @@ const escapeHtml = (value) =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 
+const defaultBlogCategories = [
+  'General',
+  'Quran',
+  'Tajweed',
+  'Ramadan',
+  'Islamic Education',
+  'Islamic Studies',
+  'Parenting',
+  'Arabic',
+  'Kids',
+  'Guides',
+];
+
+const editorFontOptions = [
+  { label: 'Editorial Serif', value: 'Georgia, "Times New Roman", serif' },
+  { label: 'Modern Sans', value: '"Helvetica Neue", Arial, sans-serif' },
+  { label: 'Readable Classic', value: '"Trebuchet MS", Verdana, sans-serif' },
+  { label: 'Monospace', value: '"SFMono-Regular", Consolas, monospace' },
+];
+
+const editorTextSizeOptions = [
+  { label: 'Small', value: '1.05rem' },
+  { label: 'Medium', value: '1.2rem' },
+  { label: 'Large', value: '1.35rem' },
+  { label: 'XL', value: '1.55rem' },
+];
+
+const editorLineHeightOptions = [
+  { label: 'Tight', value: '1.45' },
+  { label: 'Normal', value: '1.7' },
+  { label: 'Relaxed', value: '1.95' },
+  { label: 'Spacious', value: '2.2' },
+];
+
+const editorBlockOptions = [
+  { label: 'Paragraph', value: 'p' },
+  { label: 'Heading 1', value: 'h1' },
+  { label: 'Heading 2', value: 'h2' },
+  { label: 'Heading 3', value: 'h3' },
+  { label: 'Quote', value: 'blockquote' },
+  { label: 'Code block', value: 'pre' },
+];
+
+const quickEditorBlockOptions = editorBlockOptions.filter((option) =>
+  ['p', 'h1', 'h2', 'h3'].includes(option.value)
+);
+
+const richBlockTagNames = new Set(['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'LI', 'PRE']);
+const allowedRichStyleProperties = new Set(['color', 'font-family', 'font-size', 'line-height', 'text-align']);
+
+const normalizeEditorBlockTag = (value) =>
+  String(value || 'p')
+    .replace(/[<>]/g, '')
+    .trim()
+    .toLowerCase() || 'p';
+
+const normalizeRichUrl = (value) => {
+  const trimmed = String(value || '').trim();
+  if (!trimmed) return '';
+  if (/^(https?:|mailto:|tel:|#|\/)/i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+};
+
+const isSafeRichUrl = (value, { allowData = false } = {}) => {
+  const candidate = String(value || '').trim();
+  if (!candidate) return false;
+  if (allowData && candidate.startsWith('data:image/')) return true;
+  return /^(https?:|mailto:|tel:|\/|#)/i.test(candidate);
+};
+
+const sanitizeRichInlineStyle = (styleValue) => {
+  if (!styleValue) return '';
+  return String(styleValue)
+    .split(';')
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .map((entry) => {
+      const [rawName, ...rawValueParts] = entry.split(':');
+      const name = String(rawName || '').trim().toLowerCase();
+      const value = rawValueParts.join(':').trim();
+      if (!allowedRichStyleProperties.has(name)) return '';
+      if (!value || /url\s*\(|expression\s*\(/i.test(value)) return '';
+      return `${name}:${value.replace(/["']/g, '')}`;
+    })
+    .filter(Boolean)
+    .join('; ');
+};
+
+const formatPlainTextAsHtml = (text) => {
+  const blocks = String(text || '')
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+  if (!blocks.length) return '';
+  return blocks
+    .map((block) => `<p>${block.split(/\n/).map(escapeHtml).join('<br />')}</p>`)
+    .join('');
+};
+
+const sanitizeRichTextHtml = (html) => {
+  if (!html || typeof DOMParser === 'undefined') return formatPlainTextAsHtml(html);
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(`<div>${html}</div>`, 'text/html');
+  const source = doc.body.firstElementChild;
+  if (!source) return '';
+
+  const cleanNode = (node) => {
+    if (node.nodeType === 3) {
+      return escapeHtml(node.textContent || '');
+    }
+    if (node.nodeType !== 1) return '';
+
+    const tag = String(node.tagName || '').toUpperCase();
+    if (['SCRIPT', 'STYLE', 'META', 'LINK', 'IFRAME', 'OBJECT'].includes(tag)) {
+      return '';
+    }
+
+    const children = Array.from(node.childNodes).map(cleanNode).join('');
+    const style = sanitizeRichInlineStyle(node.getAttribute?.('style'));
+    const styleAttr = style ? ` style="${escapeHtml(style)}"` : '';
+
+    if (tag === 'BR') return '<br />';
+    if (tag === 'A') {
+      const href = normalizeRichUrl(node.getAttribute('href'));
+      if (!isSafeRichUrl(href)) return children;
+      return `<a href="${escapeHtml(href)}" target="_blank" rel="noreferrer"${styleAttr}>${children || escapeHtml(href)}</a>`;
+    }
+    if (tag === 'IMG') {
+      const src = node.getAttribute('src');
+      if (!isSafeRichUrl(src, { allowData: true })) return '';
+      const alt = node.getAttribute('alt') || '';
+      return `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" class="responsive-blog-image" />`;
+    }
+    if (tag === 'FONT') {
+      const color = node.getAttribute('color');
+      const face = node.getAttribute('face');
+      const fontStyles = [
+        color ? `color:${color}` : '',
+        face ? `font-family:${face}` : '',
+      ]
+        .filter(Boolean)
+        .join('; ');
+      const mergedStyle = [style, fontStyles].filter(Boolean).join('; ');
+      const mergedStyleAttr = mergedStyle ? ` style="${escapeHtml(mergedStyle)}"` : '';
+      return children ? `<span${mergedStyleAttr}>${children}</span>` : '';
+    }
+    if (tag === 'DIV') {
+      return children.trim() ? `<p${styleAttr}>${children}</p>` : '';
+    }
+    if (tag === 'SPAN') {
+      return styleAttr ? `<span${styleAttr}>${children}</span>` : children;
+    }
+    if (tag === 'B') return children ? `<strong>${children}</strong>` : '';
+    if (tag === 'I') return children ? `<em>${children}</em>` : '';
+    if (['STRONG', 'EM', 'U', 'S', 'P', 'H1', 'H2', 'H3', 'H4', 'BLOCKQUOTE', 'UL', 'OL', 'LI', 'PRE', 'CODE'].includes(tag)) {
+      return `<${tag.toLowerCase()}${styleAttr}>${children}</${tag.toLowerCase()}>`;
+    }
+    return children;
+  };
+
+  return Array.from(source.childNodes)
+    .map(cleanNode)
+    .join('')
+    .replace(/(<br \/>){3,}/g, '<br /><br />');
+};
+
 export default function AdminPage() {
   const [activeTable, setActiveTable] = useState(tableConfigs[0].name);
   const [records, setRecords] = useState(() => {
@@ -310,16 +476,23 @@ export default function AdminPage() {
   const richTextRef = useRef(null);
   const richSelectionRef = useRef(null);
   const coverImageInputRef = useRef(null);
-  const inlineImageInputRef = useRef(null);
   const [uploadErrors, setUploadErrors] = useState({});
   const [uploadStatus, setUploadStatus] = useState({});
   const uploadQueueRef = useRef(Promise.resolve());
   const [draftSavedAt, setDraftSavedAt] = useState(null);
   const [isBlogImageDragActive, setIsBlogImageDragActive] = useState(false);
+  const [blogCategoryMode, setBlogCategoryMode] = useState('preset');
   const [inlineToolbarState, setInlineToolbarState] = useState({
     visible: false,
     top: 0,
     left: 0,
+    placement: 'above',
+  });
+  const [editorPreferences, setEditorPreferences] = useState({
+    blockTag: 'p',
+    fontFamily: editorFontOptions[0].value,
+    fontSize: editorTextSizeOptions[2].value,
+    lineHeight: editorLineHeightOptions[2].value,
   });
   const supabaseReady = supabaseEnabled && Boolean(supabase);
   const supabaseDisabledMessage =
@@ -346,14 +519,25 @@ export default function AdminPage() {
 
   const blogCategoryOptions = useMemo(() => {
     if (activeTable !== 'blog_posts') return [];
-    const options = new Set(
-      records
-        .map((record) => record?.category)
-        .filter((value) => typeof value === 'string' && value.trim())
-    );
-    options.add(formData.category || 'General');
-    return Array.from(options);
-  }, [activeTable, formData.category, records]);
+    const discoveredCategories = records
+      .map((record) => String(record?.category || '').trim())
+      .filter(Boolean)
+      .filter((value, index, list) => list.indexOf(value) === index)
+      .filter((value) => !defaultBlogCategories.includes(value))
+      .sort((left, right) => left.localeCompare(right));
+    return [...defaultBlogCategories, ...discoveredCategories];
+  }, [activeTable, records]);
+  const selectedBlogCategoryValue = useMemo(() => {
+    if (activeTable !== 'blog_posts') return '';
+    if (blogCategoryMode === 'custom') return '__custom__';
+    const currentCategory = String(formData.category || '').trim();
+    if (!currentCategory) return 'General';
+    return blogCategoryOptions.includes(currentCategory) ? currentCategory : '__custom__';
+  }, [activeTable, blogCategoryMode, formData.category, blogCategoryOptions]);
+  const usesCustomBlogCategory = useMemo(() => {
+    return activeTable === 'blog_posts' && blogCategoryMode === 'custom';
+  }, [activeTable, blogCategoryMode]);
+  const addButtonLabel = activeTable === 'blog_posts' ? 'Write Article' : 'Add Record';
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -620,10 +804,29 @@ export default function AdminPage() {
         const rect = range.getBoundingClientRect();
         const hasTextSelection = !selection.isCollapsed && rect.width > 0;
         if (hasTextSelection) {
+          const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1280;
+          const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 900;
+          const toolbarWidth = Math.min(viewportWidth * 0.92, 760);
+          const estimatedToolbarHeight =
+            viewportWidth < 640 ? 214 : viewportWidth < 1024 ? 162 : 126;
+          const gap = 18;
+          const spaceAbove = rect.top;
+          const spaceBelow = viewportHeight - rect.bottom;
+          const placement =
+            spaceAbove > estimatedToolbarHeight + gap || spaceAbove >= spaceBelow
+              ? 'above'
+              : 'below';
           setInlineToolbarState({
             visible: true,
-            top: Math.max(rect.top - 56, 16),
-            left: rect.left + rect.width / 2,
+            top:
+              placement === 'above'
+                ? Math.max(rect.top - gap, 12)
+                : Math.min(rect.bottom + gap, viewportHeight - 12),
+            left: Math.min(
+              Math.max(rect.left + rect.width / 2, toolbarWidth / 2 + 16),
+              viewportWidth - toolbarWidth / 2 - 16
+            ),
+            placement,
           });
         } else {
           setInlineToolbarState((prev) => ({ ...prev, visible: false }));
@@ -646,19 +849,148 @@ export default function AdminPage() {
     return true;
   };
 
+  const syncEditorHtml = () => {
+    if (!richTextRef.current) return;
+    handleInputChange('content', richTextRef.current.innerHTML);
+  };
+
+  const findClosestRichBlock = (node) => {
+    if (!richTextRef.current || !node) return null;
+    let current = node.nodeType === 1 ? node : node.parentElement;
+    while (current && current !== richTextRef.current) {
+      if (richBlockTagNames.has(current.tagName)) return current;
+      current = current.parentElement;
+    }
+    return null;
+  };
+
+  const getSelectedRichBlocks = () => {
+    if (!richTextRef.current || typeof window === 'undefined') return [];
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return [];
+    const range = selection.getRangeAt(0);
+    if (!richTextRef.current.contains(range.commonAncestorContainer)) return [];
+
+    const blocks = new Set();
+    const startBlock = findClosestRichBlock(range.startContainer);
+    const endBlock = findClosestRichBlock(range.endContainer);
+    if (startBlock) blocks.add(startBlock);
+    if (endBlock) blocks.add(endBlock);
+
+    const walker = document.createTreeWalker(
+      richTextRef.current,
+      NodeFilter.SHOW_ELEMENT,
+      {
+        acceptNode(node) {
+          if (!richBlockTagNames.has(node.tagName)) return NodeFilter.FILTER_SKIP;
+          try {
+            return range.intersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+          } catch {
+            return NodeFilter.FILTER_SKIP;
+          }
+        },
+      }
+    );
+
+    while (walker.nextNode()) {
+      blocks.add(walker.currentNode);
+    }
+
+    if (blocks.size === 0) {
+      const fallbackBlock = findClosestRichBlock(selection.anchorNode);
+      if (fallbackBlock) {
+        blocks.add(fallbackBlock);
+      }
+    }
+
+    return Array.from(blocks);
+  };
+
+  const applyBlockStyle = (property, value) => {
+    if (!focusEditor()) return;
+    const blocks = getSelectedRichBlocks();
+    if (blocks.length === 0 && richTextRef.current) {
+      richTextRef.current.style[property] = value;
+      syncEditorHtml();
+      return;
+    }
+    blocks.forEach((block) => {
+      block.style[property] = value;
+    });
+    syncEditorHtml();
+  };
+
+  const resetSelectedBlockStyles = () => {
+    if (!focusEditor()) return;
+    const targets = getSelectedRichBlocks();
+    const blocks = targets.length > 0 ? targets : richTextRef.current ? [richTextRef.current] : [];
+    blocks.forEach((block) => {
+      block.style.lineHeight = '';
+      block.style.fontFamily = '';
+      block.style.fontSize = '';
+      block.style.textAlign = '';
+      block.style.color = '';
+    });
+    document.execCommand('removeFormat', false);
+    syncEditorHtml();
+  };
+
+  const applyBlockFormat = (value) => {
+    const normalizedTag = normalizeEditorBlockTag(value);
+    setEditorPreferences((prev) => ({ ...prev, blockTag: normalizedTag }));
+    applyRichCommand('formatBlock', normalizedTag);
+  };
+
+  const getSelectedLinkElement = () => {
+    if (!richTextRef.current || typeof window === 'undefined') return null;
+    const selection = window.getSelection();
+    const anchorNode = selection?.anchorNode;
+    if (!anchorNode) return null;
+    const element = anchorNode.nodeType === 1 ? anchorNode : anchorNode.parentElement;
+    const link = element?.closest?.('a');
+    return link && richTextRef.current.contains(link) ? link : null;
+  };
+
   const applyRichCommand = (command, value = null) => {
     if (!focusEditor()) return;
-    document.execCommand(command, false, value);
-    handleInputChange('content', richTextRef.current.innerHTML);
+    const normalizedValue =
+      command === 'formatBlock' && value ? `<${normalizeEditorBlockTag(value)}>` : value;
+    document.execCommand('styleWithCSS', false, true);
+    document.execCommand(command, false, normalizedValue);
+    syncEditorHtml();
   };
 
   const applyLink = (url) => {
     if (!url) return;
     if (!focusEditor()) return;
-    document.execCommand('createLink', false, url);
-    // Add a space so the caret moves out of the link
-    document.execCommand('insertHTML', false, '&nbsp;');
-    handleInputChange('content', richTextRef.current.innerHTML);
+    const normalizedUrl = normalizeRichUrl(url);
+    const existingLink = getSelectedLinkElement();
+    if (existingLink) {
+      existingLink.setAttribute('href', normalizedUrl);
+      existingLink.setAttribute('target', '_blank');
+      existingLink.setAttribute('rel', 'noreferrer');
+      syncEditorHtml();
+      return;
+    }
+    document.execCommand('createLink', false, normalizedUrl);
+    const createdLink = getSelectedLinkElement();
+    if (createdLink) {
+      createdLink.setAttribute('target', '_blank');
+      createdLink.setAttribute('rel', 'noreferrer');
+    }
+    syncEditorHtml();
+  };
+
+  const removeLink = () => {
+    if (!focusEditor()) return;
+    const existingLink = getSelectedLinkElement();
+    if (existingLink) {
+      existingLink.replaceWith(...existingLink.childNodes);
+      syncEditorHtml();
+      return;
+    }
+    document.execCommand('unlink', false);
+    syncEditorHtml();
   };
 
   const convertMarkdownToHtml = (text) => {
@@ -711,12 +1043,28 @@ export default function AdminPage() {
     return !plain && !/<img/i.test(String(formData.content || ''));
   }, [formData.content]);
 
-  const ToolbarButton = ({ children, onClick, title }) => (
+  const ToolbarButton = ({ children, onClick, title, active = false }) => (
     <button
       type="button"
       onClick={onClick}
       title={title}
-      className="inline-flex items-center gap-1 rounded-full border border-slate-300 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-700 transition hover:border-indigo-300"
+      className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wide transition ${
+        active
+          ? 'border-[#1e3a8a] bg-[#1e3a8a] text-white shadow-sm'
+          : 'border-slate-300 bg-white text-slate-700 hover:border-indigo-300'
+      }`}
+    >
+      {children}
+    </button>
+  );
+
+  const InlineToolbarButton = ({ children, onClick, title, className = '' }) => (
+    <button
+      type="button"
+      onMouseDown={(event) => event.preventDefault()}
+      onClick={onClick}
+      title={title}
+      className={`inline-flex h-9 min-w-9 items-center justify-center rounded-full px-3 text-sm font-semibold text-white transition hover:bg-white/12 ${className}`}
     >
       {children}
     </button>
@@ -796,7 +1144,30 @@ export default function AdminPage() {
   const insertRichHtml = (html) => {
     if (!focusEditor()) return;
     document.execCommand('insertHTML', false, html);
-    handleInputChange('content', richTextRef.current.innerHTML);
+    syncEditorHtml();
+  };
+
+  const handleEditorPaste = async (event) => {
+    const imageItem = Array.from(event.clipboardData?.items || []).find((item) =>
+      item.type.startsWith('image/')
+    );
+    if (imageItem) {
+      event.preventDefault();
+      const file = imageItem.getAsFile?.();
+      if (file) {
+        await handleEditorImageUpload(file);
+      }
+      return;
+    }
+
+    const html = event.clipboardData?.getData('text/html');
+    const text = event.clipboardData?.getData('text/plain');
+    if (!html && !text) return;
+
+    event.preventDefault();
+    const cleanedHtml = html ? sanitizeRichTextHtml(html) : formatPlainTextAsHtml(text);
+    if (!cleanedHtml) return;
+    insertRichHtml(cleanedHtml);
   };
 
   const handleEditorImageUpload = async (file) => {
@@ -837,6 +1208,10 @@ export default function AdminPage() {
       activeTable === 'blog_posts'
         ? hydrateBlogDraft(record, record?.id)
         : record;
+    if (activeTable === 'blog_posts') {
+      const nextCategory = String(nextRecord?.category || '').trim();
+      setBlogCategoryMode(nextCategory && !blogCategoryOptions.includes(nextCategory) ? 'custom' : 'preset');
+    }
     setEditingId(record.id);
     setFormData(nextRecord);
     setFormErrors({});
@@ -866,6 +1241,13 @@ export default function AdminPage() {
     formData.meta_title,
     formData.meta_description,
   ]);
+
+  useEffect(() => {
+    if (!isBlogEditor) return;
+    const currentCategory = String(formData.category || '').trim();
+    if (!currentCategory) return;
+    setBlogCategoryMode(blogCategoryOptions.includes(currentCategory) ? 'preset' : 'custom');
+  }, [isBlogEditor, formData.category, blogCategoryOptions]);
 
   useEffect(() => {
     if (!isBlogEditor || typeof window === 'undefined') return;
@@ -1124,8 +1506,8 @@ export default function AdminPage() {
         }
         if (richContent) {
           payload.content = richContent.includes('<')
-            ? richContent
-            : convertMarkdownToHtml(richContent);
+            ? sanitizeRichTextHtml(richContent)
+            : sanitizeRichTextHtml(convertMarkdownToHtml(richContent));
         }
         if (blogSupportsField('tags')) {
           payload.tags = normalizedTags;
@@ -1441,8 +1823,8 @@ export default function AdminPage() {
           </div>
         </div>
 
-        <div className="mx-auto grid max-w-[1240px] gap-10 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,720px)_280px] lg:px-10 lg:py-12">
-          <section className="mx-auto w-full max-w-[720px]">
+        <div className="mx-auto grid max-w-[1380px] gap-10 px-4 py-8 sm:px-6 xl:grid-cols-[minmax(0,820px)_280px] xl:px-10 xl:py-12">
+          <section className="mx-auto w-full max-w-[820px]">
             {error && (
               <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
                 {error}
@@ -1456,9 +1838,9 @@ export default function AdminPage() {
 
             <div className="mb-10 space-y-4">
               <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">
-                <span>Write story</span>
+                <span>Write article</span>
                 <span className="h-1 w-1 rounded-full bg-slate-300" />
-                <span>Distraction free</span>
+                <span>Content editor</span>
               </div>
               <input
                 type="text"
@@ -1506,7 +1888,7 @@ export default function AdminPage() {
               )}
             </div>
 
-            <div className="mb-10">
+            <div className="mb-8">
               <input
                 ref={coverImageInputRef}
                 type="file"
@@ -1543,7 +1925,7 @@ export default function AdminPage() {
                     <img
                       src={formData.image}
                       alt={formData.title || 'Cover image'}
-                      className="h-[220px] w-full object-cover sm:h-[320px]"
+                      className="h-[180px] w-full object-cover sm:h-[240px]"
                     />
                     <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-white px-5 py-4 text-sm text-slate-500">
                       <span className="truncate">{uploadStatus.image || 'Cover image ready'}</span>
@@ -1569,14 +1951,19 @@ export default function AdminPage() {
                   <button
                     type="button"
                     onClick={() => coverImageInputRef.current?.click()}
-                    className="flex w-full flex-col items-center justify-center gap-3 px-6 py-14 text-center sm:py-20"
+                    className="flex w-full flex-wrap items-center justify-between gap-4 px-5 py-5 text-left"
                   >
-                    <span className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-slate-500 shadow-sm">
-                      Optional cover image
-                    </span>
-                    <span className="font-serif text-2xl text-slate-900">Add a cover to set the tone</span>
-                    <span className="max-w-md text-sm leading-6 text-slate-500">
-                      Drop an image here or upload one. It appears in preview, sharing cards, and blog listings.
+                    <div className="space-y-2">
+                      <span className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-slate-500 shadow-sm">
+                        Optional cover image
+                      </span>
+                      <p className="text-base font-semibold text-slate-900">Add a cover image for the article</p>
+                      <p className="max-w-xl text-sm leading-6 text-slate-500">
+                        Used in previews, sharing cards, and blog listings.
+                      </p>
+                    </div>
+                    <span className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm">
+                      Upload image
                     </span>
                   </button>
                 )}
@@ -1611,64 +1998,242 @@ export default function AdminPage() {
             >
               {inlineToolbarState.visible && (
                 <div
-                  className="fixed z-50 flex -translate-x-1/2 items-center gap-1 rounded-full bg-slate-900 px-2 py-2 text-white shadow-2xl"
+                  className={`fixed z-50 flex w-auto max-w-[min(92vw,640px)] -translate-x-1/2 flex-wrap items-center gap-0.5 rounded-full border border-slate-700/80 bg-slate-950/95 px-2 py-2 text-white shadow-[0_18px_40px_rgba(15,23,42,0.38)] backdrop-blur ${
+                    inlineToolbarState.placement === 'above' ? '-translate-y-full' : ''
+                  }`}
                   style={{ top: inlineToolbarState.top, left: inlineToolbarState.left }}
                 >
-                  <button type="button" onClick={() => applyRichCommand('bold')} className="rounded-full px-3 py-1 text-xs font-semibold hover:bg-white/10">
-                    Bold
-                  </button>
-                  <button type="button" onClick={() => applyRichCommand('italic')} className="rounded-full px-3 py-1 text-xs font-semibold italic hover:bg-white/10">
-                    Italic
-                  </button>
-                  <button type="button" onClick={() => applyRichCommand('formatBlock', 'h2')} className="rounded-full px-3 py-1 text-xs font-semibold hover:bg-white/10">
-                    Heading
-                  </button>
-                  <button type="button" onClick={() => applyRichCommand('formatBlock', 'blockquote')} className="rounded-full px-3 py-1 text-xs font-semibold hover:bg-white/10">
-                    Quote
-                  </button>
-                  <button
-                    type="button"
+                  <InlineToolbarButton title="Bold" onClick={() => applyRichCommand('bold')} className="text-base font-bold">
+                    B
+                  </InlineToolbarButton>
+                  <InlineToolbarButton title="Italic" onClick={() => applyRichCommand('italic')} className="text-base italic">
+                    i
+                  </InlineToolbarButton>
+                  <InlineToolbarButton
+                    title="Insert link"
                     onClick={() => {
-                      const url = window.prompt('Enter URL (https://...)');
+                      const currentUrl = getSelectedLinkElement()?.getAttribute('href') || 'https://';
+                      const url = window.prompt('Enter URL (https://...)', currentUrl);
                       if (url) applyLink(url.trim());
                     }}
-                    className="rounded-full px-3 py-1 text-xs font-semibold hover:bg-white/10"
                   >
                     Link
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => inlineImageInputRef.current?.click()}
-                    className="rounded-full px-3 py-1 text-xs font-semibold hover:bg-white/10"
-                  >
-                    Image
-                  </button>
-                  <button type="button" onClick={() => applyRichCommand('formatBlock', 'pre')} className="rounded-full px-3 py-1 text-xs font-semibold hover:bg-white/10">
+                  </InlineToolbarButton>
+                  <span className="mx-1 h-6 w-px bg-white/14" />
+                  <InlineToolbarButton title="Paragraph" onClick={() => applyBlockFormat('p')}>
+                    P
+                  </InlineToolbarButton>
+                  <InlineToolbarButton title="Heading 1" onClick={() => applyBlockFormat('h1')}>
+                    H1
+                  </InlineToolbarButton>
+                  <InlineToolbarButton title="Heading 2" onClick={() => applyBlockFormat('h2')}>
+                    H2
+                  </InlineToolbarButton>
+                  <InlineToolbarButton title="Heading 3" onClick={() => applyBlockFormat('h3')}>
+                    H3
+                  </InlineToolbarButton>
+                  <span className="mx-1 h-6 w-px bg-white/14" />
+                  <InlineToolbarButton title="Quote" onClick={() => applyBlockFormat('blockquote')}>
+                    "
+                  </InlineToolbarButton>
+                  <InlineToolbarButton title="Bulleted list" onClick={() => applyRichCommand('insertUnorderedList')}>
+                    List
+                  </InlineToolbarButton>
+                  <InlineToolbarButton title="Code block" onClick={() => applyBlockFormat('pre')}>
                     Code
-                  </button>
+                  </InlineToolbarButton>
+                  <InlineToolbarButton title="Remove link" onClick={removeLink}>
+                    Unlink
+                  </InlineToolbarButton>
+                  <div
+                    className={`pointer-events-none absolute left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border border-slate-700/80 bg-slate-950/95 ${
+                      inlineToolbarState.placement === 'above'
+                        ? 'bottom-[-7px] border-l-0 border-t-0'
+                        : 'top-[-7px] border-b-0 border-r-0'
+                    }`}
+                  />
                 </div>
               )}
-
-              <input
-                ref={inlineImageInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (file) handleEditorImageUpload(file);
-                  event.target.value = '';
-                }}
-              />
-
               <div
-                className={`relative overflow-hidden rounded-[32px] border border-slate-200 bg-white px-6 py-8 shadow-[0_18px_45px_rgba(15,23,42,0.06)] transition sm:px-10 sm:py-12 ${
+                className={`relative overflow-visible rounded-[32px] border border-slate-200 bg-white px-6 py-8 shadow-[0_18px_45px_rgba(15,23,42,0.06)] transition sm:px-10 sm:py-12 ${
                   isBlogImageDragActive ? 'ring-2 ring-[#1e3a8a]/20' : ''
                 }`}
               >
+                <div className="-mx-2 mb-6 space-y-4 border-b border-slate-200/80 bg-white px-2 pb-5 pt-1 sm:-mx-4 sm:px-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Blog editor</p>
+                      <h4 className="mt-2 text-lg font-semibold text-slate-900">Write and format your article</h4>
+                      <p className="mt-1 text-sm text-slate-500">
+                        Format headings, paragraph spacing, font size, links, colors, and pasted content without coding.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                        {contentWordCount} words
+                      </span>
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                        {contentReadingTime}
+                      </span>
+                      <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-[#1e3a8a] hover:text-[#1e3a8a]">
+                        Insert image
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept="image/*"
+                          onChange={(event) => {
+                            const file = event.target.files?.[0];
+                            if (file) handleEditorImageUpload(file);
+                            event.target.value = '';
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 rounded-[24px] border border-slate-200 bg-slate-50/70 p-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Headings</span>
+                      {quickEditorBlockOptions.map((option) => (
+                        <ToolbarButton
+                          key={option.value}
+                          title={option.label}
+                          active={editorPreferences.blockTag === option.value}
+                          onClick={() => applyBlockFormat(option.value)}
+                        >
+                          {option.value === 'p' ? 'P' : option.value.toUpperCase()}
+                        </ToolbarButton>
+                      ))}
+                      <ToolbarButton title="Quote block" active={editorPreferences.blockTag === 'blockquote'} onClick={() => applyBlockFormat('blockquote')}>
+                        Quote
+                      </ToolbarButton>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Typography</span>
+                      <select
+                        value={editorPreferences.blockTag}
+                        onChange={(event) => applyBlockFormat(event.target.value)}
+                        className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-700 focus:border-[#1e3a8a] focus:outline-none"
+                      >
+                        {editorBlockOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      <select
+                        value={editorPreferences.fontFamily}
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          setEditorPreferences((prev) => ({ ...prev, fontFamily: value }));
+                          applyBlockStyle('fontFamily', value);
+                        }}
+                        className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-700 focus:border-[#1e3a8a] focus:outline-none"
+                      >
+                        {editorFontOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            Font: {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      <select
+                        value={editorPreferences.fontSize}
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          setEditorPreferences((prev) => ({ ...prev, fontSize: value }));
+                          applyBlockStyle('fontSize', value);
+                        }}
+                        className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-700 focus:border-[#1e3a8a] focus:outline-none"
+                      >
+                        {editorTextSizeOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            Size: {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      <select
+                        value={editorPreferences.lineHeight}
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          setEditorPreferences((prev) => ({ ...prev, lineHeight: value }));
+                          applyBlockStyle('lineHeight', value);
+                        }}
+                        className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-700 focus:border-[#1e3a8a] focus:outline-none"
+                      >
+                        {editorLineHeightOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            Line spacing: {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      <label
+                        className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-700 transition hover:border-indigo-300"
+                        title="Text color"
+                      >
+                        Color
+                        <input
+                          type="color"
+                          className="h-5 w-6 cursor-pointer border-none bg-transparent"
+                          onChange={(event) => applyRichCommand('foreColor', event.target.value)}
+                        />
+                      </label>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Formatting</span>
+                      <ToolbarButton title="Bold (Ctrl+B)" onClick={() => applyRichCommand('bold')}>
+                        Bold
+                      </ToolbarButton>
+                      <ToolbarButton title="Italic (Ctrl+I)" onClick={() => applyRichCommand('italic')}>
+                        Italic
+                      </ToolbarButton>
+                      <ToolbarButton title="Underline" onClick={() => applyRichCommand('underline')}>
+                        Underline
+                      </ToolbarButton>
+                      <ToolbarButton title="Align left" onClick={() => applyRichCommand('justifyLeft')}>
+                        Left
+                      </ToolbarButton>
+                      <ToolbarButton title="Align center" onClick={() => applyRichCommand('justifyCenter')}>
+                        Center
+                      </ToolbarButton>
+                      <ToolbarButton title="Align right" onClick={() => applyRichCommand('justifyRight')}>
+                        Right
+                      </ToolbarButton>
+                      <ToolbarButton title="Bullet list" onClick={() => applyRichCommand('insertUnorderedList')}>
+                        Bullets
+                      </ToolbarButton>
+                      <ToolbarButton title="Numbered list" onClick={() => applyRichCommand('insertOrderedList')}>
+                        Numbered
+                      </ToolbarButton>
+                      <ToolbarButton
+                        title="Insert or edit link"
+                        onClick={() => {
+                          const currentUrl = getSelectedLinkElement()?.getAttribute('href') || 'https://';
+                          const url = window.prompt('Enter URL (https://...)', currentUrl);
+                          if (url) applyLink(url.trim());
+                        }}
+                      >
+                        Link
+                      </ToolbarButton>
+                      <ToolbarButton title="Remove link" onClick={removeLink}>
+                        Unlink
+                      </ToolbarButton>
+                      <ToolbarButton title="Undo" onClick={() => applyRichCommand('undo')}>
+                        Undo
+                      </ToolbarButton>
+                      <ToolbarButton title="Redo" onClick={() => applyRichCommand('redo')}>
+                        Redo
+                      </ToolbarButton>
+                      <ToolbarButton title="Reset block styles" onClick={resetSelectedBlockStyles}>
+                        Reset
+                      </ToolbarButton>
+                    </div>
+                  </div>
+                </div>
                 {isBlogContentEmpty && (
-                  <div className="pointer-events-none absolute inset-x-6 top-8 text-[1.28rem] leading-[1.95] text-slate-300 sm:inset-x-10 sm:top-12 sm:text-[1.35rem]">
-                    Tell your story. Select text to format, press Cmd/Ctrl + K for links, or drop an image inline.
+                  <div className="pointer-events-none absolute inset-x-6 top-[19rem] text-[1.28rem] leading-[1.95] text-slate-300 sm:inset-x-10 sm:top-[18.5rem] sm:text-[1.35rem]">
+                    Start writing here. Paste an article, then style headings, colors, links, images, font size, and line spacing.
                   </div>
                 )}
                 <div
@@ -1678,23 +2243,29 @@ export default function AdminPage() {
                   spellCheck={true}
                   role="textbox"
                   aria-label="Blog content editor"
-                  className="relative z-10 min-h-[58vh] w-full border-0 bg-transparent p-0 font-serif text-[1.28rem] leading-[1.95] text-slate-800 outline-none sm:text-[1.35rem] [&_a]:text-[#1e3a8a] [&_a]:underline [&_blockquote]:my-8 [&_blockquote]:border-l-4 [&_blockquote]:border-slate-300 [&_blockquote]:pl-6 [&_blockquote]:italic [&_code]:rounded [&_code]:bg-slate-100 [&_code]:px-1.5 [&_code]:py-0.5 [&_h1]:mt-10 [&_h1]:font-sans [&_h1]:text-4xl [&_h1]:font-bold [&_h2]:mt-8 [&_h2]:font-sans [&_h2]:text-3xl [&_h2]:font-bold [&_h3]:mt-6 [&_h3]:font-sans [&_h3]:text-2xl [&_h3]:font-semibold [&_img]:my-8 [&_img]:w-full [&_img]:rounded-[24px] [&_img]:object-cover [&_li]:my-2 [&_ol]:my-6 [&_ol]:list-decimal [&_ol]:pl-7 [&_p]:my-6 [&_pre]:my-8 [&_pre]:overflow-x-auto [&_pre]:rounded-2xl [&_pre]:bg-slate-950 [&_pre]:p-5 [&_pre]:font-mono [&_pre]:text-base [&_pre]:text-slate-100 [&_strong]:font-semibold [&_ul]:my-6 [&_ul]:list-disc [&_ul]:pl-7"
+                  className="relative z-10 min-h-[58vh] w-full border-0 bg-transparent p-0 text-slate-800 outline-none [&_a]:text-[#1e3a8a] [&_a]:underline [&_blockquote]:my-8 [&_blockquote]:border-l-4 [&_blockquote]:border-slate-300 [&_blockquote]:pl-6 [&_blockquote]:italic [&_code]:rounded [&_code]:bg-slate-100 [&_code]:px-1.5 [&_code]:py-0.5 [&_div]:my-6 [&_h1]:mt-10 [&_h1]:font-sans [&_h1]:text-4xl [&_h1]:font-bold [&_h2]:mt-8 [&_h2]:font-sans [&_h2]:text-3xl [&_h2]:font-bold [&_h3]:mt-6 [&_h3]:font-sans [&_h3]:text-2xl [&_h3]:font-semibold [&_img]:my-8 [&_img]:w-full [&_img]:rounded-[24px] [&_img]:object-cover [&_li]:my-2 [&_ol]:my-6 [&_ol]:list-decimal [&_ol]:pl-7 [&_p]:my-6 [&_pre]:my-8 [&_pre]:overflow-x-auto [&_pre]:rounded-2xl [&_pre]:bg-slate-950 [&_pre]:p-5 [&_pre]:font-mono [&_pre]:text-base [&_pre]:text-slate-100 [&_strong]:font-semibold [&_ul]:my-6 [&_ul]:list-disc [&_ul]:pl-7"
+                  style={{
+                    fontFamily: editorPreferences.fontFamily,
+                    fontSize: editorPreferences.fontSize,
+                    lineHeight: editorPreferences.lineHeight,
+                  }}
                   onClick={(event) => {
                     if (event.target?.tagName === 'A') {
                       event.preventDefault();
                     }
                   }}
+                  onPaste={handleEditorPaste}
                   onInput={(event) => handleInputChange('content', event.currentTarget.innerHTML)}
                 />
               </div>
               {formErrors.content && <p className="mt-4 text-sm text-rose-500">{formErrors.content}</p>}
               <p className="mt-4 text-sm text-slate-400">
-                Minimal toolbar stays hidden until you select text. Shortcuts: Cmd/Ctrl + S save, B bold, I italic, K link.
+                This blog editor cleans pasted content automatically and lets you format articles without touching HTML.
               </p>
             </div>
           </section>
 
-          <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+          <aside className="space-y-4 xl:sticky xl:top-24 xl:self-start">
             <div className="rounded-[24px] border border-slate-200 bg-[#f8f9fb] p-5 shadow-[0_14px_35px_rgba(15,23,42,0.04)]">
               <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Story status</p>
               <div className="mt-4 space-y-3 text-sm text-slate-600">
@@ -1724,7 +2295,7 @@ export default function AdminPage() {
             </div>
 
             <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_14px_35px_rgba(15,23,42,0.04)]">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Story details</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Article settings</p>
               <div className="mt-4 space-y-4">
                 <div>
                   <label htmlFor="blog-author" className="mb-1.5 block text-sm font-medium text-slate-700">
@@ -1743,20 +2314,38 @@ export default function AdminPage() {
                   <label htmlFor="blog-category" className="mb-1.5 block text-sm font-medium text-slate-700">
                     Category
                   </label>
-                  <input
+                  <select
                     id="blog-category"
-                    list="blog-category-suggestions"
-                    type="text"
-                    value={formData.category || ''}
-                    onChange={(event) => handleInputChange('category', event.target.value)}
+                    value={selectedBlogCategoryValue}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      if (value === '__custom__') {
+                        setBlogCategoryMode('custom');
+                        handleInputChange('category', blogCategoryOptions.includes(formData.category) ? '' : formData.category || '');
+                        return;
+                      }
+                      setBlogCategoryMode('preset');
+                      handleInputChange('category', value);
+                    }}
                     className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#1e3a8a]"
-                    placeholder="General"
-                  />
-                  <datalist id="blog-category-suggestions">
+                  >
                     {blogCategoryOptions.map((option) => (
-                      <option key={option} value={option} />
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
                     ))}
-                  </datalist>
+                    <option value="__custom__">Custom category</option>
+                  </select>
+                  <p className="mt-2 text-xs text-slate-500">Choose an existing category or add a new one for this article.</p>
+                  {usesCustomBlogCategory && (
+                    <input
+                      type="text"
+                      value={formData.category || ''}
+                      onChange={(event) => handleInputChange('category', event.target.value)}
+                      className="mt-3 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#1e3a8a]"
+                      placeholder="Enter custom category"
+                    />
+                  )}
                 </div>
                 <div>
                   <label htmlFor="blog-tags" className="mb-1.5 block text-sm font-medium text-slate-700">
@@ -1775,7 +2364,7 @@ export default function AdminPage() {
             </div>
 
             <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_14px_35px_rgba(15,23,42,0.04)]">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">SEO</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Optional search details</p>
               <div className="mt-4 space-y-4">
                 <div>
                   <label htmlFor="blog-meta-title" className="mb-1.5 block text-sm font-medium text-slate-700">
@@ -1858,6 +2447,7 @@ export default function AdminPage() {
                       setActiveTable(table.name);
                       setPageIndex(0);
                       setFormData({});
+                      setBlogCategoryMode('preset');
                       setEditingId(null);
                       setShowForm(false);
                       setRecords([]);
@@ -1895,6 +2485,7 @@ export default function AdminPage() {
                     onClick={() => {
                       setShowForm(true);
                       setEditingId(null);
+                      setBlogCategoryMode('preset');
                       setFormData(
                         activeTable === 'blog_posts'
                           ? hydrateBlogDraft({
@@ -1914,7 +2505,7 @@ export default function AdminPage() {
                     }}
                     className="bg-[rgba(0,0,102)] text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(51,102,153)] transition-colors"
                   >
-                    Add Record
+                    {addButtonLabel}
                   </button>
                 </div>
               </div>

@@ -7,6 +7,16 @@ import { useState, useEffect, useMemo } from 'react';
 import { blogAPI, courseAPI } from '@/lib/static-api';
 import { supabase, supabaseEnabled } from '@/lib/supabase';
 
+const isMissingLibraryTableError = (error) => {
+  const message = String(error?.message || error || '');
+  return (
+    error?.code === 'PGRST205' ||
+    message.includes("Could not find the table 'public.library_items'") ||
+    message.includes('relation "public.library_items" does not exist') ||
+    message.includes('relation "library_items" does not exist')
+  );
+};
+
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -25,7 +35,7 @@ export default function Navbar() {
     { name: 'Courses', path: '/courses', children: [] },
     {
       name: 'Community',
-      path: '/students',
+      path: '/community',
       children: [
         { name: 'Our Students', path: '/students' },
         { name: 'Our Teachers', path: '/teachers' },
@@ -57,6 +67,10 @@ export default function Navbar() {
   ];
 
   const [courses, setCourses] = useState([]);
+  const hasPublishedBlogPosts = blogPosts.length > 0;
+  const visibleNavLinks = navLinks.filter(
+    (link) => link.name !== 'Blog' || hasPublishedBlogPosts
+  );
 
   const courseGroups = useMemo(() => {
     const preferredOrder = [
@@ -160,7 +174,11 @@ export default function Navbar() {
         setLibraryItems(Array.isArray(data) ? data : []);
       } catch (error) {
         const message = String(error?.message || error || '');
-        if (error?.name !== 'AbortError' && !message.includes('AbortError')) {
+        if (
+          error?.name !== 'AbortError' &&
+          !message.includes('AbortError') &&
+          !isMissingLibraryTableError(error)
+        ) {
           console.error('Error fetching library items:', error);
         }
         setLibraryItems([]);
@@ -280,7 +298,7 @@ export default function Navbar() {
             </div>
 
             <div className="hidden md:flex md:items-center md:space-x-6 justify-center">
-              {navLinks.filter((link) => !link.isButton).map((link, index) => {
+              {visibleNavLinks.filter((link) => !link.isButton).map((link, index) => {
                 if (link.name === 'Courses') {
                   const dynamicChildren = courseGroups.length
                     ? [{ name: 'All Courses', path: '/courses' }, ...courseGroups]
@@ -644,7 +662,7 @@ export default function Navbar() {
                   </span>
                 </Link>
               )}
-              {navLinks.filter((link) => link.isButton).map((link, index) => (
+              {visibleNavLinks.filter((link) => link.isButton).map((link, index) => (
                 <Link
                   key={`${link.path}-${link.name}-${index}`}
                   href={link.path}
@@ -679,7 +697,7 @@ export default function Navbar() {
         {isMenuOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t border-gray-200">
-              {navLinks.map((link, index) => {
+              {visibleNavLinks.map((link, index) => {
                 if (link.children && !link.isButton) {
                   return (
                     <div key={`${link.path}-${link.name}-${index}`} className="relative">

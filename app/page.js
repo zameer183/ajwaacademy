@@ -115,9 +115,18 @@ export default function HomePage() {
   }, []);
 
   const slides = [
-    { src: '/hero%20section1.jpeg', alt: 'Reading Session' },
-    { src: '/hero%20section2.jpeg', alt: 'Book Study' },
-    { src: '/hero%20section3.jpeg', alt: 'Study Still Life' },
+    {
+      src: '/online-quran-classes-hero-slide-1.jpg',
+      alt: 'Online Quran class teacher guiding a student during recitation',
+    },
+    {
+      src: '/online-quran-classes-hero-slide-2.jpg',
+      alt: 'Student learning Quran online with Tajweed focus',
+    },
+    {
+      src: '/online-quran-classes-hero-slide-3.jpg',
+      alt: 'Quran study setup for online Islamic learning',
+    },
   ];
   const whyChooseItems = [
     {
@@ -144,6 +153,38 @@ export default function HomePage() {
       title: 'Authentic Islamic teaching environment',
       description:
         'Sincere, respectful learning that builds connection with Quran and Sunnah.',
+    },
+  ];
+  const testimonials = [
+    {
+      name: 'Sarah M.',
+      country: 'UK',
+      review:
+        'My daughter improved her Quran reading in a few weeks. The teacher is patient and very clear.',
+    },
+    {
+      name: 'Ahmad R.',
+      country: 'USA',
+      review:
+        'Flexible timings and one-to-one classes helped me stay consistent with Tajweed practice.',
+    },
+    {
+      name: 'Ayesha K.',
+      country: 'Australia',
+      review:
+        'Lessons are structured and easy to follow. I finally feel confident reading with proper pronunciation.',
+    },
+    {
+      name: 'Bilal H.',
+      country: 'Pakistan',
+      review:
+        'Excellent teaching style and regular feedback. The progress tracking keeps students motivated.',
+    },
+    {
+      name: 'Maryam S.',
+      country: 'Canada',
+      review:
+        'A trusted academy with supportive teachers. My kids enjoy classes and look forward to every session.',
     },
   ];
 
@@ -299,16 +340,6 @@ export default function HomePage() {
             <div className="max-w-5xl mx-auto">
               <div className="rounded-xl shadow group hover:shadow-2xl transition-all duration-1000 border-0 bg-white/90 backdrop-blur-sm hover:bg-white hover:scale-105 relative overflow-hidden">
                 <div className="p-10 md:p-14 text-center relative">
-                  <div className="absolute inset-0 opacity-5">
-                    <div
-                      className="absolute bottom-8 right-8 w-12 h-12 bg-gradient-to-r from-[rgba(0,0,102)] to-[rgba(51,102,153)] rounded-full animate-bounce"
-                      style={{ animationDuration: '4s' }}
-                    ></div>
-                    <div
-                      className="absolute top-1/2 left-8 w-8 h-8 bg-[rgba(51,102,153)] transform rotate-45 animate-pulse"
-                      style={{ animationDuration: '3s' }}
-                    ></div>
-                  </div>
                   <div className="relative z-10">
                     <h3 className="text-3xl font-bold text-gray-900 mb-6 group-hover:text-[rgba(0,0,102)] transition-colors duration-500">
                       Learn the Quran Online with Care and Clarity
@@ -403,7 +434,11 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="flex flex-col items-center text-center">
-                <img src="/why.jpeg" alt="Quran Reading Course" className="w-full max-w-xs h-auto rounded-xl shadow-lg" />
+                <img
+                  src="/why-choose-ajwa-academy.jpg"
+                  alt="Student learning Quran reading in Ajwa Academy online class"
+                  className="w-full max-w-xs h-auto rounded-xl shadow-lg"
+                />
                 <p className="text-sm text-gray-600 mt-4">Quran Reading Course</p>
               </div>
             </div>
@@ -411,7 +446,11 @@ export default function HomePage() {
             <div className="mt-12">
               <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-10 items-center">
                 <div className="flex items-center justify-center">
-                  <img src="/the.jpeg" alt="Tajweed Course" className="w-full max-w-md h-auto rounded-2xl shadow-lg" />
+                  <img
+                    src="/online-tajweed-course.jpg"
+                    alt="Online Tajweed course session with proper Quran pronunciation practice"
+                    className="w-full max-w-md h-auto rounded-2xl shadow-lg"
+                  />
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-4">
@@ -479,6 +518,31 @@ export default function HomePage() {
                     </div>
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="py-16 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-bold text-gray-900 mb-3">Student Testimonials</h2>
+              <div className="w-20 h-1 bg-[rgba(0,0,102)] rounded-full mx-auto mb-4" />
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                Feedback from students and parents learning with Ajwa Academy.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {testimonials.map((item) => (
+                <article
+                  key={`${item.name}-${item.country}`}
+                  className="bg-gray-50 border border-[rgba(0,0,102,0.12)] rounded-xl p-6 shadow-sm"
+                >
+                  <p className="text-gray-700 leading-relaxed">"{item.review}"</p>
+                  <p className="mt-4 text-sm font-semibold text-[rgba(0,0,102)]">
+                    {item.name} — {item.country}
+                  </p>
+                </article>
               ))}
             </div>
           </div>
