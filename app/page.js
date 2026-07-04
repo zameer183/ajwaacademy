@@ -118,23 +118,17 @@ export default function HomePage() {
     {
       src: '/online-quran-classes-hero-slide-1.webp',
       alt: 'Online Quran class teacher guiding a student during recitation',
-      titleLines: ['Online Quran Classes'],
-      description:
-        'Join Ajwa Academy for live, one-to-one Quran classes for kids & adults.',
+      badge: 'Learn Quran Online',
     },
     {
       src: '/online-quran-classes-hero-slide-2.webp',
       alt: 'Student learning Quran online with Tajweed focus',
-      titleLines: ['Learn from Home'],
-      description:
-        'Learn Quran online, anytime — flexible live sessions from the comfort of your home.',
+      badge: 'Certified Teachers',
     },
     {
       src: '/online-quran-classes-hero-slide-3.webp',
       alt: 'Quran study setup for online Islamic learning',
-      titleLines: ['Certified Teachers'],
-      description:
-        "Learn Quran online with expert, certified teachers — dedicated to every student's journey.",
+      badge: 'Worldwide Learning',
     },
   ];
   const heroRegions = [
@@ -338,24 +332,37 @@ export default function HomePage() {
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-24 min-h-[82svh] sm:min-h-[78vh] flex items-center">
             <div className="max-w-3xl text-left">
               <p className="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-white/90 backdrop-blur-sm mb-4">
-                Learn Quran Online
+                {slides[currentSlide]?.badge}
               </p>
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold leading-[1.12] mb-4 sm:mb-5 max-w-4xl">
-                Online Quran Classes
-              </h1>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold leading-tight mb-3 text-white/98">
-                Learn Quran online with certified teachers through live{' '}
-                <Link href="/blog/benefits-of-one-to-one-online-quran-tutoring" className="underline decoration-white/50 underline-offset-4 hover:decoration-white">
-                  one-to-one classes
-                </Link>{' '}
-                for kids and adults worldwide.
-              </h2>
-              <p className="text-sm sm:text-lg text-white/95 mb-2 sm:mb-4 max-w-2xl">
-                Master{' '}
-                <Link href="/blog/how-to-learn-quran-online-with-tajweed-at-home" className="underline decoration-white/50 underline-offset-4 hover:decoration-white">
-                  Tajweed
-                </Link>
-                , Hifz, and Noorani Qaida through one-to-one classes, flexible timings, monthly progress reports, and experienced teachers dedicated to helping every student succeed.
+              {currentSlide === 0 && (
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold leading-[1.12] mb-4 sm:mb-5 max-w-4xl">
+                  Online Quran Classes
+                </h1>
+              )}
+              <p className="text-2xl sm:text-3xl lg:text-4xl font-semibold leading-tight mb-3 text-white/98">
+                {currentSlide === 0 && (
+                  <>
+                    Learn Quran online with certified teachers through live{' '}
+                    <Link href="/blog/benefits-of-one-to-one-online-quran-tutoring" className="text-inherit no-underline">
+                      one-to-one classes
+                    </Link>{' '}
+                    for kids and adults worldwide.
+                  </>
+                )}
+                {currentSlide === 1 && (
+                  <>
+                    Master{' '}
+                    <Link href="/blog/how-to-learn-quran-online-with-tajweed-at-home" className="text-inherit no-underline">
+                      Tajweed
+                    </Link>
+                    , Hifz, and Noorani Qaida through one-to-one classes.
+                  </>
+                )}
+                {currentSlide === 2 && (
+                  <>
+                    Flexible timings, monthly progress reports, and experienced teachers dedicated to helping every student succeed.
+                  </>
+                )}
               </p>
               <div className="mb-6 sm:mb-8 w-full max-w-full">
                 <div className="flex w-full flex-nowrap items-center justify-between gap-1.5 sm:justify-start sm:gap-3">
