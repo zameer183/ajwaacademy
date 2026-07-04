@@ -44,25 +44,10 @@ export default function EnrollmentPaymentPage() {
           return;
         }
         if (!formData.name || !formData.email) {
-          let profileName = '';
-          let profileEmail = '';
-          try {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('name, email')
-              .eq('id', user.id)
-              .limit(1)
-              .maybeSingle();
-            profileName = profile?.name || '';
-            profileEmail = profile?.email || '';
-          } catch (profileError) {
-            console.error('Profile prefill error:', profileError);
-          }
-
           setFormData((prev) => ({
             ...prev,
-            name: prev.name || profileName || user.user_metadata?.name || '',
-            email: prev.email || profileEmail || user.email || '',
+            name: prev.name || user.user_metadata?.name || '',
+            email: prev.email || user.email || '',
           }));
         }
         const courseData = await courseAPI.getCourseById(courseId);

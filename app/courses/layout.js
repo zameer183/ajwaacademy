@@ -1,7 +1,7 @@
 export const metadata = {
-  title: "Courses",
+  title: "Online Quran Courses | Noorani Qaida Tajweed Hifz — Ajwa Academy",
   description:
-    "Browse online Quran, Tajweed, Islamic studies and Arabic learning courses at Ajwa Academy.",
+    "Explore Ajwa Academy online Quran courses including Noorani Qaida, Tajweed, Hifz, Tafseer, and Islamic Studies. Flexible timings and free trial available.",
   alternates: {
     canonical: "https://www.ajwaacademy.com/courses",
   },

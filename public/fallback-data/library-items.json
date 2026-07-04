@@ -1,0 +1,56 @@
+[
+  {
+    "id": 2001,
+    "title": "Library Book 1",
+    "category": "Islamic Books",
+    "description": "Book resource for students.",
+    "type": "PDF",
+    "image": null,
+    "file_url": "https://drive.google.com/file/d/1ioGCF93k7wgsIYn1175KnpIOeQCHK1g7/view?usp=drive_link"
+  },
+  {
+    "id": 2002,
+    "title": "Library Book 2",
+    "category": "Islamic Books",
+    "description": "Book resource for students.",
+    "type": "PDF",
+    "image": null,
+    "file_url": "https://drive.google.com/file/d/18eK8mXhR8fRv5RNIrFLs3njJr3ayI9Il/view?usp=drive_link"
+  },
+  {
+    "id": 2003,
+    "title": "Library Book 3",
+    "category": "Islamic Books",
+    "description": "Book resource for students.",
+    "type": "PDF",
+    "image": null,
+    "file_url": "https://drive.google.com/file/d/1WpFu-YjEPgeBWQnoDgu5M5suJs3nWGta/view?usp=drive_link"
+  },
+  {
+    "id": 2004,
+    "title": "Library Book 4",
+    "category": "Islamic Books",
+    "description": "Book resource for students.",
+    "type": "PDF",
+    "image": null,
+    "file_url": "https://drive.google.com/file/d/1jpFFWLPyZn3pLdAbH-9pibUaGGL-q2tl/view?usp=drive_link"
+  },
+  {
+    "id": 2005,
+    "title": "Library Book 5",
+    "category": "Islamic Books",
+    "description": "Book resource for students.",
+    "type": "PDF",
+    "image": null,
+    "file_url": "https://drive.google.com/file/d/1xtfFL1QMwHKWDx4QXCx17ky_Z539F-sZ/view?usp=drive_link"
+  },
+  {
+    "id": 2006,
+    "title": "Library Book 6",
+    "category": "Islamic Books",
+    "description": "Book resource for students.",
+    "type": "PDF",
+    "image": null,
+    "file_url": "https://drive.google.com/file/d/1TsRn9y3AMDsDH7JScGD5Heg-RTnjbXGv/view?usp=drive_link"
+  }
+]

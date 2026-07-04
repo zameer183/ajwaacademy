@@ -1,22 +1,22 @@
-const globalPackages = [
+﻿const globalPackages = [
   {
     name: 'Package 1',
     sub: '2 Days / Week · 8 Classes / Month',
-    price: '15',
+    price: '45',
     currency: '$',
     features: ['30 min / Day', 'Quran Reading', 'Namaz / Salah', 'Duas & Kalmas'],
   },
   {
     name: 'Package 2',
     sub: '3 Days / Week · 12 Classes / Month',
-    price: '18',
+    price: '50',
     currency: '$',
     features: ['30 min / Day', 'Quran Reading', 'Namaz / Salah', 'Duas & Kalmas'],
   },
   {
     name: 'Package 3',
     sub: '5 Days / Week · 20 Classes / Month',
-    price: '25',
+    price: '55',
     currency: '$',
     features: ['30 min / Day', 'Quran Reading', 'Namaz / Salah', 'Duas & Kalmas'],
     popular: true,
@@ -24,11 +24,48 @@ const globalPackages = [
   {
     name: 'Package 4',
     sub: 'Weekend Classes · 8 Classes / Month',
-    price: '20',
+    price: '60',
     currency: '$',
     features: ['30 min / Day', 'Quran Reading', 'Namaz / Salah', 'Duas & Kalmas'],
   },
 ];
+
+const uaePackages = [
+  {
+    name: 'Package 1',
+    sub: '2 Days / Week · 8 Classes / Month',
+    price: '150',
+    currency: 'AED ',
+    features: ['30 min / Day', 'Quran Reading', 'Namaz / Salah', 'Duas & Kalmas'],
+  },
+  {
+    name: 'Package 2',
+    sub: '3 Days / Week · 12 Classes / Month',
+    price: '185',
+    currency: 'AED ',
+    features: ['30 min / Day', 'Quran Reading', 'Namaz / Salah', 'Duas & Kalmas'],
+  },
+  {
+    name: 'Package 3',
+    sub: '5 Days / Week · 20 Classes / Month',
+    price: '250',
+    currency: 'AED ',
+    features: ['30 min / Day', 'Quran Reading', 'Namaz / Salah', 'Duas & Kalmas'],
+  },
+  {
+    name: 'Package 4',
+    sub: 'Weekend · 8 Classes / Month',
+    price: '200',
+    currency: 'AED ',
+    features: ['30 min / Day', 'Quran Reading', 'Namaz / Salah', 'Duas & Kalmas'],
+  },
+];
+
+export const metadata = {
+  title: 'Online Quran Classes Fee Structure | Affordable Packages — Ajwa Academy',
+  description:
+    'View Ajwa Academy affordable online Quran class fee packages for UK, USA, UAE, Canada, and Australia. Flexible plans and free trial available.',
+};
 
 const renderPackageGrid = (title, items) => (
   <section className="py-10">
@@ -36,10 +73,10 @@ const renderPackageGrid = (title, items) => (
       <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{title}</h2>
       <div className="w-20 h-1 bg-[rgba(0,0,102)] rounded-full mx-auto" />
     </div>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
       {items.map((pkg) => (
         <div
-          key={pkg.name}
+          key={`${title}-${pkg.name}`}
           className="relative bg-white rounded-2xl shadow-lg border border-[rgba(0,0,102,0.15)] overflow-hidden"
         >
           {pkg.popular && (
@@ -66,13 +103,13 @@ const renderPackageGrid = (title, items) => (
             <ul className="mt-6 space-y-2 text-sm text-gray-700">
               {pkg.features.map((feature) => (
                 <li key={feature} className="flex items-start gap-2">
-                  <span className="text-[rgba(0,0,102)]">✓</span>
+                  <span className="text-[rgba(0,0,102)]">*</span>
                   <span>{feature}</span>
                 </li>
               ))}
             </ul>
             <a
-              href="/contact"
+              href="/free-trial"
               className="mt-6 inline-flex items-center justify-center bg-[rgba(0,0,102)] text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(51,102,153)] transition-colors"
             >
               Order Now
@@ -93,19 +130,14 @@ export default function FeeStructurePage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
               <h1 className="text-3xl sm:text-4xl font-bold mb-1">Fee Structure</h1>
               <p className="text-base sm:text-lg max-w-3xl mx-auto">
-                Our fee structure is simple, affordable, and transparent. The following packages are
-                globally applicable for all regions.
+                Our fee structure is simple, affordable, and transparent.
               </p>
             </div>
           </div>
         </div>
 
-        <div className="mb-2 rounded-lg border border-[rgba(0,0,102,0.15)] bg-white p-4 text-center text-sm text-gray-700">
-          Same monthly pricing currently applies to students in the UK, USA, Australia, Pakistan, and
-          other regions.
-        </div>
-
-        {renderPackageGrid('Global Packages', globalPackages)}
+        {renderPackageGrid('Global Packages (USD)', globalPackages)}
+        {renderPackageGrid('UAE Packages (AED)', uaePackages)}
 
         <div className="bg-gradient-to-r from-[rgba(0,0,102)] to-[rgba(51,102,153)] text-white rounded-lg shadow-md p-8 text-center mb-12">
           <h2 className="text-xl sm:text-2xl font-bold mb-4">Need Help Choosing a Package?</h2>
@@ -131,3 +163,6 @@ export default function FeeStructurePage() {
     </div>
   );
 }
+
+
+

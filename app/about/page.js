@@ -1,4 +1,4 @@
-const coreValues = [
+﻿const coreValues = [
   'Authentic and quality Quran education online',
   'Sincerity and dedication in teaching every class',
   'Modern and effective online Quran learning methods',
@@ -24,6 +24,12 @@ const eligibleGroups = [
 ];
 
 const countries = ['United Kingdom', 'United States', 'Canada', 'Australia', 'United Arab Emirates', 'Europe'];
+
+export const metadata = {
+  title: 'About Ajwa Academy | Certified Online Quran Teachers Worldwide',
+  description:
+    'Learn about Ajwa Academy — a trusted online Quran academy with certified teachers offering one-to-one Quran classes worldwide. Free trial available.',
+};
 
 export default function AboutPage() {
   return (
@@ -77,7 +83,7 @@ export default function AboutPage() {
             the world.
           </p>
           <p>
-            By combining personalized instruction with today’s technology, Ajwa Academy empowers learners to access Quran courses online
+            By combining personalized instruction with today's technology, Ajwa Academy empowers learners to access Quran courses online
             regardless of their location. We help families stay rooted in faith, maintain their identity, and pass on the love of the
             Quran to the next generation.
           </p>
@@ -92,7 +98,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {coreValues.map((value) => (
               <div key={value} className="rounded-2xl border border-[rgba(0,0,102,0.08)] bg-gray-50 p-4 shadow-sm">
-                <span className="text-[rgba(0,0,102)] font-semibold">✓</span> <span className="ml-2 text-gray-800">{value}</span>
+                <span className="text-[rgba(0,0,102)] font-semibold">*</span> <span className="ml-2 text-gray-800">{value}</span>
               </div>
             ))}
           </div>
@@ -129,8 +135,22 @@ export default function AboutPage() {
           <p>
             Join our online Quran classes to experience personalized coaching, flexible scheduling, and ongoing mentorship. We offer a free trial
             Quran class so you can meet the instructor, understand our method, and see how seamlessly a Quran course online can fit into your
-            family’s routine.
+            family's routine.
           </p>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/courses"
+              className="bg-[rgba(0,0,102)] text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(51,102,153)] transition-colors"
+            >
+              View Courses
+            </Link>
+            <Link
+              href="/contact"
+              className="border border-[rgba(0,0,102)] text-[rgba(0,0,102)] px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(0,0,102)] hover:text-white transition-colors"
+            >
+              Contact Us
+            </Link>
+          </div>
         </section>
 
         <section className="bg-white rounded-3xl shadow-lg p-8 space-y-6">
@@ -184,7 +204,43 @@ export default function AboutPage() {
             feedback, and progress notes are delivered digitally so families can stay informed about each stage of the Quran learning journey.
           </p>
         </section>
+
+        <section className="bg-white rounded-3xl shadow-lg p-8 space-y-6">
+          <h2 className="text-2xl font-bold text-gray-900 text-center">Leadership</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            <div className="rounded-2xl overflow-hidden border border-[rgba(0,0,102,0.08)] bg-gray-50">
+              <img
+                src="/muhammad-sufyan-cofounder.jpg"
+                alt="Muhammad Sufyan, Co-Founder and Islamic Scholar at Ajwa Academy"
+                className="w-full h-auto object-cover"
+                loading="lazy"
+                width="700"
+                height="900"
+              />
+            </div>
+            <div className="space-y-4">
+              <h3 className="text-3xl font-bold text-[rgba(0,0,102)]">Meet Our Co-Founder</h3>
+              <p className="text-gray-700 leading-relaxed">
+                Muhammad Sufyan brings deep Islamic scholarship to Ajwa Academy. A graduate of Jamia Ashrafia Lahore with a completed Dars-e-Nizami, he combines traditional madrasa education with modern teaching skills.
+              </p>
+              <p className="text-gray-700 leading-relaxed">
+                His expertise in Tajweed, Arabic, and Islamic guidance ensures every student receives authentic and structured Quran education.
+              </p>
+              <div className="rounded-xl border border-[rgba(0,0,102,0.15)] bg-[rgba(0,0,102,0.03)] px-4 py-3">
+                <p className="text-lg font-semibold text-gray-900">Muhammad Sufyan</p>
+                <p className="text-sm text-gray-700">Co-Founder & Islamic Scholar</p>
+                <p className="text-sm font-semibold text-[rgba(0,0,102)] mt-2">Jamia Ashrafia Lahore — Dars-e-Nizami</p>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );
 }
+
+
+
+
+
+import Link from 'next/link';

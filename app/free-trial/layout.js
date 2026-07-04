@@ -1,10 +1,7 @@
 export const metadata = {
-  title: "Free Trial",
+  title: 'Free Trial Online Quran Class | Book Now — Ajwa Academy',
   description:
-    "Book a free trial class at Ajwa Academy and start your online Quran learning journey today.",
-  alternates: {
-    canonical: "https://www.ajwaacademy.com/free-trial",
-  },
+    'Book your free trial online Quran class at Ajwa Academy. No commitment required. Certified teachers, one to one classes, flexible timings worldwide.',
 };
 
 export default function FreeTrialLayout({ children }) {

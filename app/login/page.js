@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -57,7 +57,7 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-8">
         <div className="rounded-t-2xl bg-white px-6 py-8 text-center text-gray-900 shadow-md">
           <Link href="/" className="mx-auto flex h-20 w-20 items-center justify-center">
-            <img src="/ajwa%20logo.png" alt="Ajwa Academy" className="h-20 w-auto object-contain" />
+            <img src="/ajwa-logo.png" alt="Ajwa Academy" className="h-20 w-auto object-contain" />
           </Link>
           <h2 className="mt-4 text-3xl font-extrabold text-gray-900">
             Sign in to your account
@@ -144,3 +144,4 @@ export default function LoginPage() {
     </div>
   );
 }
+

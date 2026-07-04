@@ -26,6 +26,7 @@ body {
   font-family: var(--font-sans);
   scroll-behavior: smooth;
   color-scheme: light;
+  overflow-x: hidden;
 }
 
 html.dark,
@@ -77,6 +78,13 @@ body.dark {
   object-fit: cover;
 }
 
+.blog-detail-content {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: left;
+  line-height: 1.8;
+}
+
 .blog-detail-content h1,
 .blog-detail-content h2,
 .blog-detail-content h3,
@@ -85,13 +93,21 @@ body.dark {
 .blog-detail-content h6 {
   text-align: center;
   font-weight: 700;
+  margin: 1.75rem 0 1rem;
 }
 
-/* Center editor-styled bold headings within content */
-.blog-detail-content b,
-.blog-detail-content strong {
-  display: block;
-  text-align: center;
+.blog-detail-content p {
+  margin: 0 0 1rem;
+  text-align: left;
+}
+
+.blog-detail-content ul,
+.blog-detail-content ol {
+  margin: 0 0 1.25rem 1.25rem;
+}
+
+.blog-detail-content li {
+  margin-bottom: 0.5rem;
 }
 
 .blog-detail-content img,
@@ -192,6 +208,15 @@ body.dark {
 
 .animate-spin-slow {
   animation: spin-slow 18s linear infinite;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 /* Why choose cards (Uiverse.io by Smit-Prajapati) */

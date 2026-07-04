@@ -19,6 +19,11 @@ export default async function sitemap() {
     { url: `${baseUrl}/privacy-policy`, lastModified: now },
     { url: `${baseUrl}/login`, lastModified: now },
     { url: `${baseUrl}/register`, lastModified: now },
+    { url: `${baseUrl}/courses/online-quran-nazra-course`, lastModified: now },
+    { url: `${baseUrl}/courses/online-quran-tajweed-course`, lastModified: now },
+    { url: `${baseUrl}/courses/online-quran-hifz-program`, lastModified: now },
+    { url: `${baseUrl}/courses/namaz-and-daily-duas-online-course`, lastModified: now },
+    { url: `${baseUrl}/courses/islamic-studies-for-kids-online`, lastModified: now },
   ];
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

@@ -3,7 +3,7 @@
   "short_name": "Ajwa Academy",
   "icons": [
     {
-      "src": "/logo.png",
+      "src": "/ajwa-logo.png",
       "sizes": "512x512",
       "type": "image/png"
     },

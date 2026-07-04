@@ -1,11 +1,11 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { courseAPI } from '../lib/static-api';
 import HomeContactCard from '../components/HomeContactCard';
-import ProfilesSection from '../components/ProfilesSection';
+import HomeCtaPopup from '../components/HomeCtaPopup';
 
 export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -116,17 +116,33 @@ export default function HomePage() {
 
   const slides = [
     {
-      src: '/online-quran-classes-hero-slide-1.jpg',
+      src: '/online-quran-classes-hero-slide-1.webp',
       alt: 'Online Quran class teacher guiding a student during recitation',
+      titleLines: ['Online Quran Classes'],
+      description:
+        'Join Ajwa Academy for live, one-to-one Quran classes for kids & adults.',
     },
     {
-      src: '/online-quran-classes-hero-slide-2.jpg',
+      src: '/online-quran-classes-hero-slide-2.webp',
       alt: 'Student learning Quran online with Tajweed focus',
+      titleLines: ['Learn from Home'],
+      description:
+        'Learn Quran online, anytime — flexible live sessions from the comfort of your home.',
     },
     {
-      src: '/online-quran-classes-hero-slide-3.jpg',
+      src: '/online-quran-classes-hero-slide-3.webp',
       alt: 'Quran study setup for online Islamic learning',
+      titleLines: ['Certified Teachers'],
+      description:
+        "Learn Quran online with expert, certified teachers — dedicated to every student's journey.",
     },
+  ];
+  const heroRegions = [
+    { label: 'UK', shortLabel: 'UK', flagUrl: 'https://flagcdn.com/w40/gb.png' },
+    { label: 'USA', shortLabel: 'USA', flagUrl: 'https://flagcdn.com/w40/us.png' },
+    { label: 'UAE', shortLabel: 'UAE', flagUrl: 'https://flagcdn.com/w40/ae.png' },
+    { label: 'Canada', shortLabel: 'CA', flagUrl: 'https://flagcdn.com/w40/ca.png' },
+    { label: 'Worldwide', shortLabel: 'Global', icon: '🌍' },
   ];
   const whyChooseItems = [
     {
@@ -137,7 +153,7 @@ export default function HomePage() {
     {
       title: 'Personalized one-to-one online Quran classes',
       description:
-        'Individual attention and lessons tailored to each student’s level and goals.',
+        "Individual attention and lessons tailored to each student's level and goals.",
     },
     {
       title: 'Structured Quran courses online',
@@ -157,19 +173,19 @@ export default function HomePage() {
   ];
   const testimonials = [
     {
-      name: 'Sarah M.',
+      name: 'Sarah',
       country: 'UK',
       review:
         'My daughter improved her Quran reading in a few weeks. The teacher is patient and very clear.',
     },
     {
-      name: 'Ahmad R.',
+      name: 'Ahmad',
       country: 'USA',
       review:
         'Flexible timings and one-to-one classes helped me stay consistent with Tajweed practice.',
     },
     {
-      name: 'Ayesha K.',
+      name: 'Ayesha',
       country: 'Australia',
       review:
         'Lessons are structured and easy to follow. I finally feel confident reading with proper pronunciation.',
@@ -181,10 +197,56 @@ export default function HomePage() {
         'Excellent teaching style and regular feedback. The progress tracking keeps students motivated.',
     },
     {
-      name: 'Maryam S.',
+      name: 'Maryam',
       country: 'Canada',
       review:
         'A trusted academy with supportive teachers. My kids enjoy classes and look forward to every session.',
+    },
+  ];
+  const teacherProfiles = [
+    {
+      name: 'Ustadha Ayesha Noor',
+      photo: '/teacher-woman.webp',
+      qualification: 'Alimah, Tajweed certification, Ijazah in recitation',
+      years: '12 years of Islamic education',
+      subject: 'Noorani Qaida, Makharij, and Online Tajweed Course',
+    },
+    {
+      name: 'Qari Muhammad Ahmed',
+      photo: '/teacher-man.webp',
+      qualification: 'Dars-e-Nizami graduate and certified Quran teacher',
+      years: '10 years of Islamic education',
+      subject: 'Quran recitation, Hifz, and Quran memorization classes',
+    },
+    {
+      name: 'Muhammad Sufyan',
+      photo: '/muhammad-sufyan-cofounder.jpg',
+      qualification: 'Jamia Ashrafia Lahore, Dars-e-Nizami, Islamic scholar',
+      years: '14 years of Islamic education',
+      subject: 'Islamic studies, Surah explanation, and one-to-one classes',
+    },
+  ];
+  const caseStudies = [
+    {
+      name: 'Amina',
+      country: 'UK',
+      joined: 'Beginner in Noorani Qaida',
+      months: '6 months',
+      result: 'Now reads short Surahs confidently with better Tajweed and Makharij.',
+    },
+    {
+      name: 'Yusuf',
+      country: 'Canada',
+      joined: 'Intermediate Quran recitation student',
+      months: '8 months',
+      result: 'Completed Quran recitation and started structured Hifz revision.',
+    },
+    {
+      name: 'Hafsa',
+      country: 'UAE',
+      joined: 'Tajweed learner needing pronunciation help',
+      months: '10 months',
+      result: 'Improved fluency, earned monthly progress reports, and began Ijazah preparation.',
     },
   ];
 
@@ -208,118 +270,168 @@ export default function HomePage() {
   }, []);
 
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      { "@type": "Question", name: "What are online Quran classes?", acceptedAnswer: { "@type": "Answer", text: "Online Quran classes are live lessons where students learn Quran reading, Tajweed, and Islamic studies through the internet. At Ajwa Academy, students can learn Quran online with qualified teachers in one-to-one Quran lessons from anywhere in the world." } },
+      { "@type": "Question", name: "How can I learn Quran online with a teacher?", acceptedAnswer: { "@type": "Answer", text: "You can learn Quran online by joining live Quran learning sessions with a qualified teacher. Students receive personalized lessons, correct Tajweed guidance, and step-by-step Quran reading instruction through structured Quran courses online." } },
+      { "@type": "Question", name: "Who can join your online Quran classes?", acceptedAnswer: { "@type": "Answer", text: "Our Quran education is open for children, teenagers, and adults. Whether you are a beginner or someone who wants to improve Tajweed and Quran recitation, our online Quran teachers guide students according to their level." } },
+      { "@type": "Question", name: "Do you offer one-to-one online Quran classes?", acceptedAnswer: { "@type": "Answer", text: "Yes, Ajwa Academy provides one-to-one Quran learning so each student receives personal attention from a qualified online Quran teacher." } },
+      { "@type": "Question", name: "Which countries can join Ajwa Academy?", acceptedAnswer: { "@type": "Answer", text: "Students from the UK, USA, Canada, Australia, UAE, and other countries can join our Quran education programs with flexible schedules." } },
+      { "@type": "Question", name: "Do you offer a free trial Quran class?", acceptedAnswer: { "@type": "Answer", text: "Yes, we offer a free trial Quran class so students and parents can understand the teaching method before enrolling in regular Quran lessons." } },
+    ],
+  };
+
+  const reviewSchema = {
+    "@context": "https://schema.org",
+    "@type": "EducationalOrganization",
+    name: "Ajwa Academy",
+    url: "https://www.ajwaacademy.com",
+    review: [
+      { "@type": "Review", author: { "@type": "Person", name: "Sarah" }, reviewBody: "My daughter improved her Quran reading in a few weeks. The teacher is patient and very clear.", reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" } },
+      { "@type": "Review", author: { "@type": "Person", name: "Ahmad" }, reviewBody: "Flexible timings and one-to-one classes helped me stay consistent with Tajweed practice.", reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" } },
+      { "@type": "Review", author: { "@type": "Person", name: "Ayesha" }, reviewBody: "Lessons are structured and easy to follow. I finally feel confident reading with proper pronunciation.", reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" } },
+      { "@type": "Review", author: { "@type": "Person", name: "Bilal H." }, reviewBody: "Excellent teaching style and regular feedback. The progress tracking keeps students motivated.", reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" } },
+      { "@type": "Review", author: { "@type": "Person", name: "Maryam" }, reviewBody: "A trusted academy with supportive teachers. My kids enjoy classes and look forward to every session.", reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" } },
+    ],
+    aggregateRating: { "@type": "AggregateRating", ratingValue: "5", reviewCount: "5", bestRating: "5" },
+  };
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Ajwa Academy",
+    url: "https://www.ajwaacademy.com",
+    logo: "https://www.ajwaacademy.com/ajwa-logo.png",
+    telephone: "+92-326-0054808",
+    email: "ajwaacademyofficial@gmail.com",
+  };
+
   return (
     <>
-      <link
-        rel="preload"
-        as="image"
-        href="https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1200&q=80"
-      />
-      <link
-        rel="preload"
-        as="image"
-        href="https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?auto=format&fit=crop&w=1200&q=80"
-      />
-      <link
-        rel="preload"
-        as="image"
-        href="https://images.unsplash.com/photo-1519682577862-22b62b24e493?auto=format&fit=crop&w=1200&q=80"
-      />
+      <HomeCtaPopup />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(reviewSchema) }} />
       <div className="min-h-screen">
-        <section className="bg-gradient-to-r from-[rgba(0,0,102)] to-[rgba(51,102,153)] text-white py-8 sm:py-10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 items-center">
-              <div className="z-10 flex flex-col justify-center h-full text-left">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-bold leading-[1.15] mb-5 sm:mb-6">
-                  Online Quran Classes with Certified Teachers: Learn Quran Online from Home
-                </h1>
-                <p className="text-base sm:text-lg md:text-xl text-white mb-6 sm:mb-8 max-w-2xl">
-                  Learn Quran online with qualified teachers through live one-to-one online Quran classes.
-                  Ajwa Academy provides structured Quran courses online for kids and adults worldwide,
-                  including the UK, USA, Canada, and UAE.
-                </p>
-                <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                  <Link
-                    href="/free-trial"
-                    className="bg-white text-[rgba(0,0,102)] px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors duration-200 text-center"
-                  >
-                    Free Trial Quran Class
-                  </Link>
-                  <Link
-                    href="/courses"
-                    className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white hover:text-[rgba(0,0,102)] transition-colors duration-200 text-center"
-                  >
-                    View Quran Courses
-                  </Link>
+        <section className="relative min-h-[82svh] sm:min-h-[78vh] text-white overflow-hidden">
+          <div
+            className="absolute inset-0 flex transition-transform duration-700 ease-in-out"
+            style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+          >
+            {slides.map((slide, index) => (
+              <div key={slide.src} className="relative h-full w-full flex-shrink-0">
+                <Image
+                  src={slide.src}
+                  alt={slide.alt}
+                  fill
+                  className="object-cover"
+                  sizes="100vw"
+                  priority={index === 0}
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className="absolute inset-0 bg-gradient-to-r from-[rgba(0,0,102,0.88)] via-[rgba(0,0,102,0.72)] to-[rgba(0,0,102,0.45)]" />
+
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-24 min-h-[82svh] sm:min-h-[78vh] flex items-center">
+            <div className="max-w-3xl text-left">
+              <p className="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-white/90 backdrop-blur-sm mb-4">
+                Learn Quran Online
+              </p>
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold leading-[1.12] mb-4 sm:mb-5 max-w-4xl">
+                Online Quran Classes
+              </h1>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold leading-tight mb-3 text-white/98">
+                Learn Quran online with certified teachers through live{' '}
+                <Link href="/blog/benefits-of-one-to-one-online-quran-tutoring" className="underline decoration-white/50 underline-offset-4 hover:decoration-white">
+                  one-to-one classes
+                </Link>{' '}
+                for kids and adults worldwide.
+              </h2>
+              <p className="text-sm sm:text-lg text-white/95 mb-2 sm:mb-4 max-w-2xl">
+                Master{' '}
+                <Link href="/blog/how-to-learn-quran-online-with-tajweed-at-home" className="underline decoration-white/50 underline-offset-4 hover:decoration-white">
+                  Tajweed
+                </Link>
+                , Hifz, and Noorani Qaida through one-to-one classes, flexible timings, monthly progress reports, and experienced teachers dedicated to helping every student succeed.
+              </p>
+              <div className="mb-6 sm:mb-8 w-full max-w-full">
+                <div className="flex w-full flex-nowrap items-center justify-between gap-1.5 sm:justify-start sm:gap-3">
+                  {heroRegions.map((region) => (
+                    <span
+                      key={region.label}
+                      className="inline-flex min-w-0 flex-1 items-center justify-center gap-1 rounded-full bg-[rgba(22,101,52,0.55)] border border-white/20 px-1.5 py-1.5 text-[10px] sm:flex-none sm:gap-1.5 sm:px-3 sm:text-sm font-semibold text-white backdrop-blur-sm transition-all duration-200 hover:bg-[rgba(22,101,52,0.72)] hover:-translate-y-0.5 whitespace-nowrap"
+                    >
+                      {region.flagUrl ? (
+                        <img
+                          src={region.flagUrl}
+                          alt={`${region.label} flag`}
+                          className="h-3 w-3 sm:h-4 sm:w-4 rounded-full object-cover ring-1 ring-white/40"
+                          width="14"
+                          height="14"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <span aria-hidden="true" className="text-base leading-none">
+                          {region.icon}
+                        </span>
+                      )}
+                      <span className="sm:hidden">{region.shortLabel}</span>
+                      <span className="hidden sm:inline">{region.label}</span>
+                    </span>
+                  ))}
                 </div>
               </div>
-
-              <div className="relative w-full max-w-2xl mx-auto flex items-center">
-                <div className="relative w-full h-60 sm:h-80 md:h-96 lg:h-[26rem] rounded-lg shadow-2xl overflow-hidden">
-                  <div
-                    className="flex transition-transform duration-700 ease-in-out w-full h-full"
-                    style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-                  >
-                    {slides.map((slide, index) => (
-                      <div key={slide.src} className="flex-shrink-0 w-full h-full relative">
-                        <div className="absolute inset-0 bg-gray-200">
-                          <Image
-                            src={slide.src}
-                            alt={slide.alt}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            priority={index === 0}
-                            unoptimized
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-30">
-                    {slides.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => goToSlide(index)}
-                        className={`w-3 h-3 rounded-full transition-all ${
-                          currentSlide === index
-                            ? 'bg-white bg-opacity-100'
-                            : 'bg-white bg-opacity-50 hover:bg-opacity-75'
-                        }`}
-                      />
-                    ))}
-                  </div>
-
-                  <button
-                    onClick={prevSlide}
-                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-30 hover:bg-opacity-50 rounded-full p-2 transition-all z-30"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={nextSlide}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-30 hover:bg-opacity-50 rounded-full p-2 transition-all z-30"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </div>
-
-                <div className="hidden sm:block absolute -bottom-6 -left-6 w-24 h-24 bg-yellow-400 rounded-full opacity-20 -z-10" />
-                <div className="hidden sm:block absolute -top-6 -right-6 w-16 h-16 bg-pink-400 rounded-full opacity-20 -z-10" />
-                <div className="hidden sm:block absolute top-10 left-10 w-12 h-12 bg-indigo-400 rounded-full opacity-20 -z-10" />
-                <div className="hidden sm:block absolute bottom-20 right-20 w-10 h-10 bg-purple-400 rounded-full opacity-20 -z-10" />
-                <div className="hidden sm:block absolute top-1/3 right-1/4 w-8 h-8 bg-blue-400 rounded-full opacity-20 -z-10" />
-                <div className="hidden sm:block absolute top-1/4 left-1/3 w-6 h-6 bg-green-400 rounded-full opacity-20 -z-10" />
-                <div className="hidden sm:block absolute bottom-1/4 right-1/3 w-14 h-14 bg-red-400 rounded-full opacity-20 -z-10" />
-                <div className="hidden sm:block absolute top-2/3 left-1/4 w-7 h-7 bg-teal-400 rounded-full opacity-20 -z-10" />
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link
+                  href="/free-trial"
+                  className="bg-white text-[rgba(0,0,102)] px-6 sm:px-8 py-3.5 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-gray-100 transition-colors duration-200 text-center"
+                >
+                  Free Trial Quran Class
+                </Link>
+                <Link
+                  href="/courses"
+                  className="border-2 border-white text-white px-6 sm:px-8 py-3.5 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-white hover:text-[rgba(0,0,102)] transition-colors duration-200 text-center"
+                >
+                  View Quran Courses
+                </Link>
               </div>
             </div>
           </div>
+
+          <div className="absolute bottom-3 sm:bottom-6 left-1/2 -translate-x-1/2 flex space-x-2 z-20">
+            {slides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goToSlide(index)}
+                className={`w-3 h-3 rounded-full transition-all ${
+                  currentSlide === index ? 'bg-white' : 'bg-white/55 hover:bg-white/80'
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={prevSlide}
+            className="hidden sm:block absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 bg-black/35 hover:bg-black/55 rounded-full p-2.5 transition-all z-20"
+            aria-label="Previous slide"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={nextSlide}
+            className="hidden sm:block absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 bg-black/35 hover:bg-black/55 rounded-full p-2.5 transition-all z-20"
+            aria-label="Next slide"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
         </section>
 
         <section className="py-24 bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 relative overflow-hidden">
@@ -333,7 +445,7 @@ export default function HomePage() {
             <div className="text-center mb-16">
               <div className="inline-block animate-bounce" style={{ animationDuration: '3s' }}></div>
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 animate-fade-in-up">
-                Online Quran Classes
+                Learn Quran Online: Quran Courses Online
               </h2>
               <div className="w-24 h-1 bg-gradient-to-r from-[rgba(0,0,102)] to-[rgba(51,102,153)] mx-auto animate-pulse"></div>
             </div>
@@ -342,14 +454,14 @@ export default function HomePage() {
                 <div className="p-10 md:p-14 text-center relative">
                   <div className="relative z-10">
                     <h3 className="text-3xl font-bold text-gray-900 mb-6 group-hover:text-[rgba(0,0,102)] transition-colors duration-500">
-                      Learn the Quran Online with Care and Clarity
+                      Online Quran Classes for Kids and Adults
                     </h3>
                     <p className="text-xl text-gray-800 leading-relaxed mb-6 font-medium">
-                      Ajwa Academy offers professional online Quran classes for kids and adults around the
-                      world. Our academy provides structured Quran courses online, including Quran reading,
-                      Tajweed, memorization, and Islamic studies. Through live one-to-one online Quran lessons,
-                      students can learn the Quran online with qualified and experienced teachers from the
-                      comfort of their homes.
+                      Ajwa Academy provides authentic online Quran classes for kids and adults worldwide.
+                      Our academy offers Quran courses online with Tajweed, Hifz, Noorani Qaida, Makharij,
+                      Surah practice, Quran recitation, and Islamic scholars guiding each lesson. Through live
+                      one-to-one classes and monthly progress reports, students learn with certified teachers
+                      and flexible timings from the comfort of their homes.
                     </p>
                     <div className="mt-8 pt-6 border-t border-gray-200">
                       <p className="text-[rgba(0,0,102)] font-semibold text-lg">
@@ -367,13 +479,14 @@ export default function HomePage() {
         <section className="py-16 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-3">About Ajwa Academy</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-3">Quran Classes Online with Certified Teachers</h2>
               <div className="w-20 h-1 bg-[rgba(0,0,102)] rounded-full mx-auto mb-6" />
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                Ajwa Academy is a trusted platform providing online Quran classes for students worldwide.
-                Our mission is to help students learn Quran online with proper Tajweed, understanding, and
-                Islamic values. We offer personalized online Quran lessons taught by qualified teachers who
-                guide students step-by-step in Quran reading, memorization, and Islamic studies.
+                Ajwa Academy provides authentic online Quran classes for kids and adults worldwide. Our
+                mission is to help students learn Quran online with proper Tajweed, Hifz, Noorani Qaida,
+                Makharij, Surah recitation, and Islamic guidance from certified teachers. We offer
+                personalized one-to-one classes, monthly progress reports, and flexible timings for every
+                learner.
                 <span className="block mt-4">
                   Students from the UK, USA, Canada, Australia, UAE, and Europe join our academy to receive
                   authentic and structured Quran courses online.
@@ -383,15 +496,15 @@ export default function HomePage() {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 mb-12">
               <div className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div className="text-4xl font-bold text-[rgba(0,0,102)] mb-2">100+</div>
-                <div className="text-sm font-medium text-gray-700">online Classes</div>
+                <div className="text-4xl font-bold text-[rgba(0,0,102)] mb-2">1000+</div>
+                <div className="text-sm font-medium text-gray-700">Online Classes</div>
               </div>
               <div className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div className="text-4xl font-bold text-[rgba(0,0,102)] mb-2">100+</div>
+                <div className="text-4xl font-bold text-[rgba(0,0,102)] mb-2">200+</div>
                 <div className="text-sm font-medium text-gray-700">Students</div>
               </div>
               <div className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div className="text-4xl font-bold text-[rgba(0,0,102)] mb-2">10+</div>
+                <div className="text-4xl font-bold text-[rgba(0,0,102)] mb-2">15+</div>
                 <div className="text-sm font-medium text-gray-700">Qualified Teachers</div>
               </div>
               <div className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
@@ -401,22 +514,24 @@ export default function HomePage() {
               <div className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <div className="text-4xl font-bold text-[rgba(0,0,102)] mb-2">100%</div>
                 <div className="text-xs font-medium text-gray-700 text-center">
-                  Approved/<br />Satisfaction
+                  Student<br />Satisfaction
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Our Mission</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Online Quran Teacher Support</h3>
                 <p className="text-gray-600 mb-6">
-                  Our mission is to deliver quality education with sincerity, discipline, and modern
-                  teaching methods, making learning accessible to students worldwide.
+                  Our online Quran teachers support every student with live one-to-one classes, monthly
+                  progress reports, and clear guidance on Tajweed, Hifz, Makharij, and Quran memorization
+                  classes.
                 </p>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Our Vision</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Memorise Quran with Flexible Timings</h3>
                 <p className="text-gray-600">
-                  To become a trusted online academy offering Quranic education and multiple learning
-                  programs under one platform.
+                  We aim to make Quran learning online simple for families who want flexible timings,
+                  authentic guidance from Islamic scholars, and steady progress in Surah recitation, Hifz,
+                  and Tajweed course online learning.
                 </p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <a
@@ -434,11 +549,15 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="flex flex-col items-center text-center">
-                <img
-                  src="/why-choose-ajwa-academy.jpg"
-                  alt="Student learning Quran reading in Ajwa Academy online class"
-                  className="w-full max-w-xs h-auto rounded-xl shadow-lg"
-                />
+                <div className="relative w-full max-w-xs aspect-[4/5] overflow-hidden rounded-xl shadow-lg">
+                  <Image
+                    src="/why-choose-ajwa-academy.webp"
+                    alt="Student learning Quran reading in Ajwa Academy online class"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 80vw, 320px"
+                  />
+                </div>
                 <p className="text-sm text-gray-600 mt-4">Quran Reading Course</p>
               </div>
             </div>
@@ -446,11 +565,15 @@ export default function HomePage() {
             <div className="mt-12">
               <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-10 items-center">
                 <div className="flex items-center justify-center">
-                  <img
-                    src="/online-tajweed-course.jpg"
-                    alt="Online Tajweed course session with proper Quran pronunciation practice"
-                    className="w-full max-w-md h-auto rounded-2xl shadow-lg"
-                  />
+                  <div className="relative w-full max-w-md aspect-[4/3] overflow-hidden rounded-2xl shadow-lg">
+                    <Image
+                      src="/online-tajweed-course.webp"
+                      alt="Online Tajweed course session with proper Quran pronunciation practice"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 1024px) 90vw, 480px"
+                    />
+                  </div>
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-4">
@@ -496,7 +619,7 @@ export default function HomePage() {
             </div>
 
             <div className="flex flex-wrap justify-center gap-6">
-              {whyChooseItems.map((item, index) => (
+              {whyChooseItems.map((item) => (
                 <div key={item.title} className="why-card-parent">
                   <div className="why-card">
                     <div className="logo">
@@ -504,18 +627,14 @@ export default function HomePage() {
                       <span className="circle circle2"></span>
                       <span className="circle circle3"></span>
                       <span className="circle circle4"></span>
-                      <span className="circle circle5">
-                        <span className="brand-letter">A</span>
-                      </span>
+                      <span className="circle circle5"></span>
                     </div>
                     <div className="glass"></div>
                     <div className="content">
                       <span className="title">{item.title}</span>
                       <span className="text">{item.description}</span>
                     </div>
-                    <div className="bottom">
-                      <div className="package-label">Package {index + 1}</div>
-                    </div>
+                    <div className="bottom"></div>
                   </div>
                 </div>
               ))}
@@ -542,6 +661,89 @@ export default function HomePage() {
                   <p className="mt-4 text-sm font-semibold text-[rgba(0,0,102)]">
                     {item.name} — {item.country}
                   </p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="py-16 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-bold text-gray-900 mb-3">Online Quran Teacher Profiles</h2>
+              <p className="text-gray-600 max-w-3xl mx-auto">
+                Meet our certified teachers who guide students through Tajweed, Hifz, Noorani Qaida,
+                Makharij, and Quran recitation with monthly progress reports.
+              </p>
+            </div>
+            <h3 className="text-center text-xl font-semibold text-[rgba(0,0,102)] mb-6">
+              Online Tajweed Course and Hifz Mentors
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {teacherProfiles.map((teacher) => (
+                <article
+                  key={teacher.name}
+                  className="bg-white border border-[rgba(0,0,102,0.08)] rounded-2xl shadow-sm overflow-hidden"
+                >
+                  <div className="relative aspect-[4/3] bg-gray-100">
+                    <Image
+                      src={teacher.photo}
+                      alt={`${teacher.name} teaching online Quran classes`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                    />
+                  </div>
+                  <div className="p-6 space-y-3">
+                    <h3 className="text-2xl font-bold text-gray-900">{teacher.name}</h3>
+                    <p className="text-sm font-semibold text-[rgba(0,0,102)]">{teacher.qualification}</p>
+                    <p className="text-sm text-gray-600">{teacher.years}</p>
+                    <p className="text-sm text-gray-700">{teacher.subject}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <Link
+                href="/courses"
+                className="bg-[rgba(0,0,102)] text-white px-5 py-3 rounded-lg text-sm font-semibold hover:bg-[rgba(51,102,153)] transition-colors"
+              >
+                View Courses
+              </Link>
+              <Link
+                href="/free-trial"
+                className="border border-[rgba(0,0,102)] text-[rgba(0,0,102)] px-5 py-3 rounded-lg text-sm font-semibold hover:bg-[rgba(0,0,102)] hover:text-white transition-colors"
+              >
+                Book Free Trial
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-16 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-bold text-gray-900 mb-3">Quran Memorization Classes: Student Success Stories</h2>
+              <p className="text-gray-600 max-w-3xl mx-auto">
+                Real progress from learners who joined as beginners and built confidence in Quran recitation,
+                Tajweed, and Hifz through one-to-one classes.
+              </p>
+            </div>
+            <h3 className="text-center text-xl font-semibold text-[rgba(0,0,102)] mb-6">
+              Online Quran Classes for Kids Success Stories
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {caseStudies.map((story) => (
+                <article
+                  key={`${story.name}-${story.country}`}
+                  className="rounded-2xl border border-[rgba(0,0,102,0.08)] bg-gray-50 p-6 shadow-sm"
+                >
+                  <p className="text-sm font-semibold text-[rgba(0,0,102)]">
+                    {story.name} — {story.country}
+                  </p>
+                  <h3 className="text-xl font-bold text-gray-900 mt-3">{story.joined}</h3>
+                  <p className="mt-2 text-sm text-gray-600">Studied for {story.months}</p>
+                  <p className="mt-4 text-gray-700 leading-relaxed">{story.result}</p>
                 </article>
               ))}
             </div>
@@ -594,16 +796,19 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-4xl mx-auto space-y-10">
               <div className="rounded-xl border bg-white shadow overflow-hidden group hover:shadow-2xl transition-all duration-700 hover:-translate-y-2 cursor-pointer">
                 <div className="p-0">
                   <div className="grid md:grid-cols-2 gap-0">
                     <div className="relative h-64 md:h-full bg-gradient-to-br from-[rgba(0,0,102,0.08)] to-[rgba(51,102,153,0.18)] overflow-hidden">
                       <div className="absolute inset-0 group-hover:scale-110 transition-transform duration-700">
-                        <img
-                          src="/ibrahim.jpeg"
-                          alt="Muhammad Ibrahim - Founder & CEO"
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        <Image
+                          src="/ibrahim.webp"
+                          alt="Muhammad Ibrahim, founder of Ajwa Academy"
+                          width={700}
+                          height={900}
+                          loading="lazy"
+                          className="w-full h-full object-contain md:object-cover md:object-center object-top group-hover:scale-105 transition-transform duration-700"
                         />
                       </div>
                       <div className="absolute top-4 left-4 w-8 h-8 bg-white/30 rounded-full animate-float"></div>
@@ -656,6 +861,7 @@ export default function HomePage() {
                   </div>
                 </div>
               </div>
+
             </div>
           </div>
         </section>
@@ -685,14 +891,13 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1.4fr)_24rem] xl:gap-12 xl:items-start">
               <div className="grid grid-cols-1 gap-8 lg:grid-cols-[0.72fr_1fr] lg:items-start">
-                <div className="overflow-hidden rounded-3xl border border-[rgba(0,0,102,0.08)] bg-white shadow-lg">
-                  <img
-                    src="/online%20quran.jfif"
-                    alt="Online Quran Classes FAQs"
-                    className="h-full w-full object-cover"
-                    loading="lazy"
-                    width="600"
-                    height="600"
+                <div className="relative aspect-square overflow-hidden rounded-3xl border border-[rgba(0,0,102,0.08)] bg-white shadow-lg">
+                  <Image
+                    src="/online-quran-classes-faq.webp"
+                    alt="Online Quran classes frequently asked questions"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 600px"
                   />
                 </div>
                 <div>
@@ -710,27 +915,27 @@ export default function HomePage() {
                     {[
                       {
                         q: "What are online Quran classes?",
-                        a: "Online Quran classes are live lessons where students learn Quran reading, Tajweed, and Islamic studies through the internet. At Ajwa Academy, students can learn Quran online with qualified teachers in one-to-one online Quran classes from anywhere in the world.",
+                        a: "Online Quran classes are live lessons where students learn Quran reading, Tajweed, and Islamic studies through the internet. At Ajwa Academy, students can learn Quran online with qualified teachers in one-to-one Quran lessons from anywhere in the world.",
                       },
                       {
                         q: "How can I learn Quran online with a teacher?",
-                        a: "You can learn Quran online by joining live online Quran classes with a qualified teacher. Students receive personalized lessons, correct Tajweed guidance, and step-by-step Quran reading instruction through structured Quran courses online.",
+                        a: "You can learn Quran online by joining live Quran learning sessions with a qualified teacher. Students receive personalized lessons, correct Tajweed guidance, and step-by-step Quran reading instruction through structured Quran courses online.",
                       },
                       {
                         q: "Who can join your online Quran classes?",
-                        a: "Our online Quran classes are open for children, teenagers, and adults. Whether you are a beginner or someone who wants to improve Tajweed and Quran recitation, our online Quran teachers guide students according to their level.",
+                        a: "Our Quran education is open for children, teenagers, and adults. Whether you are a beginner or someone who wants to improve Tajweed and Quran recitation, our online Quran teachers guide students according to their level.",
                       },
                       {
                         q: "Do you offer one-to-one online Quran classes?",
-                        a: "Yes, Ajwa Academy provides one-to-one online Quran classes so each student receives personal attention from a qualified online Quran teacher. This helps students learn Quran online faster and with better pronunciation.",
+                        a: "Yes, Ajwa Academy provides one-to-one Quran learning so each student receives personal attention from a qualified online Quran teacher. This helps students learn Quran online faster and with better pronunciation.",
                       },
                       {
                         q: "Which countries can join Ajwa Academy online Quran classes?",
-                        a: "Students from the UK, USA, Canada, Australia, UAE, and other countries can join our online Quran classes. Flexible schedules allow students to learn Quran online according to their time zone.",
+                        a: "Students from the UK, USA, Canada, Australia, UAE, and other countries can join our Quran education programs. Flexible schedules allow students to learn Quran online according to their time zone.",
                       },
                       {
                         q: "Do you offer a free trial Quran class?",
-                        a: "Yes, we offer a free trial online Quran class so students and parents can understand the teaching method before enrolling in regular online Quran classes.",
+                        a: "Yes, we offer a free trial Quran class so students and parents can understand the teaching method before enrolling in regular Quran lessons.",
                       },
                       {
                         q: "What courses do you offer in your online Quran academy?",
@@ -738,7 +943,7 @@ export default function HomePage() {
                       },
                       {
                         q: "Why choose Ajwa Academy for online Quran learning?",
-                        a: "Ajwa Academy provides qualified online Quran teachers, one-to-one online Quran classes, flexible schedules, and structured Quran courses online designed for students worldwide.",
+                        a: "Ajwa Academy provides qualified online Quran teachers, personalized Quran learning, flexible schedules, and structured Quran courses online designed for students worldwide.",
                       },
                     ].map((item) => (
                       <details key={item.q} className="border-b border-gray-200 last:border-b-0">
@@ -777,3 +982,9 @@ export default function HomePage() {
     </>
   );
 }
+
+
+
+
+
+

@@ -24,7 +24,12 @@ export default async function LibraryDetailPage({ params }) {
     );
   }
 
-  const isPdf = (item.file_url || '').toLowerCase().includes('.pdf');
+  const fileUrl = String(item.file_url || '');
+  const lowerFileUrl = fileUrl.toLowerCase();
+  const isPdf =
+    lowerFileUrl.includes('.pdf') ||
+    lowerFileUrl.includes('drive.google.com/file/d/') ||
+    lowerFileUrl.includes('drive.google.com/uc?');
 
   return (
     <div className="min-h-screen bg-gray-50">

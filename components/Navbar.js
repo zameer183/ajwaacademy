@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -41,14 +41,11 @@ export default function Navbar() {
         { name: 'Our Teachers', path: '/teachers' },
       ],
     },
-    { name: 'Library', path: '/library', children: [] },
+    { name: 'Library', path: '/library' },
     {
       name: 'Fee',
       path: '/fee-structure',
-      children: [
-        { name: 'Fee Plans', path: '/fee-structure' },
-        { name: 'Payment Options', path: '/fee-structure' },
-      ],
+      children: [],
     },
     {
       name: 'Contact',
@@ -67,10 +64,7 @@ export default function Navbar() {
   ];
 
   const [courses, setCourses] = useState([]);
-  const hasPublishedBlogPosts = blogPosts.length > 0;
-  const visibleNavLinks = navLinks.filter(
-    (link) => link.name !== 'Blog' || hasPublishedBlogPosts
-  );
+  const visibleNavLinks = navLinks;
 
   const courseGroups = useMemo(() => {
     const preferredOrder = [
@@ -201,17 +195,11 @@ export default function Navbar() {
           if (isMounted) setProfileInfo(null);
           return;
         }
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('name, email, avatar')
-          .eq('id', user.id)
-          .limit(1)
-          .maybeSingle();
         if (isMounted) {
           setProfileInfo({
-            name: profile?.name || user.user_metadata?.name || user.email,
-            email: profile?.email || user.email,
-            avatar: profile?.avatar || '',
+            name: user.user_metadata?.name || user.email,
+            email: user.email,
+            avatar: user.user_metadata?.avatar_url || '',
           });
         }
       } catch (error) {
@@ -260,7 +248,7 @@ export default function Navbar() {
                 Contact Us
               </a>
             </div>
-            <div className="flex items-center gap-3 text-sm flex-nowrap whitespace-nowrap">
+            <div className="flex items-center justify-center gap-2 text-xs sm:text-sm flex-wrap md:flex-nowrap md:whitespace-nowrap">
               <a href="https://x.com/ajwaacademy786" target="_blank" rel="noreferrer" className="hover:text-[rgba(51,102,153)]">
                 X
               </a>
@@ -290,7 +278,7 @@ export default function Navbar() {
             <div className="flex items-center gap-3">
               <Link href="/" className="flex-shrink-0 flex items-center">
                 <img
-                  src="/ajwa%20logo.png"
+                  src="/ajwa-logo.png"
                   alt="Ajwa Academy"
                   className="h-10 w-28 sm:h-12 sm:w-32 lg:h-12 lg:w-36 object-contain"
                 />
@@ -370,72 +358,14 @@ export default function Navbar() {
                 }
 
                 if (link.name === 'Library') {
-                  const dynamicChildren = libraryGroups.length
-                    ? libraryGroups
-                    : [{ name: 'Library', children: [{ name: 'View Library', path: '/library' }] }];
                   return (
-                    <div
+                    <Link
                       key={`${link.path}-${link.name}-${index}`}
-                      className="relative"
-                      onMouseEnter={() => setOpenMenu(link.name)}
-                      onMouseLeave={() => {
-                        setOpenMenu(null);
-                        setOpenSubmenu(null);
-                      }}
+                      href={link.path}
+                      className={`${isActive(link.path) ? 'text-[rgba(0,0,102)]' : 'text-gray-700 hover:text-[rgba(0,0,102)]'} nav-underline px-3 py-2 text-sm font-semibold transition-colors duration-200`}
                     >
-                      <button
-                        className={`${isActive(link.path) ? 'text-[rgba(0,0,102)]' : 'text-gray-700 hover:text-[rgba(0,0,102)]'} nav-underline px-3 py-2 text-sm font-semibold transition-colors duration-200`}
-                        onClick={() => setOpenMenu(openMenu === link.name ? null : link.name)}
-                      >
-                        {link.name}
-                      </button>
-
-                      {openMenu === link.name && (
-                        <div className="absolute left-0 top-full mt-1 w-64 bg-white rounded-md shadow-xl z-50 border border-gray-200">
-                          <div className="py-2">
-                            {dynamicChildren.map((child) => {
-                              if (child.children) {
-                                return (
-                                  <div key={child.name} className="relative" onMouseEnter={() => setOpenSubmenu(child.name)}>
-                                    <button className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(92,53,11,0.1)] hover:text-[rgba(0,0,102)] transition-colors duration-200">
-                                      {child.name}
-                                    </button>
-                                    {openSubmenu === child.name && (
-                                      <div
-                                        className="absolute top-0 left-full ml-1 w-64 bg-white rounded-md shadow-xl border border-gray-200"
-                                        onMouseEnter={() => {
-                                          setOpenMenu(link.name);
-                                          setOpenSubmenu(child.name);
-                                        }}
-                                      >
-                                        {child.children.map((sub) => (
-                                          <Link
-                                            key={sub.name}
-                                            href={sub.path}
-                                            className="block px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(92,53,11,0.1)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-100 last:border-b-0"
-                                          >
-                                            {sub.name}
-                                          </Link>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              }
-                              return (
-                                <Link
-                                  key={child.name}
-                                  href={child.path}
-                                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(92,53,11,0.1)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-100 last:border-b-0"
-                                >
-                                  {child.name}
-                                </Link>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                      {link.name}
+                    </Link>
                   );
                 }
 
@@ -556,7 +486,7 @@ export default function Navbar() {
                   );
                 }
 
-                if (link.children && !link.isButton) {
+                if (Array.isArray(link.children) && link.children.length > 0 && !link.isButton) {
                   return (
                     <div
                       key={`${link.path}-${link.name}-${index}`}
@@ -698,7 +628,7 @@ export default function Navbar() {
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t border-gray-200">
               {visibleNavLinks.map((link, index) => {
-                if (link.children && !link.isButton) {
+                if (Array.isArray(link.children) && link.children.length > 0 && !link.isButton) {
                   return (
                     <div key={`${link.path}-${link.name}-${index}`} className="relative">
                       <button
@@ -794,3 +724,4 @@ export default function Navbar() {
     </div>
   );
 }
+

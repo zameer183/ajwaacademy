@@ -19,21 +19,39 @@ const nextConfig = {
         destination: "https://www.ajwaacademy.com/:path*",
         permanent: true,
       },
+      {
+        source: "/courses/online%20quran%20with%20tafseer%20course",
+        destination: "/courses/online-quran-with-tafseer-course",
+        permanent: true,
+      },
+      {
+        source: "/courses/online quran with tafseer course",
+        destination: "/courses/online-quran-with-tafseer-course",
+        permanent: true,
+      },
     ];
   },
   async headers() {
     return [
       {
-        source: "/:path*",
+        source: "/api/:path*",
         headers: [
           { key: "Cache-Control", value: "no-store, no-cache, must-revalidate, proxy-revalidate" },
           { key: "Pragma", value: "no-cache" },
           { key: "Expires", value: "0" },
         ],
       },
+      {
+        source: "/:all*(svg|jpg|jpeg|png|webp|gif|ico|woff|woff2|ttf|otf|css|js)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
     ];
   },
   images: {
+    formats: ['image/webp'],
+    minimumCacheTTL: 60,
     remotePatterns: [
       {
         protocol: 'https',

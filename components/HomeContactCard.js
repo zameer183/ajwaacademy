@@ -91,7 +91,7 @@ export default function HomeContactCard({ className = '' }) {
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/80">Contact</p>
         <h2 className="mt-2 text-xl font-bold">Send us a message</h2>
         <p className="mt-1 text-xs text-white/85 sm:text-sm">
-          Admission details, free trial, ya course guidance ke liye form fill karein.
+          Fill in the form below for admission details, free trial, or course guidance.
         </p>
       </div>
 

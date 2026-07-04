@@ -1,15 +1,15 @@
 import Link from 'next/link';
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear();
+  const footerYear = 2026;
 
   const footerLinks = {
     courses: [
-      { name: 'Quran Nazra', href: '/courses#quran-nazra' },
-      { name: 'Basic Tajweed', href: '/courses#basic-tajweed' },
-      { name: 'Hifz-ul-Quran', href: '/courses#hifz-ul-quran' },
-      { name: 'Namaz & Duas', href: '/courses#namaz-doa' },
-      { name: 'Basic Islamic Education', href: '/courses#basic-islamic' },
+      { name: 'Quran Nazra', href: '/courses/online-quran-nazra-course' },
+      { name: 'Basic Tajweed', href: '/courses/online-quran-tajweed-course' },
+      { name: 'Hifz-ul-Quran', href: '/courses/online-quran-hifz-program' },
+      { name: 'Namaz & Duas', href: '/courses/namaz-and-daily-duas-online-course' },
+      { name: 'Basic Islamic Education', href: '/courses/islamic-studies-for-kids-online' },
     ],
     company: [
       { name: 'About Us', href: '/about' },
@@ -98,12 +98,7 @@ export default function Footer() {
         <div className="py-6 border-t border-white/20 md:flex md:items-center md:justify-between">
           <div className="flex-1 md:order-2">
             <p className="text-center text-base text-white/80 md:text-right">
-              &copy; {currentYear} AjwaAcademy. Designed by Khatam Usmani
-            </p>
-          </div>
-          <div className="mt-4 md:mt-0 md:order-1">
-            <p className="text-center text-base text-white/80 md:text-left">
-              Providing authentic Quranic education worldwide
+              &copy; {footerYear} AjwaAcademy. Providing authentic Quranic education worldwide
             </p>
           </div>
         </div>

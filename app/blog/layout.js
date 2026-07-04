@@ -1,7 +1,7 @@
 export const metadata = {
-  title: "Blog",
+  title: "Islamic Blog | Quran Learning Tips & Islamic Education — Ajwa Academy",
   description:
-    "Read articles, guides, and updates from Ajwa Academy on Quran learning, Tajweed, and Islamic education.",
+    "Read Quran learning tips, Islamic parenting guidance, and educational articles from Ajwa Academy.",
   alternates: {
     canonical: "https://www.ajwaacademy.com/blog",
   },

@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono } from "next/font/google";
+﻿import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "../components/ThemeProvider";
 import Script from "next/script";
@@ -19,15 +19,17 @@ const geistMono = Geist_Mono({
 });
 
 const siteUrl = "https://www.ajwaacademy.com";
+const isProduction = process.env.NODE_ENV === "production";
+const gtmId = "GTM-W9TJ994N";
 
 export const metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Online Quran Classes | Learn Quran Online with Expert Teachers – Ajwa Academy",
+    default: "Online Quran Classes | Learn Quran Online with Tajweed",
     template: "%s | Ajwa Academy",
   },
   description:
-    "Join Ajwa Academy to learn the Quran online with certified teachers. We offer one-to-one online Quran classes for kids and adults worldwide, including the UK, USA, Canada, and UAE. Start your free trial Quran class today.",
+    "Learn the Quran online with Tajweed at Ajwa Academy through live online Quran classes. Study with certified Quran teachers and join Quran memorisation classes.",
   keywords: [
     "online Quran academy",
     "Quran learning online",
@@ -50,9 +52,9 @@ export const metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Online Quran Classes | Learn Quran Online with Expert Teachers – Ajwa Academy",
+    title: "Online Quran Classes | Learn Quran Online with Tajweed",
     description:
-      "Join Ajwa Academy to learn the Quran online with certified teachers. One-to-one online Quran classes for kids and adults worldwide.",
+      "Learn the Quran online with Tajweed at Ajwa Academy through live online Quran classes. Study with certified Quran teachers and join Quran memorisation classes.",
     url: siteUrl,
     siteName: "Ajwa Academy",
     images: [
@@ -68,9 +70,9 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Online Quran Classes | Ajwa Academy",
+    title: "Online Quran Classes | Learn Quran Online with Tajweed",
     description:
-      "Learn the Quran online with certified teachers. One-to-one online Quran classes for kids and adults worldwide.",
+      "Learn the Quran online with Tajweed at Ajwa Academy through live online Quran classes. Study with certified Quran teachers and join Quran memorisation classes.",
     images: ["/og-image.jpg"],
   },
   icons: {
@@ -88,18 +90,48 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning className="light">
       <body suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-EW1NLQJWTD"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-EW1NLQJWTD');
-          `}
-        </Script>
+        {isProduction && (
+          <>
+            <Script id="google-tag-manager" strategy="afterInteractive">
+              {`
+                (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+                new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+                j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+                'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+                })(window,document,'script','dataLayer','${gtmId}');
+              `}
+            </Script>
+            <Script
+              src="https://www.googletagmanager.com/gtag/js?id=G-EW1NLQJWTD"
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                if (!window.__ajwaGaInitialized) {
+                  gtag('js', new Date());
+                  gtag('config', 'G-EW1NLQJWTD');
+                  window.__ajwaGaInitialized = true;
+                }
+              `}
+            </Script>
+            <Script id="meta-pixel" strategy="afterInteractive">
+              {`
+                !function(f,b,e,v,n,t,s)
+                {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;
+                t.src=v;s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)}(window, document,'script',
+                'https://connect.facebook.net/en_US/fbevents.js');
+                fbq('init', '4316457221926143');
+                fbq('track', 'PageView');
+              `}
+            </Script>
+          </>
+        )}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -114,6 +146,24 @@ export default function RootLayout({ children }) {
           <AbortErrorSilencer />
           <AuthWrapper>
             <div className="min-h-screen flex flex-col">
+              {isProduction && (
+                <noscript>
+                  <iframe
+                    src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+                    height="0"
+                    width="0"
+                    style={{ display: "none", visibility: "hidden" }}
+                    title="gtm"
+                  />
+                  <img
+                    height="1"
+                    width="1"
+                    style={{ display: "none" }}
+                    src="https://www.facebook.com/tr?id=4316457221926143&ev=PageView&noscript=1"
+                    alt="Meta pixel tracker"
+                  />
+                </noscript>
+              )}
               <Navbar />
               <main className="flex-grow">
                 {children}
@@ -131,7 +181,15 @@ export default function RootLayout({ children }) {
               "@type": "Organization",
               name: "Ajwa Academy",
               url: siteUrl,
-              logo: `${siteUrl}/logo.png`,
+              logo: `${siteUrl}/ajwa-logo.png`,
+              telephone: "+92-326-0054808",
+              email: "ajwaacademyofficial@gmail.com",
+              contactPoint: {
+                "@type": "ContactPoint",
+                telephone: "+92-326-0054808",
+                contactType: "customer service",
+                availableLanguage: ["English", "Urdu"],
+              },
               sameAs: [
                 "https://www.facebook.com/ajwaacademyy",
                 "https://www.instagram.com/ajwaacademyofficial/",
@@ -161,3 +219,11 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
+
+
+
+
+
+
+
+

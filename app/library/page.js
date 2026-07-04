@@ -1,5 +1,4 @@
 import Image from 'next/image';
-import Link from 'next/link';
 import { libraryAPI } from '@/lib/static-api';
 
 export const dynamic = 'force-dynamic';
@@ -34,20 +33,6 @@ export default async function LibraryPage() {
               <p className="text-gray-600 max-w-2xl mx-auto mb-6">
                 We are preparing curated books, PDFs, and class resources. The library shelves will be live soon.
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <Link
-                  href="/courses"
-                  className="inline-flex items-center justify-center bg-[rgba(0,0,102)] text-white px-5 py-2.5 rounded-md text-sm font-semibold hover:bg-[rgba(51,102,153)] transition-colors"
-                >
-                  Browse Courses
-                </Link>
-                <Link
-                  href="/contact"
-                  className="inline-flex items-center justify-center border border-[rgba(0,0,102)] text-[rgba(0,0,102)] px-5 py-2.5 rounded-md text-sm font-semibold hover:bg-[rgba(0,0,102)] hover:text-white transition-colors"
-                >
-                  Request Resources
-                </Link>
-              </div>
             </div>
           </div>
         ) : (
@@ -82,28 +67,19 @@ export default async function LibraryPage() {
                   )}
                   {item.file_url ? (
                     <div className="flex flex-wrap gap-2">
-                      <Link
-                        href={`/library/${item.id}`}
-                        className="inline-flex items-center justify-center bg-[rgba(0,0,102)] text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(51,102,153)] transition-colors"
-                      >
-                        View Details
-                      </Link>
                       <a
                         href={item.file_url}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center justify-center border border-[rgba(0,0,102)] text-[rgba(0,0,102)] px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(0,0,102)] hover:text-white transition-colors"
+                        className="inline-flex items-center justify-center bg-[rgba(0,0,102)] text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(51,102,153)] transition-colors"
                       >
-                        Open File
+                        Open Book
                       </a>
                     </div>
                   ) : (
-                    <Link
-                      href={`/library/${item.id}`}
-                      className="inline-flex items-center justify-center bg-[rgba(0,0,102)] text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(51,102,153)] transition-colors"
-                    >
-                      View Details
-                    </Link>
+                    <span className="inline-flex items-center justify-center border border-gray-300 text-gray-500 px-4 py-2 rounded-md text-sm font-semibold">
+                      File Not Available
+                    </span>
                   )}
                 </div>
               </div>

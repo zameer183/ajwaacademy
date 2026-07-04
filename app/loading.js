@@ -1,9 +1,9 @@
-export default function Loading() {
+﻿export default function Loading() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="flex flex-col items-center">
         <img
-          src="/ajwa%20logo.png"
+          src="/ajwa-logo.png"
           alt="Ajwa Academy"
           className="h-24 w-auto mb-4 animate-pulse"
         />
@@ -15,3 +15,4 @@ export default function Loading() {
     </div>
   );
 }
+

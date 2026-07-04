@@ -1,7 +1,7 @@
 export const metadata = {
-  title: "Fee Structure",
+  title: "Online Quran Classes Fee Structure | Affordable Packages — Ajwa Academy",
   description:
-    "View Ajwa Academy fee plans and payment options for online Quran, Tajweed, and Islamic studies courses.",
+    "View Ajwa Academy affordable online Quran class fee packages for UK, USA, UAE, Canada, and Australia. Flexible plans and free trial available.",
   alternates: {
     canonical: "https://www.ajwaacademy.com/fee-structure",
   },

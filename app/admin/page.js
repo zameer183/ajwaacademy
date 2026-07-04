@@ -40,32 +40,6 @@ const tableConfigs = [
     ],
   },
   {
-    name: 'profiles',
-    label: 'Team Profiles',
-    displayFields: ['name', 'role', 'email'],
-    mediaFields: ['avatar'],
-    fields: [
-      { name: 'name', label: 'Name', type: 'text' },
-      { name: 'email', label: 'Email', type: 'text' },
-      { name: 'role', label: 'Role', type: 'text' },
-      { name: 'avatar', label: 'Avatar URL', type: 'text' },
-    ],
-  },
-  {
-    name: 'reviews',
-    label: 'Reviews',
-    displayFields: ['author', 'title', 'rating'],
-    mediaFields: ['image', 'video'],
-    fields: [
-      { name: 'author', label: 'Author', type: 'text' },
-      { name: 'title', label: 'Title', type: 'text' },
-      { name: 'comment', label: 'Comment', type: 'textarea' },
-      { name: 'rating', label: 'Rating', type: 'number' },
-      { name: 'image', label: 'Image URL', type: 'text' },
-      { name: 'video', label: 'Video URL', type: 'text' },
-    ],
-  },
-  {
     name: 'library_items',
     label: 'Library',
     displayFields: ['title', 'category'],
@@ -149,18 +123,6 @@ const tableConfigs = [
       { name: 'status', label: 'Status', type: 'text' },
     ],
   },
-  {
-    name: 'certificates',
-    label: 'Certificates',
-    displayFields: ['user_id', 'course_id', 'status'],
-    mediaFields: ['certificate_url'],
-    fields: [
-      { name: 'user_id', label: 'User ID', type: 'text' },
-      { name: 'course_id', label: 'Course ID', type: 'text' },
-      { name: 'status', label: 'Status', type: 'text' },
-      { name: 'certificate_url', label: 'Certificate URL', type: 'text' },
-    ],
-  },
 ];
 
 const wordpressQuickTags = ['Write Article', 'Title', 'Content', 'Bold', 'Link', 'Heading', 'Image', 'Spacing', 'Category'];
@@ -173,7 +135,7 @@ const wordpressFieldHints = {
 
 const nonCacheableAdminTables = new Set(['blog_posts']);
 const adminRequestTimeoutMs = 30000;
-const adminRecordsPageSize = 100;
+const adminRecordsPageSize = 30;
 const blogSchemaOptionalFields = new Set(['meta_title', 'meta_description', 'status', 'tags']);
 
 const getAdminRecordsCachePrefix = (table) => `adminRecords:${table}:page:`;
@@ -282,16 +244,10 @@ const escapeHtml = (value) =>
     .replace(/'/g, '&#39;');
 
 const defaultBlogCategories = [
-  'General',
-  'Quran',
-  'Tajweed',
-  'Ramadan',
-  'Islamic Education',
-  'Islamic Studies',
-  'Parenting',
-  'Arabic',
-  'Kids',
-  'Guides',
+  'Online Quran Learning',
+  'Islamic Parenting',
+  'UK/USA Quran Classes',
+  'Islamic Lifestyle',
 ];
 
 const editorFontOptions = [
@@ -369,6 +325,18 @@ const sanitizeRichInlineStyle = (styleValue) => {
     .join('; ');
 };
 
+const getStyleFontWeight = (styleValue) => {
+  if (!styleValue) return '';
+  const style = String(styleValue);
+  const match = style.match(/(?:^|;)\s*font-weight\s*:\s*([^;]+)/i);
+  return String(match?.[1] || '')
+    .trim()
+    .toLowerCase();
+};
+
+const isNormalFontWeight = (fontWeight) =>
+  ['normal', '400', '300', '200', '100', 'lighter'].includes(String(fontWeight || '').trim().toLowerCase());
+
 const formatPlainTextAsHtml = (text) => {
   const blocks = String(text || '')
     .split(/\n{2,}/)
@@ -399,7 +367,8 @@ const sanitizeRichTextHtml = (html) => {
     }
 
     const children = Array.from(node.childNodes).map(cleanNode).join('');
-    const style = sanitizeRichInlineStyle(node.getAttribute?.('style'));
+    const rawStyle = node.getAttribute?.('style') || '';
+    const style = sanitizeRichInlineStyle(rawStyle);
     const styleAttr = style ? ` style="${escapeHtml(style)}"` : '';
 
     if (tag === 'BR') return '<br />';
@@ -433,18 +402,37 @@ const sanitizeRichTextHtml = (html) => {
     if (tag === 'SPAN') {
       return styleAttr ? `<span${styleAttr}>${children}</span>` : children;
     }
-    if (tag === 'B') return children ? `<strong>${children}</strong>` : '';
+    // Google Docs often wraps entire pasted content in <b style="font-weight:normal">.
+    // Preserve intended formatting by unwrapping that container instead of forcing global bold.
+    if (tag === 'B') {
+      const weight = getStyleFontWeight(rawStyle);
+      if (isNormalFontWeight(weight)) return children;
+      return children ? `<strong>${children}</strong>` : '';
+    }
+    if (tag === 'STRONG') {
+      const weight = getStyleFontWeight(rawStyle);
+      if (isNormalFontWeight(weight)) return children;
+      return `<strong${styleAttr}>${children}</strong>`;
+    }
     if (tag === 'I') return children ? `<em>${children}</em>` : '';
-    if (['STRONG', 'EM', 'U', 'S', 'P', 'H1', 'H2', 'H3', 'H4', 'BLOCKQUOTE', 'UL', 'OL', 'LI', 'PRE', 'CODE'].includes(tag)) {
+    if (['EM', 'U', 'S', 'P', 'H1', 'H2', 'H3', 'H4', 'BLOCKQUOTE', 'UL', 'OL', 'LI', 'PRE', 'CODE'].includes(tag)) {
       return `<${tag.toLowerCase()}${styleAttr}>${children}</${tag.toLowerCase()}>`;
     }
     return children;
   };
 
-  return Array.from(source.childNodes)
+  const cleanedHtml = Array.from(source.childNodes)
     .map(cleanNode)
     .join('')
     .replace(/(<br \/>){3,}/g, '<br /><br />');
+
+  // Extra guard: if paste source wraps the entire document in one <strong>, unwrap it.
+  const trimmed = cleanedHtml.trim();
+  const wholeStrongMatch = trimmed.match(/^<strong>([\s\S]+)<\/strong>$/i);
+  if (wholeStrongMatch?.[1] && /<(p|h1|h2|h3|blockquote|ul|ol|li|pre)\b/i.test(wholeStrongMatch[1])) {
+    return wholeStrongMatch[1];
+  }
+  return cleanedHtml;
 };
 
 export default function AdminPage() {
@@ -1070,6 +1058,20 @@ export default function AdminPage() {
     </button>
   );
 
+  const SideToolbarButton = ({ children, onClick, title, active = false }) => (
+    <button
+      type="button"
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={onClick}
+      title={title}
+      className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium transition ${
+        active ? 'bg-[#1e3a8a] text-white' : 'text-slate-700 hover:bg-slate-100'
+      }`}
+    >
+      {children}
+    </button>
+  );
+
   const deriveBlogDefaults = (contentHtml) => {
     const plain = extractPlainText(contentHtml);
     const firstImgMatch = String(contentHtml || '').match(/<img[^>]+src=["']([^"']+)["']/i);
@@ -1408,7 +1410,9 @@ export default function AdminPage() {
     setSuccessMessage('');
     setFormErrors({});
     const currentEditingId = editingId;
-    const requestedBlogStatus = saveOptions?.status || formData.status || 'draft';
+    const requestedBlogStatusRaw = saveOptions?.status || formData.status || 'draft';
+    const requestedBlogStatus =
+      String(requestedBlogStatusRaw).trim().toLowerCase() === 'published' ? 'published' : 'draft';
     const requestedSaveAction =
       requestedBlogStatus === 'published' ? 'published' : saveOptions?.status === 'draft' ? 'draft' : 'save';
     const activeDraftKey = activeTable === 'blog_posts' ? getBlogDraftKey(currentEditingId) : null;
@@ -1543,50 +1547,73 @@ export default function AdminPage() {
             id: savedId ?? currentEditingId,
           };
         };
+        const ensureUniqueBlogSlug = async (payload) => {
+          if (activeTable !== 'blog_posts') return payload;
+          const rawSlug = String(payload?.slug || '').trim();
+          if (!rawSlug) return payload;
+          let query = supabase
+            .from(activeTable)
+            .select('slug')
+            .eq('slug', rawSlug)
+            .limit(1);
+          if (currentEditingId) {
+            query = query.neq('id', currentEditingId);
+          }
+          const { data: existingSlug } = await query.maybeSingle().abortSignal(controller.signal);
+          if (!existingSlug) return payload;
+          return {
+            ...payload,
+            slug: `${makeSlug(rawSlug)}-${Date.now()}`,
+          };
+        };
 
         try {
+          const preparedPayload = await ensureUniqueBlogSlug(savePayload);
           if (currentEditingId) {
             let { data: updatedRow, error: updateError } = await supabase
               .from(activeTable)
-              .update(savePayload)
+              .update(preparedPayload)
               .eq('id', currentEditingId)
-              .select('id')
+              .select('*')
               .single()
               .abortSignal(controller.signal);
             if (updateError && activeTable === 'blog_posts' && /blog_posts_slug_key/i.test(updateError.message)) {
-              const uniqueSlug = `${makeSlug(savePayload.title || formData.title || 'blog-post')}-${Date.now()}`;
+              const uniqueSlug = `${makeSlug(preparedPayload.title || formData.title || 'blog-post')}-${Date.now()}`;
               ({ data: updatedRow, error: updateError } = await supabase
                 .from(activeTable)
-                .update({ ...savePayload, slug: uniqueSlug })
+                .update({ ...preparedPayload, slug: uniqueSlug })
                 .eq('id', currentEditingId)
-                .select('id')
+                .select('*')
                 .single()
                 .abortSignal(controller.signal));
             }
             if (updateError) throw updateError;
-            return buildLocalSavedRecord(updatedRow?.id || currentEditingId, savePayload);
+            return buildLocalSavedRecord(updatedRow?.id || currentEditingId, preparedPayload);
           }
 
           let { data: insertedRow, error: insertError } = await supabase
             .from(activeTable)
-            .insert(savePayload)
-            .select('id')
+            .insert(preparedPayload)
+            .select('*')
             .single()
             .abortSignal(controller.signal);
           if (insertError && activeTable === 'blog_posts' && /blog_posts_slug_key/i.test(insertError.message)) {
-            const uniqueSlug = `${savePayload.slug || 'blog-post'}-${Date.now()}`;
+            const uniqueSlug = `${preparedPayload.slug || 'blog-post'}-${Date.now()}`;
             ({ data: insertedRow, error: insertError } = await supabase
               .from(activeTable)
-              .insert({ ...savePayload, slug: uniqueSlug })
-              .select('id')
+              .insert({ ...preparedPayload, slug: uniqueSlug })
+              .select('*')
               .single()
               .abortSignal(controller.signal));
           }
           if (insertError) throw insertError;
-          if (!insertedRow?.id) {
+          if (!insertedRow?.id && activeTable !== 'blog_posts') {
             throw new Error('Save completed but the new record id was not returned.');
           }
-          return buildLocalSavedRecord(insertedRow.id, savePayload);
+          return buildLocalSavedRecord(insertedRow?.id ?? null, {
+            ...preparedPayload,
+            ...(insertedRow || {}),
+          });
         } catch (err) {
           if (didTimeOut) {
             throw new Error('Saving timed out. Please check your connection and try again.');
@@ -1617,6 +1644,10 @@ export default function AdminPage() {
           ) {
             delete payloadToSave[missingField];
             continue;
+          }
+          const statusCode = Number(err?.status || err?.code || err?.statusCode);
+          if (Number.isFinite(statusCode) && statusCode >= 400 && statusCode < 500 && statusCode !== 408 && statusCode !== 429) {
+            throw err;
           }
           attempt += 1;
           if (attempt >= 2) throw err;
@@ -1823,8 +1854,189 @@ export default function AdminPage() {
           </div>
         </div>
 
-        <div className="mx-auto grid max-w-[1380px] gap-10 px-4 py-8 sm:px-6 xl:grid-cols-[minmax(0,820px)_280px] xl:px-10 xl:py-12">
-          <section className="mx-auto w-full max-w-[820px]">
+        <div className="mx-auto grid max-w-[1600px] gap-6 px-4 py-8 sm:px-6 xl:grid-cols-[220px_minmax(0,1fr)_280px] xl:px-6 xl:py-10">
+
+          {/* Left formatting tools panel — visible on xl screens */}
+          <aside className="hidden xl:block space-y-2 xl:sticky xl:top-24 xl:self-start xl:max-h-[calc(100vh-7rem)] xl:overflow-y-auto">
+
+            {/* Block Format */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.06)]">
+              <p className="mb-1.5 px-2 pt-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Format</p>
+              <div className="space-y-0.5">
+                {editorBlockOptions.map((opt) => (
+                  <SideToolbarButton
+                    key={opt.value}
+                    onClick={() => applyBlockFormat(opt.value)}
+                    active={editorPreferences.blockTag === opt.value}
+                    title={opt.label}
+                  >
+                    <span className="w-7 shrink-0 text-center text-xs font-bold">
+                      {opt.value === 'p' ? '¶' : opt.value === 'blockquote' ? '"' : opt.value === 'pre' ? '</>' : opt.value.toUpperCase()}
+                    </span>
+                    {opt.label}
+                  </SideToolbarButton>
+                ))}
+              </div>
+            </div>
+
+            {/* Text Formatting */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.06)]">
+              <p className="mb-1.5 px-2 pt-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Text</p>
+              <div className="space-y-0.5">
+                <SideToolbarButton onClick={() => applyRichCommand('bold')} title="Bold (Ctrl+B)">
+                  <span className="w-7 shrink-0 text-center font-bold">B</span> Bold
+                </SideToolbarButton>
+                <SideToolbarButton onClick={() => applyRichCommand('italic')} title="Italic (Ctrl+I)">
+                  <span className="w-7 shrink-0 text-center italic">I</span> Italic
+                </SideToolbarButton>
+                <SideToolbarButton onClick={() => applyRichCommand('underline')} title="Underline">
+                  <span className="w-7 shrink-0 text-center underline">U</span> Underline
+                </SideToolbarButton>
+              </div>
+            </div>
+
+            {/* Alignment */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.06)]">
+              <p className="mb-1.5 px-2 pt-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Align</p>
+              <div className="space-y-0.5">
+                <SideToolbarButton onClick={() => applyRichCommand('justifyLeft')} title="Align left">
+                  <span className="w-7 shrink-0 text-center">⬅</span> Left
+                </SideToolbarButton>
+                <SideToolbarButton onClick={() => applyRichCommand('justifyCenter')} title="Align center">
+                  <span className="w-7 shrink-0 text-center">↔</span> Center
+                </SideToolbarButton>
+                <SideToolbarButton onClick={() => applyRichCommand('justifyRight')} title="Align right">
+                  <span className="w-7 shrink-0 text-center">➡</span> Right
+                </SideToolbarButton>
+              </div>
+            </div>
+
+            {/* Lists */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.06)]">
+              <p className="mb-1.5 px-2 pt-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Lists</p>
+              <div className="space-y-0.5">
+                <SideToolbarButton onClick={() => applyRichCommand('insertUnorderedList')} title="Bullet list">
+                  <span className="w-7 shrink-0 text-center">•</span> Bullets
+                </SideToolbarButton>
+                <SideToolbarButton onClick={() => applyRichCommand('insertOrderedList')} title="Numbered list">
+                  <span className="w-7 shrink-0 text-center text-xs">1.</span> Numbered
+                </SideToolbarButton>
+              </div>
+            </div>
+
+            {/* Insert */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.06)]">
+              <p className="mb-1.5 px-2 pt-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Insert</p>
+              <div className="space-y-0.5">
+                <label
+                  className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+                  title="Insert image"
+                >
+                  <span className="w-7 shrink-0 text-center">🖼</span>
+                  Image
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) handleEditorImageUpload(f);
+                      e.target.value = '';
+                    }}
+                  />
+                </label>
+                <SideToolbarButton
+                  onClick={() => {
+                    const currentUrl = getSelectedLinkElement()?.getAttribute('href') || 'https://';
+                    const url = window.prompt('Enter URL (https://...)', currentUrl);
+                    if (url) applyLink(url.trim());
+                  }}
+                  title="Insert or edit link"
+                >
+                  <span className="w-7 shrink-0 text-center">🔗</span> Link
+                </SideToolbarButton>
+                <SideToolbarButton onClick={removeLink} title="Remove link">
+                  <span className="w-7 shrink-0 text-center opacity-40">🔗</span> Unlink
+                </SideToolbarButton>
+              </div>
+            </div>
+
+            {/* Style */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.06)]">
+              <p className="mb-1.5 px-2 pt-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Style</p>
+              <div className="space-y-1.5 px-1">
+                <label
+                  className="flex cursor-pointer items-center gap-2 rounded-xl px-2 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+                  title="Text color"
+                >
+                  <span className="w-7 shrink-0 text-center text-base font-bold">A</span>
+                  Color
+                  <input
+                    type="color"
+                    className="ml-auto h-5 w-6 cursor-pointer border-none bg-transparent"
+                    onChange={(e) => applyRichCommand('foreColor', e.target.value)}
+                  />
+                </label>
+                <select
+                  value={editorPreferences.fontFamily}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setEditorPreferences((p) => ({ ...p, fontFamily: v }));
+                    applyBlockStyle('fontFamily', v);
+                  }}
+                  className="w-full rounded-xl border border-slate-200 px-2.5 py-2 text-xs text-slate-700 focus:border-[#1e3a8a] focus:outline-none"
+                >
+                  {editorFontOptions.map((o) => (
+                    <option key={o.value} value={o.value}>Font: {o.label}</option>
+                  ))}
+                </select>
+                <select
+                  value={editorPreferences.fontSize}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setEditorPreferences((p) => ({ ...p, fontSize: v }));
+                    applyBlockStyle('fontSize', v);
+                  }}
+                  className="w-full rounded-xl border border-slate-200 px-2.5 py-2 text-xs text-slate-700 focus:border-[#1e3a8a] focus:outline-none"
+                >
+                  {editorTextSizeOptions.map((o) => (
+                    <option key={o.value} value={o.value}>Size: {o.label}</option>
+                  ))}
+                </select>
+                <select
+                  value={editorPreferences.lineHeight}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setEditorPreferences((p) => ({ ...p, lineHeight: v }));
+                    applyBlockStyle('lineHeight', v);
+                  }}
+                  className="w-full rounded-xl border border-slate-200 px-2.5 py-2 text-xs text-slate-700 focus:border-[#1e3a8a] focus:outline-none"
+                >
+                  {editorLineHeightOptions.map((o) => (
+                    <option key={o.value} value={o.value}>Spacing: {o.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.06)]">
+              <p className="mb-1.5 px-2 pt-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Actions</p>
+              <div className="space-y-0.5">
+                <SideToolbarButton onClick={() => applyRichCommand('undo')} title="Undo">
+                  <span className="w-7 shrink-0 text-center">↺</span> Undo
+                </SideToolbarButton>
+                <SideToolbarButton onClick={() => applyRichCommand('redo')} title="Redo">
+                  <span className="w-7 shrink-0 text-center">↻</span> Redo
+                </SideToolbarButton>
+                <SideToolbarButton onClick={resetSelectedBlockStyles} title="Reset block styles">
+                  <span className="w-7 shrink-0 text-center">⊘</span> Reset
+                </SideToolbarButton>
+              </div>
+            </div>
+          </aside>
+
+          <section className="w-full min-w-0">
             {error && (
               <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
                 {error}
@@ -2059,176 +2271,52 @@ export default function AdminPage() {
                   isBlogImageDragActive ? 'ring-2 ring-[#1e3a8a]/20' : ''
                 }`}
               >
-                <div className="-mx-2 mb-6 space-y-4 border-b border-slate-200/80 bg-white px-2 pb-5 pt-1 sm:-mx-4 sm:px-4">
+                <div className="-mx-6 mb-6 border-b border-slate-200/80 bg-white px-6 pb-4 pt-1 sm:-mx-10 sm:px-10">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Blog editor</p>
-                      <h4 className="mt-2 text-lg font-semibold text-slate-900">Write and format your article</h4>
-                      <p className="mt-1 text-sm text-slate-500">
-                        Format headings, paragraph spacing, font size, links, colors, and pasted content without coding.
-                      </p>
+                      <h4 className="mt-1 text-base font-semibold text-slate-900">Write and format your article</h4>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                        {contentWordCount} words
-                      </span>
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                        {contentReadingTime}
-                      </span>
-                      <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-[#1e3a8a] hover:text-[#1e3a8a]">
-                        Insert image
-                        <input
-                          type="file"
-                          className="hidden"
-                          accept="image/*"
-                          onChange={(event) => {
-                            const file = event.target.files?.[0];
-                            if (file) handleEditorImageUpload(file);
-                            event.target.value = '';
-                          }}
-                        />
-                      </label>
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{contentWordCount} words</span>
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{contentReadingTime}</span>
                     </div>
                   </div>
-
-                  <div className="grid gap-3 rounded-[24px] border border-slate-200 bg-slate-50/70 p-4">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Headings</span>
-                      {quickEditorBlockOptions.map((option) => (
-                        <ToolbarButton
-                          key={option.value}
-                          title={option.label}
-                          active={editorPreferences.blockTag === option.value}
-                          onClick={() => applyBlockFormat(option.value)}
-                        >
-                          {option.value === 'p' ? 'P' : option.value.toUpperCase()}
-                        </ToolbarButton>
-                      ))}
-                      <ToolbarButton title="Quote block" active={editorPreferences.blockTag === 'blockquote'} onClick={() => applyBlockFormat('blockquote')}>
-                        Quote
-                      </ToolbarButton>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Typography</span>
-                      <select
-                        value={editorPreferences.blockTag}
-                        onChange={(event) => applyBlockFormat(event.target.value)}
-                        className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-700 focus:border-[#1e3a8a] focus:outline-none"
-                      >
-                        {editorBlockOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                      <select
-                        value={editorPreferences.fontFamily}
-                        onChange={(event) => {
-                          const value = event.target.value;
-                          setEditorPreferences((prev) => ({ ...prev, fontFamily: value }));
-                          applyBlockStyle('fontFamily', value);
+                  {/* Compact toolbar shown only on screens smaller than xl */}
+                  <div className="xl:hidden mt-3 flex flex-wrap gap-1.5">
+                    <ToolbarButton onClick={() => applyBlockFormat('h1')} title="Heading 1">H1</ToolbarButton>
+                    <ToolbarButton onClick={() => applyBlockFormat('h2')} title="Heading 2">H2</ToolbarButton>
+                    <ToolbarButton onClick={() => applyBlockFormat('h3')} title="Heading 3">H3</ToolbarButton>
+                    <ToolbarButton onClick={() => applyRichCommand('bold')} title="Bold"><strong>B</strong></ToolbarButton>
+                    <ToolbarButton onClick={() => applyRichCommand('italic')} title="Italic"><em>I</em></ToolbarButton>
+                    <ToolbarButton onClick={() => applyRichCommand('underline')} title="Underline"><span className="underline">U</span></ToolbarButton>
+                    <ToolbarButton
+                      onClick={() => {
+                        const currentUrl = getSelectedLinkElement()?.getAttribute('href') || 'https://';
+                        const url = window.prompt('Enter URL (https://...)', currentUrl);
+                        if (url) applyLink(url.trim());
+                      }}
+                      title="Insert link"
+                    >
+                      Link
+                    </ToolbarButton>
+                    <label className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-slate-300 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-700 transition hover:border-indigo-300">
+                      Image
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) handleEditorImageUpload(f);
+                          e.target.value = '';
                         }}
-                        className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-700 focus:border-[#1e3a8a] focus:outline-none"
-                      >
-                        {editorFontOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            Font: {option.label}
-                          </option>
-                        ))}
-                      </select>
-                      <select
-                        value={editorPreferences.fontSize}
-                        onChange={(event) => {
-                          const value = event.target.value;
-                          setEditorPreferences((prev) => ({ ...prev, fontSize: value }));
-                          applyBlockStyle('fontSize', value);
-                        }}
-                        className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-700 focus:border-[#1e3a8a] focus:outline-none"
-                      >
-                        {editorTextSizeOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            Size: {option.label}
-                          </option>
-                        ))}
-                      </select>
-                      <select
-                        value={editorPreferences.lineHeight}
-                        onChange={(event) => {
-                          const value = event.target.value;
-                          setEditorPreferences((prev) => ({ ...prev, lineHeight: value }));
-                          applyBlockStyle('lineHeight', value);
-                        }}
-                        className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-700 focus:border-[#1e3a8a] focus:outline-none"
-                      >
-                        {editorLineHeightOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            Line spacing: {option.label}
-                          </option>
-                        ))}
-                      </select>
-                      <label
-                        className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-700 transition hover:border-indigo-300"
-                        title="Text color"
-                      >
-                        Color
-                        <input
-                          type="color"
-                          className="h-5 w-6 cursor-pointer border-none bg-transparent"
-                          onChange={(event) => applyRichCommand('foreColor', event.target.value)}
-                        />
-                      </label>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Formatting</span>
-                      <ToolbarButton title="Bold (Ctrl+B)" onClick={() => applyRichCommand('bold')}>
-                        Bold
-                      </ToolbarButton>
-                      <ToolbarButton title="Italic (Ctrl+I)" onClick={() => applyRichCommand('italic')}>
-                        Italic
-                      </ToolbarButton>
-                      <ToolbarButton title="Underline" onClick={() => applyRichCommand('underline')}>
-                        Underline
-                      </ToolbarButton>
-                      <ToolbarButton title="Align left" onClick={() => applyRichCommand('justifyLeft')}>
-                        Left
-                      </ToolbarButton>
-                      <ToolbarButton title="Align center" onClick={() => applyRichCommand('justifyCenter')}>
-                        Center
-                      </ToolbarButton>
-                      <ToolbarButton title="Align right" onClick={() => applyRichCommand('justifyRight')}>
-                        Right
-                      </ToolbarButton>
-                      <ToolbarButton title="Bullet list" onClick={() => applyRichCommand('insertUnorderedList')}>
-                        Bullets
-                      </ToolbarButton>
-                      <ToolbarButton title="Numbered list" onClick={() => applyRichCommand('insertOrderedList')}>
-                        Numbered
-                      </ToolbarButton>
-                      <ToolbarButton
-                        title="Insert or edit link"
-                        onClick={() => {
-                          const currentUrl = getSelectedLinkElement()?.getAttribute('href') || 'https://';
-                          const url = window.prompt('Enter URL (https://...)', currentUrl);
-                          if (url) applyLink(url.trim());
-                        }}
-                      >
-                        Link
-                      </ToolbarButton>
-                      <ToolbarButton title="Remove link" onClick={removeLink}>
-                        Unlink
-                      </ToolbarButton>
-                      <ToolbarButton title="Undo" onClick={() => applyRichCommand('undo')}>
-                        Undo
-                      </ToolbarButton>
-                      <ToolbarButton title="Redo" onClick={() => applyRichCommand('redo')}>
-                        Redo
-                      </ToolbarButton>
-                      <ToolbarButton title="Reset block styles" onClick={resetSelectedBlockStyles}>
-                        Reset
-                      </ToolbarButton>
-                    </div>
+                      />
+                    </label>
+                    <ToolbarButton onClick={() => applyRichCommand('insertUnorderedList')} title="Bullet list">•</ToolbarButton>
+                    <ToolbarButton onClick={() => applyRichCommand('insertOrderedList')} title="Numbered list">1.</ToolbarButton>
+                    <ToolbarButton onClick={() => applyRichCommand('undo')} title="Undo">↺</ToolbarButton>
+                    <ToolbarButton onClick={() => applyRichCommand('redo')} title="Redo">↻</ToolbarButton>
                   </div>
                 </div>
                 {isBlogContentEmpty && (

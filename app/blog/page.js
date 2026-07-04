@@ -1,14 +1,26 @@
-import BlogCard from '../../components/BlogCard';
+﻿import BlogCard from '../../components/BlogCard';
 import BlogPagination from '../../components/BlogPagination';
 import { fetchBlogPosts } from '../../lib/static-api';
 
 export const dynamic = 'force-dynamic';
+export const metadata = {
+  title: 'Islamic Blog | Quran Learning Tips & Islamic Education - Ajwa Academy',
+  description:
+    'Read Quran learning tips, Islamic parenting guidance, and educational articles from Ajwa Academy.',
+};
 
 const PAGE_SIZE = 12;
 
 export default async function BlogPage({ searchParams }) {
   const params = (await searchParams) || {};
-  const blogPosts = await fetchBlogPosts();
+  let blogPosts = [];
+  try {
+    const fetchedPosts = await fetchBlogPosts();
+    blogPosts = Array.isArray(fetchedPosts) ? fetchedPosts : [];
+  } catch (error) {
+    console.error('Blog page load error:', error);
+    blogPosts = [];
+  }
   const pageParam = Number(params?.page || 1);
   const currentPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
   const totalPages = Math.max(1, Math.ceil(blogPosts.length / PAGE_SIZE));
@@ -44,3 +56,4 @@ export default async function BlogPage({ searchParams }) {
     </div>
   );
 }
+
