@@ -11,6 +11,25 @@ export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [aboutVisible, setAboutVisible] = useState(false);
+
+  useEffect(() => {
+    const aboutSection = document.getElementById('about-section');
+    if (!aboutSection) return undefined;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setAboutVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    observer.observe(aboutSection);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -441,7 +460,10 @@ export default function HomePage() {
           </button>
         </section>
 
-        <section className="py-24 bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 relative overflow-hidden">
+        <section
+          id="about-section"
+          className={`py-16 sm:py-20 md:py-24 bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 relative overflow-hidden fade-up${aboutVisible ? ' is-visible' : ''}`}
+        >
           <div className="absolute inset-0">
             <div
               className="absolute bottom-40 right-1/3 w-6 h-6 bg-[rgba(51,102,153,0.3)] transform rotate-12 animate-pulse"
@@ -449,30 +471,32 @@ export default function HomePage() {
             ></div>
           </div>
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="text-center mb-16">
-              <div className="inline-block animate-bounce" style={{ animationDuration: '3s' }}></div>
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 animate-fade-in-up">
-                Learn Quran Online: Quran Courses Online
+            <div className="text-center mb-10 sm:mb-12 md:mb-16">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
+                Learn Quran Online: Online Quran Classes
               </h2>
-              <div className="w-24 h-1 bg-gradient-to-r from-[rgba(0,0,102)] to-[rgba(51,102,153)] mx-auto animate-pulse"></div>
+              <div className="w-24 h-1 bg-gradient-to-r from-[rgba(0,0,102)] to-[rgba(51,102,153)] mx-auto"></div>
             </div>
             <div className="max-w-5xl mx-auto">
-              <div className="rounded-xl shadow group hover:shadow-2xl transition-all duration-1000 border-0 bg-white/90 backdrop-blur-sm hover:bg-white hover:scale-105 relative overflow-hidden">
-                <div className="p-10 md:p-14 text-center relative">
+              <div className="rounded-xl shadow group hover:shadow-2xl transition-all duration-700 border-0 bg-white/90 backdrop-blur-sm hover:bg-white relative overflow-hidden">
+                <div className="p-6 sm:p-10 md:p-14 text-center relative">
                   <div className="relative z-10">
-                    <h3 className="text-3xl font-bold text-gray-900 mb-6 group-hover:text-[rgba(0,0,102)] transition-colors duration-500">
-                      Online Quran Classes for Kids and Adults
+                    <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6 group-hover:text-[rgba(0,0,102)] transition-colors duration-500">
+                      Online Quran Classes for Kids & Adults
                     </h3>
-                    <p className="text-xl text-gray-800 leading-relaxed mb-6 font-medium">
-                      Ajwa Academy provides authentic online Quran classes for kids and adults worldwide.
-                      Our academy offers Quran courses online with Tajweed, Hifz, Noorani Qaida, Makharij,
-                      Surah practice, Quran recitation, and Islamic scholars guiding each lesson. Through live
-                      one-to-one classes and monthly progress reports, students learn with certified teachers
-                      and flexible timings from the comfort of their homes.
+                    <p className="text-base sm:text-lg md:text-xl text-gray-800 leading-relaxed mb-6 font-medium">
+                      Ajwa Academy provides online Quran classes for kids and adults through certified Quran
+                      teachers. Learn Quran online with Tajweed, Noorani Qaida, Hifz, and one-to-one live
+                      classes. Flexible timings and monthly progress reports help students build confidence
+                      in Quran recitation from anywhere in the world.
                     </p>
-                    <div className="mt-8 pt-6 border-t border-gray-200">
-                      <p className="text-[rgba(0,0,102)] font-semibold text-lg">
-                        "Structured learning, sincere guidance, global access"
+                    <div className="mt-6 sm:mt-8 pt-6 border-t border-gray-200 text-left sm:text-center max-w-3xl mx-auto">
+                      <p className="text-[rgba(0,0,102)] font-semibold text-base sm:text-lg mb-2">
+                        Why choose Ajwa Academy for Online Quran Classes?
+                      </p>
+                      <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
+                        Our certified teachers provide personalized one-to-one Quran classes with structured
+                        lessons, flexible schedules, and regular progress reports for students worldwide.
                       </p>
                     </div>
                   </div>
