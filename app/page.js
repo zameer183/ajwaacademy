@@ -7,6 +7,7 @@ import { courseAPI } from '../lib/static-api';
 import HomeContactCard from '../components/HomeContactCard';
 import HomeCtaPopup from '../components/HomeCtaPopup';
 import HomeStats from '../components/HomeStats';
+import HomeCoursePreview from '../components/HomeCoursePreview';
 
 export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -534,88 +535,7 @@ export default function HomePage() {
 
             <HomeStats />
 
-            <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Online Quran Teacher Support</h3>
-                <p className="text-gray-600 mb-6">
-                  Our online Quran teachers support every student with live one-to-one classes, monthly
-                  progress reports, and clear guidance on Tajweed, Hifz, Makharij, and Quran memorization
-                  classes.
-                </p>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Memorise Quran with Flexible Timings</h3>
-                <p className="text-gray-600">
-                  We aim to make Quran learning online simple for families who want flexible timings,
-                  authentic guidance from Islamic scholars, and steady progress in Surah recitation, Hifz,
-                  and Tajweed course online learning.
-                </p>
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <a
-                    href="/free-trial"
-                    className="bg-[rgba(0,0,102)] text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(51,102,153)] transition-colors"
-                  >
-                    Free Trial
-                  </a>
-                  <a
-                    href="/courses"
-                    className="border border-[rgba(0,0,102)] text-[rgba(0,0,102)] px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(0,0,102)] hover:text-white transition-colors"
-                  >
-                    View Course
-                  </a>
-                </div>
-              </div>
-              <div className="flex flex-col items-center text-center">
-                <div className="relative w-full max-w-xs aspect-[4/5] overflow-hidden rounded-xl shadow-lg">
-                  <Image
-                    src="/why-choose-ajwa-academy.webp"
-                    alt="Student learning Quran reading in Ajwa Academy online class"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 80vw, 320px"
-                  />
-                </div>
-                <p className="text-sm text-gray-600 mt-4">Quran Reading Course</p>
-              </div>
-            </div>
-
-            <div className="mt-12">
-              <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-10 items-center">
-                <div className="flex items-center justify-center">
-                  <div className="relative w-full max-w-md aspect-[4/3] overflow-hidden rounded-2xl shadow-lg">
-                    <Image
-                      src="/online-tajweed-course.webp"
-                      alt="Online Tajweed course session with proper Quran pronunciation practice"
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 1024px) 90vw, 480px"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                    Learn Quran Recitation with Our Online Tajweed Course
-                  </h3>
-                  <p className="text-gray-600 mb-6">
-                    We offer a structured Tajweed program for beginners and advanced students. Learn
-                    proper pronunciation, access lessons anytime, and join live sessions with tutors
-                    for feedback.
-                  </p>
-                  <div className="flex flex-wrap gap-3">
-                    <a
-                      href="/free-trial"
-                      className="bg-[rgba(0,0,102)] text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(51,102,153)] transition-colors"
-                    >
-                      Free Trial
-                    </a>
-                    <a
-                      href="/courses"
-                      className="border border-[rgba(0,0,102)] text-[rgba(0,0,102)] px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(0,0,102)] hover:text-white transition-colors"
-                    >
-                      View Course
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <HomeCoursePreview />
           </div>
         </section>
 
