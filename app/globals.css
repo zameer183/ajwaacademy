@@ -233,6 +233,20 @@ body.dark {
   animation: fade-up 0.7s ease-out both;
 }
 
+.stat-card {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.55s ease-out,
+    transform 0.55s ease-out,
+    box-shadow 0.3s ease;
+}
+
+.stats-visible .stat-card {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;

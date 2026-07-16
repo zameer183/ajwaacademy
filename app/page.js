@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { courseAPI } from '../lib/static-api';
 import HomeContactCard from '../components/HomeContactCard';
 import HomeCtaPopup from '../components/HomeCtaPopup';
+import HomeStats from '../components/HomeStats';
 
 export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -531,30 +532,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 mb-12">
-              <div className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div className="text-4xl font-bold text-[rgba(0,0,102)] mb-2">1000+</div>
-                <div className="text-sm font-medium text-gray-700">Online Classes</div>
-              </div>
-              <div className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div className="text-4xl font-bold text-[rgba(0,0,102)] mb-2">200+</div>
-                <div className="text-sm font-medium text-gray-700">Students</div>
-              </div>
-              <div className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div className="text-4xl font-bold text-[rgba(0,0,102)] mb-2">15+</div>
-                <div className="text-sm font-medium text-gray-700">Qualified Teachers</div>
-              </div>
-              <div className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div className="text-4xl font-bold text-[rgba(0,0,102)] mb-2">24/7</div>
-                <div className="text-sm font-medium text-gray-700">Support</div>
-              </div>
-              <div className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div className="text-4xl font-bold text-[rgba(0,0,102)] mb-2">100%</div>
-                <div className="text-xs font-medium text-gray-700 text-center">
-                  Student<br />Satisfaction
-                </div>
-              </div>
-            </div>
+            <HomeStats />
 
             <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
               <div>
