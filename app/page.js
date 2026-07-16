@@ -486,9 +486,15 @@ export default function HomePage() {
                     </h3>
                     <p className="text-base sm:text-lg md:text-xl text-gray-800 leading-relaxed mb-6 font-medium">
                       Ajwa Academy provides online Quran classes for kids and adults through certified Quran
-                      teachers. Learn Quran online with Tajweed, Noorani Qaida, Hifz, and one-to-one live
-                      classes. Flexible timings and monthly progress reports help students build confidence
-                      in Quran recitation from anywhere in the world.
+                      teachers. Learn Quran online with Tajweed, Noorani Qaida, Hifz, and{' '}
+                      <Link
+                        href="/blog/top-benefits-of-one-to-one-online-quran-classes"
+                        className="text-[rgba(0,0,102)] underline underline-offset-2 hover:text-[rgba(51,102,153)]"
+                      >
+                        one-to-one
+                      </Link>{' '}
+                      live classes. Flexible timings and monthly progress reports help students build
+                      confidence in Quran recitation from anywhere in the world.
                     </p>
                     <div className="mt-6 sm:mt-8 pt-6 border-t border-gray-200 text-left sm:text-center max-w-3xl mx-auto">
                       <p className="text-[rgba(0,0,102)] font-semibold text-base sm:text-lg mb-2">
