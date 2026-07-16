@@ -504,7 +504,14 @@ export default function HomePage() {
                       </p>
                       <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
                         Our certified teachers provide personalized one-to-one Quran classes with structured
-                        lessons, flexible schedules, and regular progress reports for students worldwide.
+                        lessons,{' '}
+                        <Link
+                          href="/blog/step-by-step-guide-to-learn-quran-with-tajweed-online-1777339752059"
+                          className="text-[rgba(0,0,102)] no-underline hover:text-[rgba(51,102,153)]"
+                        >
+                          flexible schedules
+                        </Link>
+                        , and regular progress reports for students worldwide.
                       </p>
                     </div>
                   </div>
