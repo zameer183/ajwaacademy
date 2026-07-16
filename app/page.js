@@ -489,7 +489,7 @@ export default function HomePage() {
                       teachers. Learn Quran online with Tajweed, Noorani Qaida, Hifz, and{' '}
                       <Link
                         href="/blog/top-benefits-of-one-to-one-online-quran-classes"
-                        className="text-[rgba(0,0,102)] underline underline-offset-2 hover:text-[rgba(51,102,153)]"
+                        className="text-[rgba(0,0,102)] no-underline hover:text-[rgba(51,102,153)]"
                       >
                         one-to-one
                       </Link>{' '}
