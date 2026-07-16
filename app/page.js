@@ -8,6 +8,7 @@ import HomeContactCard from '../components/HomeContactCard';
 import HomeCtaPopup from '../components/HomeCtaPopup';
 import HomeStats from '../components/HomeStats';
 import HomeCoursePreview from '../components/HomeCoursePreview';
+import HomeWhyChoose from '../components/HomeWhyChoose';
 
 export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -158,33 +159,6 @@ export default function HomePage() {
     { label: 'UAE', shortLabel: 'UAE', flagUrl: 'https://flagcdn.com/w40/ae.png' },
     { label: 'Canada', shortLabel: 'CA', flagUrl: 'https://flagcdn.com/w40/ca.png' },
     { label: 'Worldwide', shortLabel: 'Global', icon: '🌍' },
-  ];
-  const whyChooseItems = [
-    {
-      title: 'Certified and experienced online Quran teachers',
-      description:
-        'Learn from qualified Quran teachers who guide students with clarity and care.',
-    },
-    {
-      title: 'Personalized one-to-one online Quran classes',
-      description:
-        "Individual attention and lessons tailored to each student's level and goals.",
-    },
-    {
-      title: 'Structured Quran courses online',
-      description:
-        'Step-by-step programs for Quran reading, Tajweed, memorization, and understanding.',
-    },
-    {
-      title: 'Flexible schedules for international students',
-      description:
-        'Class timings that suit families in the UK, USA, Canada, and beyond.',
-    },
-    {
-      title: 'Authentic Islamic teaching environment',
-      description:
-        'Sincere, respectful learning that builds connection with Quran and Sunnah.',
-    },
   ];
   const testimonials = [
     {
@@ -558,43 +532,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="py-16 bg-gray-50 why-choose">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-10">
-              <div className="inline-flex items-center text-sm font-semibold text-[rgba(0,0,102)] uppercase tracking-widest">
-                Why Choose
-              </div>
-              <h2 className="text-3xl font-bold text-gray-900 mt-3">
-                Why Choose Our Online Quran Classes
-              </h2>
-              <p className="text-gray-600 mt-3 max-w-3xl mx-auto">
-                Trusted learning with personalized guidance, flexible schedules, and sincere teaching.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap justify-center gap-6">
-              {whyChooseItems.map((item) => (
-                <div key={item.title} className="why-card-parent">
-                  <div className="why-card">
-                    <div className="logo">
-                      <span className="circle circle1"></span>
-                      <span className="circle circle2"></span>
-                      <span className="circle circle3"></span>
-                      <span className="circle circle4"></span>
-                      <span className="circle circle5"></span>
-                    </div>
-                    <div className="glass"></div>
-                    <div className="content">
-                      <span className="title">{item.title}</span>
-                      <span className="text">{item.description}</span>
-                    </div>
-                    <div className="bottom"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <HomeWhyChoose />
 
         <section className="py-16 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

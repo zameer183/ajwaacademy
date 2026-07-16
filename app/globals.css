@@ -247,6 +247,29 @@ body.dark {
   transform: translateY(0);
 }
 
+.why-choose-card {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s ease-out,
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+.why-choose-section.is-visible .why-choose-card {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.why-choose-card:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 16px 32px -12px rgba(0, 0, 102, 0.16),
+    0 4px 12px rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 102, 0.12);
+}
+
 .course-preview-card {
   opacity: 0;
   transform: translateY(24px);
@@ -286,169 +309,3 @@ body.dark {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
-
-/* Why choose cards (Uiverse.io by Smit-Prajapati) */
-.why-choose .why-card-parent {
-  width: 290px;
-  height: 300px;
-  perspective: 1000px;
-}
-
-.why-choose .why-card {
-  height: 100%;
-  border-radius: 50px;
-  background: linear-gradient(135deg, rgba(0, 91, 187, 1) 0%, rgba(0, 0, 102, 1) 100%);
-  transition: all 0.5s ease-in-out;
-  transform-style: preserve-3d;
-  box-shadow: none;
-  position: relative;
-}
-
-.why-choose .why-card .glass {
-  transform-style: preserve-3d;
-  position: absolute;
-  inset: 8px;
-  border-radius: 55px;
-  border-top-right-radius: 100%;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(77, 183, 255, 0.18) 100%);
-  transform: translate3d(0px, 0px, 25px);
-  border-left: 1px solid rgba(255, 255, 255, 0.2);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.5s ease-in-out;
-}
-
-.why-choose .why-card .content {
-  padding: 90px 50px 0px 28px;
-  transform: translate3d(0, 0, 26px);
-}
-
-.why-choose .why-card .content .title {
-  display: block;
-  color: #fff;
-  font-weight: 800;
-  font-size: 18px;
-}
-
-.why-choose .why-card .content .text {
-  display: block;
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 14px;
-  margin-top: 16px;
-}
-
-
-.why-choose .why-card .bottom {
-  padding: 10px 14px;
-  transform-style: preserve-3d;
-  position: absolute;
-  bottom: 18px;
-  left: 20px;
-  right: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  transform: translate3d(0, 0, 26px);
-}
-
-.why-choose .why-card .bottom .package-label {
-  color: #fff;
-  font-weight: 800;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.why-choose .why-card .logo {
-  position: absolute;
-  right: 0;
-  top: 0;
-  transform-style: preserve-3d;
-}
-
-.why-choose .why-card .logo .circle {
-  display: block;
-  position: absolute;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  top: 0;
-  right: 0;
-  box-shadow: rgba(100, 100, 111, 0.2) -10px 10px 20px 0px;
-  background: rgba(255, 255, 255, 0.22);
-  transition: all 0.5s ease-in-out;
-}
-
-.why-choose .why-card .logo .circle1 {
-  width: 170px;
-  transform: translate3d(0, 0, 20px);
-  top: 8px;
-  right: 8px;
-}
-
-.why-choose .why-card .logo .circle2 {
-  width: 140px;
-  transform: translate3d(0, 0, 40px);
-  top: 10px;
-  right: 10px;
-  transition-delay: 0.4s;
-}
-
-.why-choose .why-card .logo .circle3 {
-  width: 110px;
-  transform: translate3d(0, 0, 60px);
-  top: 17px;
-  right: 17px;
-  transition-delay: 0.8s;
-}
-
-.why-choose .why-card .logo .circle4 {
-  width: 80px;
-  transform: translate3d(0, 0, 80px);
-  top: 23px;
-  right: 23px;
-  transition-delay: 1.2s;
-}
-
-.why-choose .why-card .logo .circle5 {
-  width: 50px;
-  transform: translate3d(0, 0, 100px);
-  top: 30px;
-  right: 30px;
-  display: grid;
-  place-content: center;
-  transition-delay: 1.6s;
-}
-
-.why-choose .why-card .logo .circle5 .brand-letter {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  display: grid;
-  place-content: center;
-  background: rgba(0, 0, 102, 1);
-  color: #fff;
-  font-weight: 800;
-  font-size: 12px;
-}
-
-.why-choose .why-card-parent:hover .why-card {
-  transform: rotate3d(1, 1, 0, 30deg);
-  box-shadow: none;
-}
-
-.why-choose .why-card-parent:hover .why-card .logo .circle2 {
-  transform: translate3d(0, 0, 60px);
-}
-
-.why-choose .why-card-parent:hover .why-card .logo .circle3 {
-  transform: translate3d(0, 0, 80px);
-}
-
-.why-choose .why-card-parent:hover .why-card .logo .circle4 {
-  transform: translate3d(0, 0, 100px);
-}
-
-.why-choose .why-card-parent:hover .why-card .logo .circle5 {
-  transform: translate3d(0, 0, 120px);
-}
-
-/* Animation utilities removed */
