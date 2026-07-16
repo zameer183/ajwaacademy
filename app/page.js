@@ -522,13 +522,25 @@ export default function HomePage() {
               <div className="w-20 h-1 bg-[rgba(0,0,102)] rounded-full mx-auto mb-6" />
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
                 Ajwa Academy provides authentic online Quran classes for kids and adults worldwide. Our
-                mission is to help students learn Quran online with proper Tajweed, Hifz, Noorani Qaida,
-                Makharij, Surah recitation, and Islamic guidance from certified teachers. We offer
+                mission is to help students learn Quran online with proper{' '}
+                <Link
+                  href="/blog/how-to-learn-quran-online-with-tajweed-at-home"
+                  className="text-[rgba(0,0,102)] no-underline hover:text-[rgba(51,102,153)]"
+                >
+                  Tajweed, Hifz, Noorani Qaida
+                </Link>
+                , Makharij, Surah recitation, and Islamic guidance from certified teachers. We offer
                 personalized one-to-one classes, monthly progress reports, and flexible timings for every
                 learner.
                 <span className="block mt-4">
-                  Students from the UK, USA, Canada, Australia, UAE, and Europe join our academy to receive
-                  authentic and structured Quran courses online.
+                  Students from the{' '}
+                  <Link
+                    href="/blog/how-to-choose-the-best-online-quran-teacher"
+                    className="text-[rgba(0,0,102)] no-underline hover:text-[rgba(51,102,153)]"
+                  >
+                    UK, USA, Canada, Australia, UAE, and Europe
+                  </Link>{' '}
+                  join our academy to receive authentic and structured Quran courses online.
                 </span>
               </p>
             </div>
