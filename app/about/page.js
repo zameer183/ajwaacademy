@@ -1,4 +1,7 @@
-﻿const coreValues = [
+﻿import Link from 'next/link';
+import TeacherProfilesSection from '../../components/TeacherProfilesSection';
+
+const coreValues = [
   'Authentic and quality Quran education online',
   'Sincerity and dedication in teaching every class',
   'Modern and effective online Quran learning methods',
@@ -102,6 +105,10 @@ export default function AboutPage() {
               </div>
             ))}
           </div>
+        </section>
+
+        <section className="bg-white rounded-3xl shadow-lg p-8 sm:p-10">
+          <TeacherProfilesSection />
         </section>
 
         <section className="bg-white rounded-3xl shadow-lg p-8 space-y-6">
@@ -238,9 +245,3 @@ export default function AboutPage() {
     </div>
   );
 }
-
-
-
-
-
-import Link from 'next/link';
