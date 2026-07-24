@@ -301,6 +301,59 @@ body.dark {
   transform: scale(1.06);
 }
 
+@keyframes testimonial-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.testimonial-marquee {
+  --marquee-duration: 70s;
+}
+
+.testimonial-track {
+  animation: testimonial-marquee var(--marquee-duration) linear infinite;
+  will-change: transform;
+}
+
+.testimonial-marquee:hover .testimonial-track {
+  animation-play-state: paused;
+}
+
+.testimonial-card {
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 16px 32px -12px rgba(0, 0, 102, 0.16),
+    0 4px 12px rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 102, 0.14);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonial-track {
+    animation: none;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+    justify-content: center;
+    padding-inline: 1rem;
+  }
+
+  .testimonial-track > *:nth-child(n + 16) {
+    display: none;
+  }
+}
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;

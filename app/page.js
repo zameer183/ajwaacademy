@@ -9,6 +9,7 @@ import HomeCtaPopup from '../components/HomeCtaPopup';
 import HomeStats from '../components/HomeStats';
 import HomeCoursePreview from '../components/HomeCoursePreview';
 import HomeWhyChoose from '../components/HomeWhyChoose';
+import HomeTestimonials, { TESTIMONIALS } from '../components/HomeTestimonials';
 
 export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -160,38 +161,6 @@ export default function HomePage() {
     { label: 'Canada', shortLabel: 'CA', flagUrl: 'https://flagcdn.com/w40/ca.png' },
     { label: 'Worldwide', shortLabel: 'Global', icon: '🌍' },
   ];
-  const testimonials = [
-    {
-      name: 'Sarah',
-      country: 'UK',
-      review:
-        'My daughter improved her Quran reading in a few weeks. The teacher is patient and very clear.',
-    },
-    {
-      name: 'Ahmad',
-      country: 'USA',
-      review:
-        'Flexible timings and one-to-one classes helped me stay consistent with Tajweed practice.',
-    },
-    {
-      name: 'Ayesha',
-      country: 'Australia',
-      review:
-        'Lessons are structured and easy to follow. I finally feel confident reading with proper pronunciation.',
-    },
-    {
-      name: 'Bilal H.',
-      country: 'Pakistan',
-      review:
-        'Excellent teaching style and regular feedback. The progress tracking keeps students motivated.',
-    },
-    {
-      name: 'Maryam',
-      country: 'Canada',
-      review:
-        'A trusted academy with supportive teachers. My kids enjoy classes and look forward to every session.',
-    },
-  ];
   const teacherProfiles = [
     {
       name: 'Ustadha Ayesha Noor',
@@ -277,14 +246,18 @@ export default function HomePage() {
     "@type": "EducationalOrganization",
     name: "Ajwa Academy",
     url: "https://www.ajwaacademy.com",
-    review: [
-      { "@type": "Review", author: { "@type": "Person", name: "Sarah" }, reviewBody: "My daughter improved her Quran reading in a few weeks. The teacher is patient and very clear.", reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" } },
-      { "@type": "Review", author: { "@type": "Person", name: "Ahmad" }, reviewBody: "Flexible timings and one-to-one classes helped me stay consistent with Tajweed practice.", reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" } },
-      { "@type": "Review", author: { "@type": "Person", name: "Ayesha" }, reviewBody: "Lessons are structured and easy to follow. I finally feel confident reading with proper pronunciation.", reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" } },
-      { "@type": "Review", author: { "@type": "Person", name: "Bilal H." }, reviewBody: "Excellent teaching style and regular feedback. The progress tracking keeps students motivated.", reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" } },
-      { "@type": "Review", author: { "@type": "Person", name: "Maryam" }, reviewBody: "A trusted academy with supportive teachers. My kids enjoy classes and look forward to every session.", reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" } },
-    ],
-    aggregateRating: { "@type": "AggregateRating", ratingValue: "5", reviewCount: "5", bestRating: "5" },
+    review: TESTIMONIALS.map((item) => ({
+      "@type": "Review",
+      author: { "@type": "Person", name: item.name },
+      reviewBody: item.review,
+      reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" },
+    })),
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "5",
+      reviewCount: String(TESTIMONIALS.length),
+      bestRating: "5",
+    },
   };
   const organizationSchema = {
     "@context": "https://schema.org",
@@ -534,30 +507,7 @@ export default function HomePage() {
 
         <HomeWhyChoose />
 
-        <section className="py-16 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-10">
-              <h2 className="text-3xl font-bold text-gray-900 mb-3">Student Testimonials</h2>
-              <div className="w-20 h-1 bg-[rgba(0,0,102)] rounded-full mx-auto mb-4" />
-              <p className="text-gray-600 max-w-2xl mx-auto">
-                Feedback from students and parents learning with Ajwa Academy.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {testimonials.map((item) => (
-                <article
-                  key={`${item.name}-${item.country}`}
-                  className="bg-gray-50 border border-[rgba(0,0,102,0.12)] rounded-xl p-6 shadow-sm"
-                >
-                  <p className="text-gray-700 leading-relaxed">"{item.review}"</p>
-                  <p className="mt-4 text-sm font-semibold text-[rgba(0,0,102)]">
-                    {item.name} — {item.country}
-                  </p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
+        <HomeTestimonials />
 
         <section className="py-16 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
