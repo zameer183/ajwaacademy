@@ -11,6 +11,9 @@ import HomeCoursePreview from '../components/HomeCoursePreview';
 import HomeWhyChoose from '../components/HomeWhyChoose';
 import HomeTestimonials, { TESTIMONIALS } from '../components/HomeTestimonials';
 import HomeCtaSection from '../components/HomeCtaSection';
+import HomeFounderSection from '../components/HomeFounderSection';
+import HomeCountriesSection from '../components/HomeCountriesSection';
+import HomeFaqSection, { buildFaqSchema } from '../components/HomeFaqSection';
 
 export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -183,18 +186,7 @@ export default function HomePage() {
   }, []);
 
 
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: [
-      { "@type": "Question", name: "What are online Quran classes?", acceptedAnswer: { "@type": "Answer", text: "Online Quran classes are live lessons where students learn Quran reading, Tajweed, and Islamic studies through the internet. At Ajwa Academy, students can learn Quran online with qualified teachers in one-to-one Quran lessons from anywhere in the world." } },
-      { "@type": "Question", name: "How can I learn Quran online with a teacher?", acceptedAnswer: { "@type": "Answer", text: "You can learn Quran online by joining live Quran learning sessions with a qualified teacher. Students receive personalized lessons, correct Tajweed guidance, and step-by-step Quran reading instruction through structured Quran courses online." } },
-      { "@type": "Question", name: "Who can join your online Quran classes?", acceptedAnswer: { "@type": "Answer", text: "Our Quran education is open for children, teenagers, and adults. Whether you are a beginner or someone who wants to improve Tajweed and Quran recitation, our online Quran teachers guide students according to their level." } },
-      { "@type": "Question", name: "Do you offer one-to-one online Quran classes?", acceptedAnswer: { "@type": "Answer", text: "Yes, Ajwa Academy provides one-to-one Quran learning so each student receives personal attention from a qualified online Quran teacher." } },
-      { "@type": "Question", name: "Which countries can join Ajwa Academy?", acceptedAnswer: { "@type": "Answer", text: "Students from the UK, USA, Canada, Australia, UAE, and other countries can join our Quran education programs with flexible schedules." } },
-      { "@type": "Question", name: "Do you offer a free trial Quran class?", acceptedAnswer: { "@type": "Answer", text: "Yes, we offer a free trial Quran class so students and parents can understand the teaching method before enrolling in regular Quran lessons." } },
-    ],
-  };
+  const faqSchema = buildFaqSchema();
 
   const reviewSchema = {
     "@context": "https://schema.org",
@@ -466,117 +458,9 @@ export default function HomePage() {
 
         <HomeCtaSection />
 
-        <section className="py-20 bg-white relative overflow-hidden">
-          <div className="absolute inset-0">
-            <div
-              className="absolute top-1/2 right-1/4 w-8 h-8 bg-[rgba(0,0,102,0.15)] transform rotate-12 animate-pulse"
-              style={{ animationDuration: '3s' }}
-            ></div>
-          </div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 animate-fade-in-up">
-                Meet Our Founder
-              </h2>
-              <p
-                className="text-xl text-gray-600 max-w-3xl mx-auto animate-fade-in-up"
-                style={{ animationDelay: '0.2s' }}
-              >
-                The vision behind Ajwa Academy is to bring authentic Quran education to every home through
-                expert teachers, structured learning, and compassionate guidance.
-              </p>
-            </div>
+        <HomeFounderSection />
 
-            <div className="max-w-4xl mx-auto space-y-10">
-              <div className="rounded-xl border bg-white shadow overflow-hidden group hover:shadow-2xl transition-all duration-700 hover:-translate-y-2 cursor-pointer">
-                <div className="p-0">
-                  <div className="grid md:grid-cols-2 gap-0">
-                    <div className="relative h-64 md:h-full bg-gradient-to-br from-[rgba(0,0,102,0.08)] to-[rgba(51,102,153,0.18)] overflow-hidden">
-                      <div className="absolute inset-0 group-hover:scale-110 transition-transform duration-700">
-                        <Image
-                          src="/ibrahim.webp"
-                          alt="Muhammad Ibrahim, founder of Ajwa Academy"
-                          width={700}
-                          height={900}
-                          loading="lazy"
-                          className="w-full h-full object-contain md:object-cover md:object-center object-top group-hover:scale-105 transition-transform duration-700"
-                        />
-                      </div>
-                      <div className="absolute top-4 left-4 w-8 h-8 bg-white/30 rounded-full animate-float"></div>
-                      <div
-                        className="absolute bottom-8 right-8 w-6 h-6 bg-white/20 rounded-full animate-float"
-                        style={{ animationDelay: '2s' }}
-                      ></div>
-                      <div className="absolute bottom-4 left-4 right-4">
-                        <div className="bg-white/90 backdrop-blur-sm rounded-lg p-3 group-hover:bg-white transition-colors duration-300">
-                          <h3 className="font-bold text-gray-900">Muhammad Ibrahim</h3>
-                          <p className="text-sm text-gray-600">Founder & CEO</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="p-8 md:p-12 relative">
-                      <div className="space-y-6">
-                        <div>
-                          <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-[rgba(0,0,102)] transition-colors duration-300">
-                            Bringing Quran Education to the Next Generation
-                          </h3>
-                          <p className="text-gray-600 leading-relaxed mb-4">
-                            With a passion for spreading authentic Quranic teachings, our founder saw how many
-                            children and young Muslims lack access to structured online Quran learning. Ajwa
-                            Academy was created to provide clear, engaging, and effective Quran education with
-                            proper Tajweed and understanding.
-                          </p>
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-gray-900 mb-3">Expertise & Focus</h4>
-                          <ul className="space-y-2 text-gray-600">
-                            <li className="flex items-center group-hover:translate-x-2 transition-transform duration-300">
-                            Online Quran teaching & curriculum design
-                            </li>
-                            <li
-                              className="flex items-center group-hover:translate-x-2 transition-transform duration-300"
-                              style={{ transitionDelay: '0.1s' }}
-                            >
-                              Tajweed, Quran comprehension, and Islamic guidance
-                            </li>
-                            <li
-                              className="flex items-center group-hover:translate-x-2 transition-transform duration-300"
-                              style={{ transitionDelay: '0.2s' }}
-                            >
-                              Building accessible learning platforms for Muslim youth
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </section>
-
-        <section className="py-16 bg-gray-50">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-10">
-              <h2 className="text-3xl font-bold text-gray-900 mb-3">Countries We Serve</h2>
-              <p className="text-gray-600 max-w-2xl mx-auto">
-                Ajwa Academy offers online Quran classes for students worldwide with flexible timings.
-              </p>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-              {["UK", "USA", "Canada", "Australia", "UAE"].map((country) => (
-                <div
-                  key={country}
-                  className="bg-white border border-[rgba(0,0,102,0.12)] text-[rgba(0,0,102)] font-semibold rounded-lg py-3 text-center shadow-sm"
-                >
-                  {country}
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <HomeCountriesSection />
 
         <section className="bg-[rgba(0,0,102,0.03)] py-20 lg:py-24">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -592,74 +476,7 @@ export default function HomePage() {
                   />
                 </div>
                 <div>
-                  <div className="text-left mb-8">
-                    <span className="text-[rgba(0,0,102)] font-bold text-sm tracking-widest">FAQS</span>
-                    <h2 className="text-3xl font-bold text-[rgba(0,0,102)] mt-2">
-                      Online Quran Classes FAQs
-                    </h2>
-                    <p className="text-gray-600 mt-4 max-w-xl">
-                      Answers to common questions about online Quran classes, online Quran lessons, and how to
-                      learn Quran online with Ajwa Academy.
-                    </p>
-                  </div>
-                  <div className="w-full rounded-3xl bg-white px-6 py-3 shadow-sm">
-                    {[
-                      {
-                        q: "What are online Quran classes?",
-                        a: "Online Quran classes are live lessons where students learn Quran reading, Tajweed, and Islamic studies through the internet. At Ajwa Academy, students can learn Quran online with qualified teachers in one-to-one Quran lessons from anywhere in the world.",
-                      },
-                      {
-                        q: "How can I learn Quran online with a teacher?",
-                        a: "You can learn Quran online by joining live Quran learning sessions with a qualified teacher. Students receive personalized lessons, correct Tajweed guidance, and step-by-step Quran reading instruction through structured Quran courses online.",
-                      },
-                      {
-                        q: "Who can join your online Quran classes?",
-                        a: "Our Quran education is open for children, teenagers, and adults. Whether you are a beginner or someone who wants to improve Tajweed and Quran recitation, our online Quran teachers guide students according to their level.",
-                      },
-                      {
-                        q: "Do you offer one-to-one online Quran classes?",
-                        a: "Yes, Ajwa Academy provides one-to-one Quran learning so each student receives personal attention from a qualified online Quran teacher. This helps students learn Quran online faster and with better pronunciation.",
-                      },
-                      {
-                        q: "Which countries can join Ajwa Academy online Quran classes?",
-                        a: "Students from the UK, USA, Canada, Australia, UAE, and other countries can join our Quran education programs. Flexible schedules allow students to learn Quran online according to their time zone.",
-                      },
-                      {
-                        q: "Do you offer a free trial Quran class?",
-                        a: "Yes, we offer a free trial Quran class so students and parents can understand the teaching method before enrolling in regular Quran lessons.",
-                      },
-                      {
-                        q: "What courses do you offer in your online Quran academy?",
-                        a: "Our academy offers Quran reading, Tajweed courses, Quran memorization, and Quran with Tafseer classes. These structured Quran courses online help students learn Quran online with proper understanding.",
-                      },
-                      {
-                        q: "Why choose Ajwa Academy for online Quran learning?",
-                        a: "Ajwa Academy provides qualified online Quran teachers, personalized Quran learning, flexible schedules, and structured Quran courses online designed for students worldwide.",
-                      },
-                    ].map((item) => (
-                      <details key={item.q} className="border-b border-gray-200 last:border-b-0">
-                        <summary className="flex items-center justify-between py-4 text-left font-semibold text-lg cursor-pointer">
-                          {item.q}
-                          <svg
-                            width="15"
-                            height="15"
-                            viewBox="0 0 15 15"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 shrink-0 text-gray-500 transition-transform duration-200"
-                          >
-                            <path
-                              d="M3.13523 6.15803C3.3241 5.95657 3.64052 5.94637 3.84197 6.13523L7.5 9.56464L11.158 6.13523C11.3595 5.94637 11.6759 5.95657 11.8648 6.15803C12.0536 6.35949 12.0434 6.67591 11.842 6.86477L7.84197 10.6148C7.64964 10.7951 7.35036 10.7951 7.15803 10.6148L3.15803 6.86477C2.95657 6.67591 2.94637 6.35949 3.13523 6.15803Z"
-                              fill="currentColor"
-                              fillRule="evenodd"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </summary>
-                        <div className="pb-4 text-gray-600 leading-relaxed">{item.a}</div>
-                      </details>
-                    ))}
-                  </div>
+                  <HomeFaqSection />
                 </div>
               </div>
 
