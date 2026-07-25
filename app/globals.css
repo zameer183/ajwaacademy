@@ -301,6 +301,27 @@ body.dark {
   transform: scale(1.06);
 }
 
+.home-cta-item {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.65s ease-out,
+    transform 0.65s ease-out;
+}
+
+.home-cta.is-visible .home-cta-item {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-cta-item {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 @keyframes testimonial-marquee {
   from {
     transform: translate3d(0, 0, 0);
