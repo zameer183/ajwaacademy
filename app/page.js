@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
@@ -249,36 +249,36 @@ export default function HomePage() {
               <p className="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-white/90 backdrop-blur-sm mb-4">
                 {slides[currentSlide]?.badge}
               </p>
-              {currentSlide === 0 && (
-                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold leading-[1.12] mb-4 sm:mb-5 max-w-4xl">
-                  Online Quran Classes
-                </h1>
-              )}
-              <p className="text-2xl sm:text-3xl lg:text-4xl font-semibold leading-tight mb-3 text-white/98">
-                {currentSlide === 0 && (
-                  <>
-                    Learn Quran online with certified teachers through live{' '}
-                    <Link href="/blog/benefits-of-one-to-one-online-quran-tutoring" className="text-inherit no-underline">
-                      one-to-one classes
-                    </Link>{' '}
-                    for kids and adults worldwide.
-                  </>
-                )}
-                {currentSlide === 1 && (
-                  <>
-                    Master{' '}
-                    <Link href="/blog/how-to-learn-quran-online-with-tajweed-at-home" className="text-inherit no-underline">
-                      Tajweed
-                    </Link>
-                    , Hifz, and Noorani Qaida through one-to-one classes.
-                  </>
-                )}
-                {currentSlide === 2 && (
-                  <>
-                    Flexible timings, monthly progress reports, and experienced teachers dedicated to helping every student succeed.
-                  </>
-                )}
-              </p>
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold leading-[1.12] mb-3 sm:mb-4 max-w-4xl text-white">
+                Online Quran Classes
+              </h1>
+              <div className="min-h-[4rem] sm:min-h-[5rem] flex items-center mb-3 sm:mb-4">
+                <p className="text-xl sm:text-2xl lg:text-3xl font-semibold leading-snug text-white/95 transition-opacity duration-300">
+                  {currentSlide === 0 && (
+                    <>
+                      Learn Quran online with certified teachers through live{' '}
+                      <Link href="/blog/benefits-of-one-to-one-online-quran-tutoring" className="text-inherit underline underline-offset-4 hover:text-white">
+                        one-to-one classes
+                      </Link>{' '}
+                      for kids and adults worldwide.
+                    </>
+                  )}
+                  {currentSlide === 1 && (
+                    <>
+                      Master{' '}
+                      <Link href="/blog/how-to-learn-quran-online-with-tajweed-at-home" className="text-inherit underline underline-offset-4 hover:text-white">
+                        Tajweed
+                      </Link>
+                      , Hifz, and Noorani Qaida with personalized 1-on-1 guidance.
+                    </>
+                  )}
+                  {currentSlide === 2 && (
+                    <>
+                      Flexible timings, monthly progress reports, and dedicated teachers helping every student succeed.
+                    </>
+                  )}
+                </p>
+              </div>
               <div className="mb-6 sm:mb-8 w-full max-w-full">
                 <div className="flex w-full flex-nowrap items-center justify-between gap-1.5 sm:justify-start sm:gap-3">
                   {heroRegions.map((region) => (
