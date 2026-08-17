@@ -1,12 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useId, useRef, useState } from 'react';
+import { useId, useState } from 'react';
 
-/**
- * Central link map — update hrefs here when final destinations are ready.
- * Existing site routes are used where available.
- */
 export const FAQ_LINK_MAP = {
   freeTrial: '/free-trial',
   courses: '/courses',
@@ -22,9 +18,7 @@ const linkClass =
 
 function FaqLink({ hrefKey, children }) {
   const href = FAQ_LINK_MAP[hrefKey];
-  if (!href) {
-    return <span data-link-placeholder={hrefKey}>{children}</span>;
-  }
+  if (!href) return <span>{children}</span>;
   return (
     <Link href={href} className={linkClass}>
       {children}
@@ -34,71 +28,58 @@ function FaqLink({ hrefKey, children }) {
 
 export const HOME_FAQS = [
   {
-    question: 'What are online Quran classes?',
+    question: 'What are online Quran classes and how do they work?',
     answerText:
-      'Online Quran classes are live one-to-one lessons where students learn Quran reading, Tajweed, Noorani Qaida, Hifz, and Islamic studies from certified Quran teachers through Zoom or other online platforms. Ajwa Academy provides flexible class timings, monthly progress reports, and personalised learning plans for kids and adults worldwide. Every lesson is designed to help students learn Quran online confidently from home.',
+      'Online Quran classes are live one-to-one lessons conducted over Zoom or Google Meet. Students connect with certified Quran tutors at their scheduled time, where they learn Noorani Qaida, Tajweed, Quran recitation, and Islamic studies with real-time feedback and mistake correction.',
     answer: (
       <>
-        Online Quran classes are live one-to-one lessons where students learn Quran reading, Tajweed,{' '}
-        <FaqLink hrefKey="nooraniQaida">Noorani Qaida</FaqLink>, Hifz, and Islamic studies from certified
-        Quran teachers through Zoom or other online platforms. Ajwa Academy provides flexible class timings,
-        monthly progress reports, and personalised learning plans for kids and adults worldwide. Every lesson
-        is designed to help students learn Quran online confidently from home.
+        Online Quran classes are live one-to-one lessons conducted over Zoom or Google Meet. Students connect directly with their certified Quran teacher at their scheduled time. You will learn{' '}
+        <FaqLink hrefKey="nooraniQaida">Noorani Qaida</FaqLink>,{' '}
+        <FaqLink hrefKey="tajweed">Tajweed recitation</FaqLink>, and Islamic studies with real-time feedback and step-by-step guidance from home.
       </>
     ),
   },
   {
-    question: 'How can I learn the Quran online with a certified teacher?',
+    question: 'Do you offer a Free Trial Quran class before enrollment?',
     answerText:
-      'Learning Quran online is simple. Book a free trial class, choose your preferred class schedule, meet your certified Quran teacher, and begin live one-to-one lessons. Students receive structured guidance in Quran reading, Tajweed, Noorani Qaida, and Hifz with regular progress tracking. Classes are available for children, adults, and beginners worldwide.',
+      'Yes, Ajwa Academy offers a 100% Free Trial Class with no payment or credit card required. This allows parents and students to evaluate our teaching methodology, meet the teacher, and discuss course objectives before committing.',
     answer: (
       <>
-        Learning Quran online is simple. Book a{' '}
-        <FaqLink hrefKey="freeTrial">free trial class</FaqLink>, choose your preferred class schedule, meet
-        your certified Quran teacher, and begin live one-to-one lessons. Students receive structured guidance
-        in Quran reading, Tajweed, <FaqLink hrefKey="nooraniQaida">Noorani Qaida</FaqLink>, and Hifz with
-        regular progress tracking. Classes are available for children, adults, and beginners worldwide.
+        Yes! We offer a 100%{' '}
+        <FaqLink hrefKey="freeTrial">Free Trial Quran Class</FaqLink> with no payment or credit card required. This allows parents and students to evaluate our teaching quality, meet the instructor, and discuss course goals before deciding on enrollment.
       </>
     ),
   },
   {
-    question: 'Do you offer one-to-one online Quran classes?',
+    question: 'Do you have female Quran teachers available for sisters and kids?',
     answerText:
-      "Yes. Every student learns through personalised one-to-one online Quran classes. Individual lessons help teachers focus on each student's pronunciation, Tajweed, memorisation, and Quran reading progress. This learning method allows students to improve more quickly while studying comfortably from home.",
+      'Yes, we have highly qualified, certified female Quran teachers available for sisters, young girls, and children. You can select your preference during registration.',
     answer: (
       <>
-        Yes. Every student learns through personalised{' '}
-        <FaqLink hrefKey="blogOneToOne">one-to-one online Quran classes</FaqLink>. Individual lessons help
-        teachers focus on each student's pronunciation, Tajweed, memorisation, and Quran reading progress.
-        This learning method allows students to improve more quickly while studying comfortably from home.
+        Yes. We have certified, highly experienced female Quran tutors with Ijazah available for sisters, daughters, and young kids in a completely comfortable and respectful environment.
+      </>
+    ),
+  },
+  {
+    question: 'Can I choose and customize my own class timings?',
+    answerText:
+      'Yes, our classes operate 24/7. You can choose any time of the day or weekend that aligns with your family schedule across UK, USA, Canada, UAE, and Australian time zones.',
+    answer: (
+      <>
+        Yes! Our academy operates 24/7 across all global time zones. You can select flexible morning, afternoon, or evening slots (including weekend classes) that fit seamlessly into your routine.
       </>
     ),
   },
   {
     question: 'Which online Quran courses do you offer?',
     answerText:
-      'Ajwa Academy offers online Quran reading, Noorani Qaida, online Tajweed courses, online Hifz classes, Quran translation, Islamic studies, and Arabic language courses. Every course is taught through live one-to-one sessions by qualified male and female Quran teachers with flexible schedules for students worldwide.',
+      'We offer Noorani Qaida for beginners, Quran Reading with Tajweed, Quran Memorization (Hifz), Quran Translation & Tafseer, Islamic Studies for Kids, and Arabic Language courses.',
     answer: (
       <>
-        Ajwa Academy offers online Quran reading, <FaqLink hrefKey="nooraniQaida">Noorani Qaida</FaqLink>,{' '}
-        <FaqLink hrefKey="tajweed">online Tajweed courses</FaqLink>,{' '}
-        <FaqLink hrefKey="hifz">online Hifz classes</FaqLink>, Quran translation, Islamic studies, and Arabic
-        language courses. Every course is taught through live one-to-one sessions by qualified male and female
-        Quran teachers with flexible schedules for students worldwide.
-      </>
-    ),
-  },
-  {
-    question: 'Why choose Ajwa Academy for Online Quran Learning?',
-    answerText:
-      'Ajwa Academy provides certified Quran teachers, one-to-one online Quran classes, flexible timings, monthly progress reports, affordable tuition, and a free trial Quran class. Students from the USA, UK, Canada, Australia, the UAE, and many other countries trust Ajwa Academy for structured, authentic, and engaging Quran learning.',
-    answer: (
-      <>
-        Ajwa Academy provides certified Quran teachers, one-to-one online Quran classes, flexible timings,
-        monthly progress reports, affordable tuition, and a{' '}
-        <FaqLink hrefKey="freeTrial">free trial Quran class</FaqLink>. Students from the USA, UK, Canada,
-        Australia, the UAE, and many other countries trust Ajwa Academy for structured, authentic, and
-        engaging Quran learning.
+        We offer a complete range of courses including{' '}
+        <FaqLink hrefKey="nooraniQaida">Noorani Qaida for Beginners</FaqLink>,{' '}
+        <FaqLink hrefKey="tajweed">Quran Tajweed Mastery</FaqLink>,{' '}
+        <FaqLink hrefKey="hifz">Quran Memorization (Hifz)</FaqLink>, Tafseer, and Daily Islamic Studies (Namaz, Duas, and Kalmas).
       </>
     ),
   },
@@ -122,20 +103,6 @@ export function buildFaqSchema(faqs = HOME_FAQS) {
 export default function HomeFaqSection() {
   const baseId = useId();
   const [openIndex, setOpenIndex] = useState(0);
-  const itemRefs = useRef([]);
-
-  useEffect(() => {
-    if (openIndex < 0) return;
-    const node = itemRefs.current[openIndex];
-    if (!node) return;
-    const prefersReduced =
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    node.scrollIntoView({
-      behavior: prefersReduced ? 'auto' : 'smooth',
-      block: 'nearest',
-    });
-  }, [openIndex]);
 
   const toggle = (index) => {
     setOpenIndex((prev) => (prev === index ? -1 : index));
@@ -144,60 +111,67 @@ export default function HomeFaqSection() {
   return (
     <div id="faqs">
       <div className="mb-8 text-left">
-        <span className="text-sm font-bold tracking-widest text-[rgba(0,0,102)]">FAQS</span>
-        <h2 className="mt-2 text-3xl font-bold text-[rgba(0,0,102)]">Online Quran Classes FAQs</h2>
-        <p className="mt-4 max-w-xl text-gray-600">
-          Clear answers about online Quran classes, how to learn Quran online, and how our online Quran
-          academy supports students with certified teachers and structured Quran lessons online.
+        <span className="inline-block text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-[rgba(0,0,102)] bg-blue-50 px-3.5 py-1 rounded-full mb-3">
+          FAQS
+        </span>
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 tracking-tight">
+          Frequently Asked Questions
+        </h2>
+        <p className="mt-3 text-base text-gray-600 leading-relaxed font-normal">
+          Clear answers about online Quran classes, curriculum, timings, and how to get started.
         </p>
       </div>
 
-      <div className="w-full rounded-3xl bg-white px-4 py-2 shadow-sm sm:px-6 sm:py-3">
-        {HOME_FAQS.map((item, index) => {
+      {/* Accordion List */}
+      <div className="space-y-4">
+        {HOME_FAQS.map((faq, index) => {
           const isOpen = openIndex === index;
           const panelId = `${baseId}-panel-${index}`;
           const buttonId = `${baseId}-button-${index}`;
 
           return (
             <div
-              key={item.question}
-              ref={(el) => {
-                itemRefs.current[index] = el;
-              }}
-              className="border-b border-gray-200 last:border-b-0"
+              key={faq.question}
+              className={`rounded-2xl border transition-all duration-300 overflow-hidden ${
+                isOpen
+                  ? 'border-[rgba(0,0,102,0.25)] bg-blue-50/30 shadow-md'
+                  : 'border-slate-200/80 bg-white hover:border-slate-300'
+              }`}
             >
-              <h3 className="m-0">
-                <button
-                  id={buttonId}
-                  type="button"
-                  aria-expanded={isOpen}
-                  aria-controls={panelId}
-                  onClick={() => toggle(index)}
-                  className="flex w-full items-center justify-between gap-4 py-4 text-left text-base font-semibold text-gray-900 sm:text-lg"
-                >
-                  <span>{item.question}</span>
-                  <span
-                    aria-hidden="true"
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[rgba(0,0,102,0.15)] text-lg leading-none text-[rgba(0,0,102)]"
-                  >
-                    {isOpen ? '−' : '+'}
-                  </span>
-                </button>
-              </h3>
-              <div
-                id={panelId}
-                role="region"
-                aria-labelledby={buttonId}
-                className={`grid transition-[grid-template-rows] duration-300 ease-out ${
-                  isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
-                }`}
+              <button
+                type="button"
+                id={buttonId}
+                aria-expanded={isOpen}
+                aria-controls={panelId}
+                onClick={() => toggle(index)}
+                className="w-full flex items-center justify-between p-5 sm:p-6 text-left transition-colors"
               >
-                <div className="overflow-hidden">
-                  <div className="pb-4 text-sm leading-relaxed text-gray-600 sm:text-base">
-                    {item.answer}
-                  </div>
+                <span className="text-base sm:text-lg font-bold text-gray-900 pr-4">
+                  {faq.question}
+                </span>
+                <span
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-transform duration-300 ${
+                    isOpen
+                      ? 'bg-[rgba(0,0,102)] text-white rotate-180'
+                      : 'bg-slate-100 text-gray-600'
+                  }`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </span>
+              </button>
+
+              {isOpen && (
+                <div
+                  id={panelId}
+                  role="region"
+                  aria-labelledby={buttonId}
+                  className="px-5 sm:px-6 pb-6 pt-1 border-t border-blue-100/60 text-sm sm:text-base leading-relaxed text-gray-700 font-normal"
+                >
+                  {faq.answer}
                 </div>
-              </div>
+              )}
             </div>
           );
         })}

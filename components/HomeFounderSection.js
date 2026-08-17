@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
 export default function HomeFounderSection() {
@@ -28,96 +29,103 @@ export default function HomeFounderSection() {
   return (
     <section
       ref={sectionRef}
-      className={`home-founder relative overflow-hidden bg-white py-16 sm:py-20 lg:py-24 ${
+      className={`home-founder relative overflow-hidden bg-white py-16 sm:py-24 border-b border-slate-200/60 ${
         visible ? 'is-visible' : ''
       }`}
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="home-founder-item mb-10 text-center sm:mb-14" style={{ transitionDelay: '0ms' }}>
-          <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">Meet Our Founder</h2>
-          <div className="mx-auto mt-5 h-1 w-20 rounded-full bg-[rgba(0,0,102)]" />
+        <div className="home-founder-item mb-12 text-center sm:mb-16" style={{ transitionDelay: '0ms' }}>
+          <span className="inline-block text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-[rgba(0,0,102)] bg-blue-50 px-3.5 py-1 rounded-full mb-3">
+            Leadership & Vision
+          </span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight">
+            Meet Our Founder
+          </h2>
+          <div className="mx-auto mt-4 h-1.5 w-20 rounded-full bg-[rgba(0,0,102)]" />
         </div>
 
-        <div className="grid items-stretch gap-8 lg:grid-cols-2 lg:gap-12">
+        <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
+          {/* Founder Profile Card (Left) */}
           <div
-            className="home-founder-item relative overflow-hidden rounded-2xl border border-[rgba(0,0,102,0.08)] bg-gradient-to-br from-[rgba(0,0,102,0.06)] to-[rgba(51,102,153,0.14)] shadow-sm"
+            className="home-founder-item relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-slate-50 to-blue-50/40 p-4 sm:p-5 shadow-lg"
             style={{ transitionDelay: '80ms' }}
           >
-            <div className="relative aspect-[4/5] w-full sm:aspect-[3/4] lg:min-h-full lg:aspect-auto">
+            <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl">
               <Image
                 src="/ibrahim.webp"
                 alt="Muhammad Ibrahim, Founder and CEO of Ajwa Academy"
                 fill
                 className="object-cover object-top"
-                sizes="(max-width: 1024px) 100vw, 520px"
+                sizes="(max-width: 1024px) 100vw, 500px"
                 loading="lazy"
               />
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[rgba(0,0,102,0.88)] via-[rgba(0,0,102,0.45)] to-transparent p-5 pt-16 sm:p-6 sm:pt-20">
-              <h3 className="text-xl font-bold text-white sm:text-2xl">Muhammad Ibrahim</h3>
-              <p className="mt-1 text-sm font-medium text-white/90 sm:text-base">
-                Founder & CEO Ajwa Academy
-              </p>
+              <div className="absolute inset-0 bg-gradient-to-t from-[rgba(0,0,102,0.9)] via-[rgba(0,0,102,0.3)] to-transparent" />
+
+              <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                <span className="inline-block rounded-full bg-emerald-500/90 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-sm mb-2">
+                  ✓ Verified Leadership
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-white">
+                  Muhammad Ibrahim
+                </h3>
+                <p className="text-sm sm:text-base font-medium text-white/90 mt-1">
+                  Founder & CEO, Ajwa Online Academy
+                </p>
+              </div>
             </div>
           </div>
 
+          {/* Vision & Mission Content (Right) */}
           <div
             className="home-founder-item flex flex-col justify-center"
             style={{ transitionDelay: '160ms' }}
           >
-            <h3 className="text-2xl font-bold text-[rgba(0,0,102)] sm:text-3xl">Our Vision</h3>
+            <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[rgba(0,0,102)] mb-2">
+              Our Guiding Philosophy
+            </span>
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight leading-snug">
+              Nurturing a Generation Connected with the Quran
+            </h3>
 
-            <div className="mt-5 space-y-4 text-sm leading-relaxed text-gray-600 sm:text-base">
+            <div className="mt-5 space-y-4 text-base sm:text-lg leading-relaxed text-gray-700 font-normal">
               <p>
-                At Ajwa Academy, our mission is not only to teach students how to read the Quran but also
-                to help raise a generation that understands Islam, lives by its values, and becomes a
-                positive contribution to the Ummah.
+                At Ajwa Academy, our mission extends beyond teaching Quran recitation. We are dedicated to helping raise confident Muslims who understand the Quran, practice Islamic manners, and embody compassion and integrity in their daily lives.
               </p>
               <p>
-                We believe today's children are tomorrow's leaders. Through authentic Quran education,
-                Tajweed, Noorani Qaida, Hifz, Islamic manners, and one-to-one learning, we aim to nurture
-                confident Muslims with strong character and love for the Quran.
-              </p>
-              <p>
-                By using modern technology in a responsible way, Ajwa Academy makes quality Islamic
-                education accessible to families around the world while preserving authentic teachings and
-                values.
+                Through personalized one-to-one learning, Tajweed mastery, and certified teachers, we make quality Quranic education accessible and engaging for families across the globe.
               </p>
             </div>
 
-            <blockquote className="home-founder-hadith mt-7 rounded-2xl border border-[rgba(0,0,102,0.1)] bg-[rgba(0,0,102,0.03)] px-5 py-5 sm:px-6 sm:py-6">
-              <div className="mb-3 flex items-center gap-3">
-                <span className="h-px flex-1 bg-gradient-to-r from-transparent to-[rgba(0,0,102,0.25)]" />
-                <span
-                  className="text-lg leading-none text-[rgba(0,0,102)]"
-                  aria-hidden="true"
-                >
-                  ❝
-                </span>
-                <span className="h-px flex-1 bg-gradient-to-l from-transparent to-[rgba(0,0,102,0.25)]" />
-              </div>
+            {/* Hadith Quote Card in Arabic Amiri */}
+            <blockquote className="mt-6 rounded-2xl border border-[rgba(0,0,102,0.12)] bg-gradient-to-r from-blue-50/60 to-white p-5 sm:p-6 shadow-sm">
               <p
-                className="text-center text-xl font-semibold leading-relaxed text-[rgba(0,0,102)] sm:text-2xl"
+                className="text-center text-2xl sm:text-3xl font-bold leading-relaxed text-[rgba(0,0,102)] font-arabic"
                 dir="rtl"
                 lang="ar"
               >
-                خيرُكُم مَن تعلَّمَ القرآنَ وعلَّمَهُ
+                خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ
               </p>
-              <p className="mt-3 text-center text-sm italic leading-relaxed text-gray-700 sm:text-base">
+              <p className="mt-2 text-center text-sm sm:text-base italic font-medium text-gray-800">
                 "The best among you are those who learn the Quran and teach it."
               </p>
-              <p className="mt-2 text-center text-xs font-semibold uppercase tracking-wider text-[rgba(0,0,102)]">
-                Sahih al-Bukhari
+              <p className="mt-1 text-center text-xs font-bold uppercase tracking-wider text-[rgba(0,0,102)]">
+                — Sahih al-Bukhari
               </p>
             </blockquote>
 
-            <div className="mt-7">
-              <button
-                type="button"
-                className="inline-flex items-center justify-center rounded-xl bg-[rgba(0,0,102)] px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-[rgba(51,102,153)] hover:shadow-md sm:text-base"
+            <div className="mt-7 flex flex-wrap gap-4">
+              <Link
+                href="/about"
+                className="inline-flex items-center justify-center rounded-xl bg-[rgba(0,0,102)] px-6 py-3.5 text-base font-bold text-white shadow-md hover:bg-[rgba(51,102,153)] hover:shadow-lg transition-all hover:-translate-y-0.5"
               >
-                Learn More About Our Mission
-              </button>
+                Learn More About Us
+              </Link>
+              <Link
+                href="/free-trial"
+                className="inline-flex items-center justify-center rounded-xl border-2 border-[rgba(0,0,102)] px-6 py-3.5 text-base font-bold text-[rgba(0,0,102)] hover:bg-[rgba(0,0,102)] hover:text-white transition-all"
+              >
+                Book Free Trial Class
+              </Link>
             </div>
           </div>
         </div>

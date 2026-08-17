@@ -712,13 +712,13 @@ export default function Navbar() {
         {/* 3. MOBILE DRAWER / ACCORDION MENU */}
         {isMobileMenuOpen && (
           <div className="lg:hidden bg-white border-t border-gray-100 shadow-xl max-h-[80vh] overflow-y-auto animate-in slide-in-from-top-3 duration-200">
-            <div className="p-4 space-y-1.5">
+            <div className="p-4 sm:p-5 space-y-2">
               {/* Home */}
               <Link
                 href="/"
-                className={`block px-4 py-3 rounded-lg text-sm font-semibold transition-colors ${
+                className={`block px-4 py-3.5 rounded-xl text-base font-bold transition-colors ${
                   pathname === '/'
-                    ? 'bg-blue-50 text-[rgba(0,0,102)] font-bold border-l-4 border-[rgba(0,0,102)]'
+                    ? 'bg-blue-50 text-[rgba(0,0,102)] border-l-4 border-[rgba(0,0,102)]'
                     : 'text-gray-800 hover:bg-gray-50'
                 }`}
               >
@@ -726,19 +726,19 @@ export default function Navbar() {
               </Link>
 
               {/* Courses Accordion */}
-              <div className="rounded-lg overflow-hidden">
+              <div className="rounded-xl overflow-hidden">
                 <button
                   type="button"
                   onClick={() => toggleMobileMenu('Courses')}
-                  className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-lg transition-colors ${
+                  className={`w-full flex items-center justify-between px-4 py-3.5 text-base font-bold rounded-xl transition-colors ${
                     pathname.startsWith('/courses')
-                      ? 'bg-blue-50 text-[rgba(0,0,102)] font-bold'
+                      ? 'bg-blue-50 text-[rgba(0,0,102)]'
                       : 'text-gray-800 hover:bg-gray-50'
                   }`}
                 >
                   <span>Courses</span>
                   <svg
-                    className={`w-4 h-4 transition-transform duration-200 ${
+                    className={`w-5 h-5 transition-transform duration-200 ${
                       mobileOpenMenus['Courses'] ? 'rotate-180 text-[rgba(0,0,102)]' : 'text-gray-400'
                     }`}
                     fill="none"
@@ -750,10 +750,10 @@ export default function Navbar() {
                 </button>
 
                 {mobileOpenMenus['Courses'] && (
-                  <div className="pl-3 pr-2 py-2 space-y-1 bg-slate-50 rounded-lg mt-1">
+                  <div className="pl-3 pr-2 py-2 space-y-1.5 bg-slate-50 rounded-xl mt-1">
                     <Link
                       href="/courses"
-                      className="block px-3 py-2 text-xs font-bold text-[rgba(0,0,102)] bg-white rounded shadow-sm"
+                      className="block px-3.5 py-2.5 text-sm font-bold text-[rgba(0,0,102)] bg-white rounded-lg shadow-sm"
                     >
                       View All Courses →
                     </Link>
@@ -762,18 +762,18 @@ export default function Navbar() {
                         <button
                           type="button"
                           onClick={() => toggleMobileSubmenu(group.name)}
-                          className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-700 hover:text-[rgba(0,0,102)] text-left"
+                          className="w-full flex items-center justify-between px-3.5 py-2 text-sm font-semibold text-gray-700 hover:text-[rgba(0,0,102)] text-left"
                         >
                           <span>{group.name}</span>
-                          <span className="text-gray-400">{mobileOpenSubmenus[group.name] ? '−' : '+'}</span>
+                          <span className="text-gray-400 font-bold">{mobileOpenSubmenus[group.name] ? '−' : '+'}</span>
                         </button>
                         {mobileOpenSubmenus[group.name] && (
-                          <div className="pl-3 py-1 space-y-1 border-l-2 border-blue-200 ml-2">
+                          <div className="pl-3 py-1 space-y-1 border-l-2 border-blue-300 ml-2">
                             {group.children.map((sub) => (
                               <Link
                                 key={sub.name}
                                 href={sub.path}
-                                className="block px-2 py-1.5 text-xs text-gray-600 hover:text-[rgba(0,0,102)]"
+                                className="block px-2.5 py-2 text-sm text-gray-600 hover:text-[rgba(0,0,102)]"
                               >
                                 {sub.name}
                               </Link>
@@ -787,19 +787,19 @@ export default function Navbar() {
               </div>
 
               {/* Community Accordion */}
-              <div className="rounded-lg overflow-hidden">
+              <div className="rounded-xl overflow-hidden">
                 <button
                   type="button"
                   onClick={() => toggleMobileMenu('Community')}
-                  className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-lg transition-colors ${
+                  className={`w-full flex items-center justify-between px-4 py-3.5 text-base font-bold rounded-xl transition-colors ${
                     pathname.startsWith('/students') || pathname.startsWith('/teachers')
-                      ? 'bg-blue-50 text-[rgba(0,0,102)] font-bold'
+                      ? 'bg-blue-50 text-[rgba(0,0,102)]'
                       : 'text-gray-800 hover:bg-gray-50'
                   }`}
                 >
                   <span>Community</span>
                   <svg
-                    className={`w-4 h-4 transition-transform duration-200 ${
+                    className={`w-5 h-5 transition-transform duration-200 ${
                       mobileOpenMenus['Community'] ? 'rotate-180 text-[rgba(0,0,102)]' : 'text-gray-400'
                     }`}
                     fill="none"
@@ -811,18 +811,18 @@ export default function Navbar() {
                 </button>
 
                 {mobileOpenMenus['Community'] && (
-                  <div className="pl-4 pr-2 py-2 space-y-1 bg-slate-50 rounded-lg mt-1">
+                  <div className="pl-4 pr-2 py-2 space-y-1.5 bg-slate-50 rounded-xl mt-1">
                     <Link
                       href="/students"
-                      className="block px-3 py-2 text-xs font-semibold text-gray-700 hover:text-[rgba(0,0,102)]"
+                      className="block px-3.5 py-2.5 text-sm font-semibold text-gray-700 hover:text-[rgba(0,0,102)]"
                     >
                       Our Students (Reviews & Stories)
                     </Link>
                     <Link
                       href="/teachers"
-                      className="block px-3 py-2 text-xs font-semibold text-gray-700 hover:text-[rgba(0,0,102)]"
+                      className="block px-3.5 py-2.5 text-sm font-semibold text-gray-700 hover:text-[rgba(0,0,102)]"
                     >
-                      Our Teachers (Certified Faculty)
+                      Our Teachers (Faculty & Scholars)
                     </Link>
                   </div>
                 )}
@@ -831,9 +831,9 @@ export default function Navbar() {
               {/* Library */}
               <Link
                 href="/library"
-                className={`block px-4 py-3 rounded-lg text-sm font-semibold transition-colors ${
+                className={`block px-4 py-3.5 rounded-xl text-base font-bold transition-colors ${
                   pathname.startsWith('/library')
-                    ? 'bg-blue-50 text-[rgba(0,0,102)] font-bold border-l-4 border-[rgba(0,0,102)]'
+                    ? 'bg-blue-50 text-[rgba(0,0,102)] border-l-4 border-[rgba(0,0,102)]'
                     : 'text-gray-800 hover:bg-gray-50'
                 }`}
               >
@@ -843,9 +843,9 @@ export default function Navbar() {
               {/* Fee Structure */}
               <Link
                 href="/fee-structure"
-                className={`block px-4 py-3 rounded-lg text-sm font-semibold transition-colors ${
+                className={`block px-4 py-3.5 rounded-xl text-base font-bold transition-colors ${
                   pathname === '/fee-structure'
-                    ? 'bg-blue-50 text-[rgba(0,0,102)] font-bold border-l-4 border-[rgba(0,0,102)]'
+                    ? 'bg-blue-50 text-[rgba(0,0,102)] border-l-4 border-[rgba(0,0,102)]'
                     : 'text-gray-800 hover:bg-gray-50'
                 }`}
               >
