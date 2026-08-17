@@ -50,7 +50,6 @@ export default function FreeTrialPage() {
   useEffect(() => {
     if (!supabaseReady) {
       setCourses([]);
-      setErrors((prev) => ({ ...prev, general: prev.general || supabaseDisabledMessage }));
       return;
     }
 
@@ -66,7 +65,7 @@ export default function FreeTrialPage() {
     };
 
     loadCourses();
-  }, [supabaseReady, supabaseDisabledMessage]);
+  }, [supabaseReady]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -266,7 +265,7 @@ export default function FreeTrialPage() {
 
             <button
               type="submit"
-              className="w-full sm:w-auto bg-[#0b7f79] text-white py-3 px-8 rounded-md font-semibold hover:bg-[#0a6f6a] transition-colors disabled:opacity-60"
+              className="w-full sm:w-auto bg-[rgba(0,0,102)] text-white py-3 px-8 rounded-md font-semibold hover:bg-[rgba(51,102,153)] transition-colors shadow-sm disabled:opacity-60"
               disabled={isSubmitting}
             >
               {isSubmitting ? 'Submitting...' : 'REGISTER NOW'}

@@ -10,6 +10,9 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-arabic: var(--font-amiri);
+  --brand-navy: #000066;
+  --brand-blue: #336699;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -55,6 +58,15 @@ body.dark {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Arabic typography support */
+.font-arabic,
+.arabic-text,
+[lang="ar"] {
+  font-family: var(--font-amiri), "Scheherazade New", "Traditional Arabic", serif;
+  direction: rtl;
+  unicode-bidi: isolate;
 }
 
 

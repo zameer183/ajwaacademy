@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -315,7 +315,7 @@ export default function Navbar() {
                               if (child.children) {
                                 return (
                                   <div key={child.name} className="relative" onMouseEnter={() => setOpenSubmenu(child.name)}>
-                                    <button className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(92,53,11,0.1)] hover:text-[rgba(0,0,102)] transition-colors duration-200">
+                                    <button className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200">
                                       {child.name}
                                     </button>
                                     {openSubmenu === child.name && child.children.length > 0 && (
@@ -330,7 +330,7 @@ export default function Navbar() {
                                           <Link
                                             key={sub.name}
                                             href={sub.path}
-                                            className="block px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(92,53,11,0.1)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-100 last:border-b-0"
+                                            className="block px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-100 last:border-b-0"
                                           >
                                             {sub.name}
                                           </Link>
@@ -344,7 +344,7 @@ export default function Navbar() {
                                 <Link
                                   key={child.name}
                                   href={child.path}
-                                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(92,53,11,0.1)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-100 last:border-b-0"
+                                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-100 last:border-b-0"
                                 >
                                   {child.name}
                                 </Link>
@@ -451,13 +451,13 @@ export default function Navbar() {
                           <div className="py-2">
                             <Link
                               href="/blog"
-                              className="block px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-[rgba(92,53,11,0.1)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-100"
+                              className="block px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-100"
                             >
                               All Blog
                             </Link>
                             {orderedCategories.map((category) => (
                               <div key={category} className="relative" onMouseEnter={() => setOpenSubmenu(category)} onMouseLeave={() => setOpenSubmenu(null)}>
-                                <button className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(92,53,11,0.1)] hover:text-[rgba(0,0,102)] transition-colors duration-200">
+                                <button className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200">
                                   {category}
                                 </button>
                                 {openSubmenu === category && (
@@ -467,7 +467,7 @@ export default function Navbar() {
                                         <Link
                                           key={post.name}
                                           href={post.path}
-                                          className="block px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(92,53,11,0.1)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-100 last:border-b-0"
+                                          className="block px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-100 last:border-b-0"
                                         >
                                           {post.name}
                                         </Link>
@@ -511,7 +511,7 @@ export default function Navbar() {
                               if (child.children) {
                                 return (
                                   <div key={child.name} className="relative" onMouseEnter={() => setOpenSubmenu(child.name)}>
-                                    <button className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(92,53,11,0.1)] hover:text-[rgba(0,0,102)] transition-colors duration-200">
+                                    <button className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200">
                                       {child.name}
                                     </button>
                                     {openSubmenu === child.name && (
@@ -526,7 +526,7 @@ export default function Navbar() {
                                           <Link
                                             key={sub.name}
                                             href={sub.path}
-                                            className="block px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(92,53,11,0.1)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-100 last:border-b-0"
+                                            className="block px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-100 last:border-b-0"
                                           >
                                             {sub.name}
                                           </Link>
@@ -540,7 +540,7 @@ export default function Navbar() {
                                 <Link
                                   key={child.name}
                                   href={child.path}
-                                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(92,53,11,0.1)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-100 last:border-b-0"
+                                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-100 last:border-b-0"
                                 >
                                   {child.name}
                                 </Link>
@@ -678,7 +678,7 @@ export default function Navbar() {
                                           <Link
                                             key={sub.name}
                                             href={sub.path}
-                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-[rgba(92,53,11,0.1)] hover:text-[rgba(0,0,102)] transition-colors duration-200"
+                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200"
                                             onClick={() => setIsMenuOpen(false)}
                                           >
                                             {sub.name}
@@ -693,7 +693,7 @@ export default function Navbar() {
                                 <Link
                                   key={child.name}
                                   href={child.path}
-                                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(92,53,11,0.1)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-200 last:border-b-0"
+                                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-200 last:border-b-0"
                                   onClick={() => setIsMenuOpen(false)}
                                 >
                                   {child.name}

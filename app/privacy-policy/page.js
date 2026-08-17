@@ -18,13 +18,13 @@ export default function PrivacyPolicyPage() {
 
         <div className="grid grid-cols-1 gap-10 mb-16">
           <div className="bg-white rounded-lg shadow-md p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">AjwaAcademy Course Policies (English)</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">Ajwa Academy Course Policies (English)</h2>
             <div className="w-20 h-1 bg-[rgba(0,0,102)] rounded-full mb-6"></div>
             <div className="space-y-6 text-gray-700">
               <div>
                 <h3 className="font-semibold text-gray-900">1) Admission & Trial Policy</h3>
                 <p>
-                  AjwaAcademy offers 2–3 free trial classes so parents can evaluate teaching quality, communication
+                  Ajwa Academy offers 2–3 free trial classes so parents can evaluate teaching quality, communication
                   style, and suitability for their child before enrollment.
                 </p>
               </div>
@@ -49,7 +49,7 @@ export default function PrivacyPolicyPage() {
                 <h3 className="font-semibold text-gray-900">4) Class Conduct & Discipline Policy</h3>
                 <p>
                   Students are expected to show respect to teachers, maintain proper behavior during class, and avoid
-                  distractions during online sessions. AjwaAcademy promotes a friendly yet disciplined learning
+                  distractions during online sessions. Ajwa Academy promotes a friendly yet disciplined learning
                   environment.
                 </p>
               </div>
@@ -63,7 +63,7 @@ export default function PrivacyPolicyPage() {
               <div>
                 <h3 className="font-semibold text-gray-900">6) Teacher Assignment Policy</h3>
                 <p>
-                  Teacher allocation depends on availability, time zone, and course requirements. AjwaAcademy reserves
+                  Teacher allocation depends on availability, time zone, and course requirements. Ajwa Academy reserves
                   the right to change teachers when necessary to ensure quality education.
                 </p>
               </div>
@@ -91,7 +91,7 @@ export default function PrivacyPolicyPage() {
               <div>
                 <h3 className="font-semibold text-gray-900">Policy Updates</h3>
                 <p>
-                  AjwaAcademy reserves the right to update policies when required. Parents will be informed of any
+                  Ajwa Academy reserves the right to update policies when required. Parents will be informed of any
                   significant changes.
                 </p>
               </div>

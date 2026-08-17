@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 
@@ -75,7 +75,7 @@ export default function ContactPage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
               <h1 className="text-2xl sm:text-3xl font-bold mb-1">Contact Us</h1>
               <p className="text-base sm:text-lg max-w-2xl mx-auto">
-                Get in touch with AjwaAcademy for admission details and course guidance.
+                Get in touch with Ajwa Academy for admission details and course guidance.
               </p>
             </div>
           </div>

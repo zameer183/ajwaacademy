@@ -16,7 +16,7 @@ export default function HomeCtaPopup() {
     const timer = window.setTimeout(() => {
       setIsOpen(true);
       window.sessionStorage.setItem(SESSION_KEY, '1');
-    }, 1800);
+    }, 8000);
 
     return () => window.clearTimeout(timer);
   }, []);
@@ -24,9 +24,8 @@ export default function HomeCtaPopup() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9998] pointer-events-none">
-      <div className="absolute inset-0 bg-black/20" />
-      <div className="pointer-events-auto absolute right-3 left-3 bottom-4 sm:left-auto sm:right-6 sm:bottom-6 sm:w-[360px]">
+    <div className="fixed inset-0 z-[9990] pointer-events-none">
+      <div className="pointer-events-auto absolute right-3 left-3 bottom-20 sm:left-auto sm:right-6 sm:bottom-6 sm:w-[360px] animate-in fade-in slide-in-from-bottom-5 duration-300">
         <div className="rounded-2xl border border-[rgba(0,0,102,0.15)] bg-white shadow-2xl overflow-hidden">
           <div className="flex items-start justify-between gap-3 px-4 py-3 border-b border-gray-100">
             <div>

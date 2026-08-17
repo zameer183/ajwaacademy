@@ -12,6 +12,14 @@ module.exports = {
       fontFamily: {
         sans: ["var(--font-geist-sans)", ...defaultTheme.fontFamily.sans],
         mono: ["var(--font-geist-mono)", ...defaultTheme.fontFamily.mono],
+        arabic: ["var(--font-amiri)", "Scheherazade New", "serif"],
+      },
+      colors: {
+        brand: {
+          navy: "#000066",
+          blue: "#336699",
+          hover: "#2b5680",
+        },
       },
     },
   },
