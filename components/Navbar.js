@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { useTheme } from './ThemeProvider';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { blogAPI, courseAPI } from '@/lib/static-api';
 import { supabase, supabaseEnabled } from '@/lib/supabase';
 
@@ -18,10 +18,7 @@ const isMissingLibraryTableError = (error) => {
 };
 
 export default function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const pathname = usePathname();
-  const { theme, toggleTheme } = useTheme();
-
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
   const [openSubmenu, setOpenSubmenu] = useState(null);
   const [mobileOpenMenus, setMobileOpenMenus] = useState({});
@@ -29,43 +26,55 @@ export default function Navbar() {
   const [profileInfo, setProfileInfo] = useState(null);
   const [libraryItems, setLibraryItems] = useState([]);
   const [blogPosts, setBlogPosts] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [scrolled, setScrolled] = useState(false);
+
+  const pathname = usePathname();
+  const closeTimeoutRef = useRef(null);
+
+  // Track scroll for subtle navbar elevation
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+    setOpenMenu(null);
+    setOpenSubmenu(null);
+  }, [pathname]);
 
   const navLinks = [
     { name: 'Home', path: '/' },
-    { name: 'Courses', path: '/courses', children: [] },
+    { name: 'Courses', path: '/courses', hasDropdown: true },
     {
       name: 'Community',
       path: '/community',
+      hasDropdown: true,
       children: [
-        { name: 'Our Students', path: '/students' },
-        { name: 'Our Teachers', path: '/teachers' },
+        { name: 'Our Students', path: '/students', desc: 'Success stories and student reviews' },
+        { name: 'Our Teachers', path: '/teachers', desc: 'Certified and experienced Quran tutors' },
       ],
     },
     { name: 'Library', path: '/library' },
-    {
-      name: 'Fee',
-      path: '/fee-structure',
-      children: [],
-    },
+    { name: 'Fee Structure', path: '/fee-structure' },
     {
       name: 'Contact',
       path: '/contact',
+      hasDropdown: true,
       children: [
-        { name: 'Contact Us', path: '/contact' },
-        { name: 'About Us', path: '/about' },
+        { name: 'Contact Us', path: '/contact', desc: 'WhatsApp, email & inquiry form' },
+        { name: 'About Us', path: '/about', desc: 'Our mission, vision & founder story' },
       ],
     },
-    {
-      name: 'Blog',
-      path: '/blog',
-      children: [],
-    },
-    { name: 'Free Trial', path: '/free-trial', isButton: true },
+    { name: 'Blog', path: '/blog', hasDropdown: true },
   ];
 
-  const [courses, setCourses] = useState([]);
-  const visibleNavLinks = navLinks;
-
+  // Group Courses
   const courseGroups = useMemo(() => {
     const preferredOrder = [
       'Quran',
@@ -103,84 +112,88 @@ export default function Navbar() {
     }));
   }, [courses]);
 
-  const libraryGroups = useMemo(() => {
-    if (!libraryItems.length) return [];
-    const grouped = libraryItems.reduce((acc, item) => {
-      const category = item.category || 'Library';
-      if (!acc[category]) acc[category] = [];
-      acc[category].push(item);
+  // Group Blogs
+  const blogCategories = useMemo(() => {
+    const categoryOrder = [
+      'Online Quran Learning',
+      'Islamic Parenting',
+      'UK/USA Quran Classes',
+      'Islamic Lifestyle',
+    ];
+    const normalizeCategory = (value) => {
+      const key = String(value || '').trim().toLowerCase();
+      const map = {
+        'online quran learning': 'Online Quran Learning',
+        'online quran learnings': 'Online Quran Learning',
+        'quran learning': 'Online Quran Learning',
+        'islamic parenting': 'Islamic Parenting',
+        'parenting': 'Islamic Parenting',
+        'uk/usa quran classes': 'UK/USA Quran Classes',
+        'uk usa quran classes': 'UK/USA Quran Classes',
+        'uk & usa quran classes': 'UK/USA Quran Classes',
+        'uk, usa quran classes': 'UK/USA Quran Classes',
+        'uk quran classes': 'UK/USA Quran Classes',
+        'usa quran classes': 'UK/USA Quran Classes',
+        'islamic lifestyle': 'Islamic Lifestyle',
+      };
+      return map[key] || null;
+    };
+
+    const mapByTitle = (title) => {
+      const t = String(title || '').toLowerCase();
+      if (t.includes('teaching the quran online to children')) return 'Online Quran Learning';
+      if (t.includes('children become disobedient')) return 'Islamic Parenting';
+      if (t.includes('ramzan') || t.includes('ramadan')) return 'Islamic Lifestyle';
+      return null;
+    };
+
+    const grouped = blogPosts.reduce((acc, post) => {
+      const mapped = normalizeCategory(post.category) || mapByTitle(post.title);
+      if (!mapped) return acc;
+      if (!acc[mapped]) acc[mapped] = [];
+      acc[mapped].push({
+        name: post.title || `Blog #${post.id}`,
+        path: post.slug ? `/blog/${post.slug}` : `/blog/${post.id}`,
+      });
       return acc;
     }, {});
-    return Object.keys(grouped).map((category) => ({
-      name: category,
-      children: grouped[category]
-        .filter((item) => item.title)
-        .map((item) => ({
-          name: item.title,
-          path: `/library/${item.id}`,
-        })),
-    }));
-  }, [libraryItems]);
 
+    return categoryOrder.map((cat) => ({
+      name: cat,
+      posts: grouped[cat] || [],
+    }));
+  }, [blogPosts]);
+
+  // Load Data
   useEffect(() => {
+    let isMounted = true;
     const fetchCourses = async () => {
       try {
         const data = await courseAPI.getCourses();
-        setCourses(Array.isArray(data) ? data : []);
+        if (isMounted) setCourses(Array.isArray(data) ? data : []);
       } catch (error) {
-        if (error?.name !== 'AbortError') {
-          console.error('Error fetching courses:', error);
-        }
-        setCourses([]);
+        if (error?.name !== 'AbortError') console.error('Error fetching courses:', error);
       }
     };
-    fetchCourses();
-  }, []);
 
-  useEffect(() => {
     const fetchBlogPosts = async () => {
       try {
         const data = await blogAPI.getPosts();
-        setBlogPosts(Array.isArray(data) ? data : []);
+        if (isMounted) setBlogPosts(Array.isArray(data) ? data : []);
       } catch (error) {
-        const message = String(error?.message || error || '');
-        if (error?.name !== 'AbortError' && !message.includes('AbortError')) {
-          console.error('Error fetching blog posts:', error);
-        }
-        setBlogPosts([]);
+        if (error?.name !== 'AbortError') console.error('Error fetching blog posts:', error);
       }
     };
+
+    fetchCourses();
     fetchBlogPosts();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  useEffect(() => {
-    if (!supabaseEnabled || !supabase) {
-      setLibraryItems([]);
-      return;
-    }
-    const fetchLibrary = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('library_items')
-          .select('id, title, category')
-          .order('id', { ascending: false });
-        if (error) throw error;
-        setLibraryItems(Array.isArray(data) ? data : []);
-      } catch (error) {
-        const message = String(error?.message || error || '');
-        if (
-          error?.name !== 'AbortError' &&
-          !message.includes('AbortError') &&
-          !isMissingLibraryTableError(error)
-        ) {
-          console.error('Error fetching library items:', error);
-        }
-        setLibraryItems([]);
-      }
-    };
-    fetchLibrary();
-  }, [supabaseEnabled]);
-
+  // Supabase Auth Profile Check
   useEffect(() => {
     if (!supabaseEnabled || !supabase) {
       setProfileInfo(null);
@@ -216,140 +229,245 @@ export default function Navbar() {
       isMounted = false;
       subscription?.subscription?.unsubscribe();
     };
-  }, [supabaseEnabled]);
+  }, []);
 
-  const isActive = (path) => pathname === path;
+  const handleMenuEnter = (name) => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    setOpenMenu(name);
+  };
+
+  const handleMenuLeave = () => {
+    closeTimeoutRef.current = setTimeout(() => {
+      setOpenMenu(null);
+      setOpenSubmenu(null);
+    }, 150);
+  };
+
   const toggleMobileMenu = (name) => {
     setMobileOpenMenus((prev) => ({ ...prev, [name]: !prev[name] }));
   };
+
   const toggleMobileSubmenu = (name) => {
     setMobileOpenSubmenus((prev) => ({ ...prev, [name]: !prev[name] }));
   };
 
+  const isActive = (path) => {
+    if (path === '/') return pathname === '/';
+    return pathname.startsWith(path);
+  };
+
   return (
-    <div className="sticky top-0 z-50">
-      <div className="bg-[rgba(0,0,102)] text-white">
+    <header className="sticky top-0 z-50 w-full transition-shadow duration-200">
+      {/* 1. TOP UTILITY BAR */}
+      <div className="bg-[rgba(0,0,102)] text-white text-xs border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-2 py-2 text-xs md:flex-row md:items-center md:justify-between">
-            <div className="hidden md:flex items-center gap-x-3 gap-y-1 flex-nowrap whitespace-nowrap">
-              <a href="tel:+923260054808" className="hover:text-[rgba(51,102,153)]">
-                +92-326-0054808
-              </a>
-              <span className="text-white">|</span>
-              <a href="mailto:ajwaacademyofficial@gmail.com" className="hover:text-[rgba(51,102,153)]">
-                ajwaacademyofficial@gmail.com
-              </a>
+          <div className="flex items-center justify-between py-2">
+            {/* Left Contact Items */}
+            <div className="flex items-center gap-4 text-white/90">
               <a
                 href="https://wa.me/923260054808"
                 target="_blank"
                 rel="noreferrer"
-                className="ml-2 inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide hover:bg-white/20"
+                className="inline-flex items-center gap-1.5 transition-colors hover:text-white font-medium"
               >
-                Contact Us
+                <svg className="w-3.5 h-3.5 text-[#25D366]" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z" />
+                </svg>
+                <span>+92 326 0054808</span>
+              </a>
+
+              <span className="hidden md:inline text-white/30">|</span>
+
+              <a
+                href="mailto:ajwaacademyofficial@gmail.com"
+                className="hidden md:inline-flex items-center gap-1.5 transition-colors hover:text-white"
+              >
+                <svg className="w-3.5 h-3.5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <span>ajwaacademyofficial@gmail.com</span>
               </a>
             </div>
-            <div className="flex items-center justify-center gap-2 text-xs sm:text-sm flex-wrap md:flex-nowrap md:whitespace-nowrap">
-              <a href="https://x.com/ajwaacademy786" target="_blank" rel="noreferrer" className="hover:text-[rgba(51,102,153)]">
-                X
-              </a>
-              <a href="https://www.facebook.com/ajwaacademyy" target="_blank" rel="noreferrer" className="hover:text-[rgba(51,102,153)]">
-                Facebook
-              </a>
-              <a href="https://www.instagram.com/ajwaacademyofficial/" target="_blank" rel="noreferrer" className="hover:text-[rgba(51,102,153)]">
-                Instagram
-              </a>
-              <a href="https://www.linkedin.com/company/http-ajwaacademy.com/?viewAsMember=true" target="_blank" rel="noreferrer" className="hover:text-[rgba(51,102,153)]">
-                LinkedIn
-              </a>
-              <a href="https://www.threads.com/@ajwaacademyofficial" target="_blank" rel="noreferrer" className="hover:text-[rgba(51,102,153)]">
-                Threads
-              </a>
-              <a href="/privacy-policy" className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide hover:bg-white/20">
-                Privacy Policy
-              </a>
+
+            {/* Right Social & Policy Links */}
+            <div className="flex items-center gap-3 text-white/80">
+              <span className="hidden sm:inline text-white/60 text-[11px]">Follow Us:</span>
+              <div className="flex items-center gap-2.5">
+                <a
+                  href="https://www.facebook.com/ajwaacademyy"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="transition-colors hover:text-white"
+                  aria-label="Facebook"
+                >
+                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" />
+                  </svg>
+                </a>
+                <a
+                  href="https://www.instagram.com/ajwaacademyofficial/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="transition-colors hover:text-white"
+                  aria-label="Instagram"
+                >
+                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                  </svg>
+                </a>
+                <a
+                  href="https://www.youtube.com/@ajwaacademy"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="transition-colors hover:text-white"
+                  aria-label="YouTube"
+                >
+                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                  </svg>
+                </a>
+              </div>
+
+              <span className="text-white/30 hidden sm:inline">|</span>
+
+              <Link
+                href="/free-trial"
+                className="inline-flex items-center rounded-full bg-white/15 hover:bg-white/25 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white transition-colors"
+              >
+                Free Trial
+              </Link>
             </div>
           </div>
         </div>
       </div>
 
-      <nav className="bg-white border-b border-gray-200">
+      {/* 2. MAIN NAVBAR */}
+      <nav
+        className={`bg-white transition-all duration-200 border-b border-gray-100 ${
+          scrolled ? 'shadow-md shadow-slate-900/5' : ''
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-[auto_1fr_auto] items-center h-20">
-            <div className="flex items-center gap-3">
-              <Link href="/" className="flex-shrink-0 flex items-center">
-                <img
-                  src="/ajwa-logo.png"
-                  alt="Ajwa Academy"
-                  className="h-10 w-28 sm:h-12 sm:w-32 lg:h-12 lg:w-36 object-contain"
-                />
-              </Link>
-            </div>
+          <div className="flex items-center justify-between h-20">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-2 flex-shrink-0 group">
+              <img
+                src="/ajwa-logo.png"
+                alt="Ajwa Online Academy"
+                className="h-11 sm:h-12 w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
+                width="140"
+                height="48"
+              />
+            </Link>
 
-            <div className="hidden md:flex md:items-center md:space-x-6 justify-center">
-              {visibleNavLinks.filter((link) => !link.isButton).map((link, index) => {
+            {/* Desktop Navigation Links */}
+            <div className="hidden lg:flex items-center space-x-1 xl:space-x-2">
+              {navLinks.map((link) => {
+                const active = isActive(link.path);
+
+                // --- Courses Mega / Categorized Dropdown ---
                 if (link.name === 'Courses') {
                   const dynamicChildren = courseGroups.length
                     ? [{ name: 'All Courses', path: '/courses' }, ...courseGroups]
                     : [{ name: 'All Courses', path: '/courses' }];
+
                   return (
                     <div
-                      key={`${link.path}-${link.name}-${index}`}
+                      key={link.name}
                       className="relative"
-                      onMouseEnter={() => setOpenMenu(link.name)}
-                      onMouseLeave={() => {
-                        setOpenMenu(null);
-                        setOpenSubmenu(null);
-                      }}
+                      onMouseEnter={() => handleMenuEnter(link.name)}
+                      onMouseLeave={handleMenuLeave}
                     >
                       <button
-                        className={`${isActive(link.path) ? 'text-[rgba(0,0,102)]' : 'text-gray-700 hover:text-[rgba(0,0,102)]'} nav-underline px-3 py-2 text-sm font-semibold transition-colors duration-200`}
+                        type="button"
                         onClick={() => setOpenMenu(openMenu === link.name ? null : link.name)}
+                        className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                          active
+                            ? 'text-[rgba(0,0,102)] bg-blue-50/80 font-bold'
+                            : 'text-gray-700 hover:text-[rgba(0,0,102)] hover:bg-slate-50'
+                        }`}
                       >
-                        {link.name}
+                        <span>{link.name}</span>
+                        <svg
+                          className={`w-4 h-4 transition-transform duration-200 ${
+                            openMenu === link.name ? 'rotate-180 text-[rgba(0,0,102)]' : 'text-gray-400'
+                          }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                        </svg>
                       </button>
 
+                      {/* Dropdown Container */}
                       {openMenu === link.name && (
-                        <div className="absolute left-0 top-full mt-1 w-64 bg-white rounded-md shadow-xl z-50 border border-gray-200">
-                          <div className="py-2">
-                            {dynamicChildren.map((child) => {
-                              if (child.children) {
-                                return (
-                                  <div key={child.name} className="relative" onMouseEnter={() => setOpenSubmenu(child.name)}>
-                                    <button className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200">
-                                      {child.name}
-                                    </button>
-                                    {openSubmenu === child.name && child.children.length > 0 && (
-                                      <div
-                                        className="absolute top-0 left-full ml-1 w-64 bg-white rounded-md shadow-xl border border-gray-200"
-                                        onMouseEnter={() => {
-                                          setOpenMenu(link.name);
-                                          setOpenSubmenu(child.name);
-                                        }}
+                        <div className="absolute left-0 top-full pt-2 w-72 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                          <div className="bg-white rounded-xl shadow-2xl border border-gray-100 py-2.5 overflow-visible">
+                            <Link
+                              href="/courses"
+                              className="flex items-center justify-between px-4 py-2.5 text-sm font-bold text-[rgba(0,0,102)] bg-blue-50/60 hover:bg-blue-50 border-b border-gray-100 transition-colors"
+                            >
+                              <span>Browse All Courses</span>
+                              <span className="text-xs font-semibold bg-[rgba(0,0,102)] text-white px-2 py-0.5 rounded-full">
+                                View
+                              </span>
+                            </Link>
+
+                            <div className="py-1">
+                              {courseGroups.map((group) => (
+                                <div
+                                  key={group.name}
+                                  className="relative"
+                                  onMouseEnter={() => setOpenSubmenu(group.name)}
+                                >
+                                  <button
+                                    type="button"
+                                    className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50/70 hover:text-[rgba(0,0,102)] transition-colors text-left font-medium"
+                                  >
+                                    <span>{group.name}</span>
+                                    {group.children.length > 0 && (
+                                      <svg
+                                        className="w-3.5 h-3.5 text-gray-400"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
                                       >
-                                        {child.children.map((sub) => (
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth="2"
+                                          d="M9 5l7 7-7 7"
+                                        />
+                                      </svg>
+                                    )}
+                                  </button>
+
+                                  {/* Flyout Submenu */}
+                                  {openSubmenu === group.name && group.children.length > 0 && (
+                                    <div className="absolute top-0 left-full pl-2 w-72 z-50 animate-in fade-in slide-in-from-left-2 duration-150">
+                                      <div className="bg-white rounded-xl shadow-2xl border border-gray-100 py-2">
+                                        <div className="px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-gray-400 border-b border-gray-100">
+                                          {group.name} Lessons
+                                        </div>
+                                        {group.children.map((sub) => (
                                           <Link
                                             key={sub.name}
                                             href={sub.path}
-                                            className="block px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-100 last:border-b-0"
+                                            className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50/70 hover:text-[rgba(0,0,102)] transition-colors border-b border-gray-50 last:border-b-0"
                                           >
                                             {sub.name}
                                           </Link>
                                         ))}
                                       </div>
-                                    )}
-                                  </div>
-                                );
-                              }
-                              return (
-                                <Link
-                                  key={child.name}
-                                  href={child.path}
-                                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-100 last:border-b-0"
-                                >
-                                  {child.name}
-                                </Link>
-                              );
-                            })}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </div>
                       )}
@@ -357,127 +475,154 @@ export default function Navbar() {
                   );
                 }
 
-                if (link.name === 'Library') {
-                  return (
-                    <Link
-                      key={`${link.path}-${link.name}-${index}`}
-                      href={link.path}
-                      className={`${isActive(link.path) ? 'text-[rgba(0,0,102)]' : 'text-gray-700 hover:text-[rgba(0,0,102)]'} nav-underline px-3 py-2 text-sm font-semibold transition-colors duration-200`}
-                    >
-                      {link.name}
-                    </Link>
-                  );
-                }
-
+                // --- Blog Dropdown ---
                 if (link.name === 'Blog') {
-                  const categoryOrder = [
-                    'Online Quran Learning',
-                    'Islamic Parenting',
-                    'UK/USA Quran Classes',
-                    'Islamic Lifestyle',
-                  ];
-                  const normalizeCategory = (value) => {
-                    const key = String(value || '').trim().toLowerCase();
-                    const map = {
-                      'online quran learning': 'Online Quran Learning',
-                      'online quran learnings': 'Online Quran Learning',
-                      'quran learning': 'Online Quran Learning',
-                      'islamic parenting': 'Islamic Parenting',
-                      'parenting': 'Islamic Parenting',
-                      'uk/usa quran classes': 'UK/USA Quran Classes',
-                      'uk usa quran classes': 'UK/USA Quran Classes',
-                      'uk & usa quran classes': 'UK/USA Quran Classes',
-                      'uk, usa quran classes': 'UK/USA Quran Classes',
-                      'uk quran classes': 'UK/USA Quran Classes',
-                      'usa quran classes': 'UK/USA Quran Classes',
-                      'islamic lifestyle': 'Islamic Lifestyle',
-                    };
-                    return map[key] || null;
-                  };
-
-                  const mapByTitle = (title) => {
-                    const t = String(title || '').toLowerCase();
-                    if (t.includes('teaching the quran online to children')) return 'Online Quran Learning';
-                    if (t.includes('children become disobedient')) return 'Islamic Parenting';
-                    if (t.includes('ramzan') || t.includes('ramadan')) return 'Islamic Lifestyle';
-                    return null;
-                  };
-
-                  const grouped = blogPosts.reduce((acc, post) => {
-                    const mapped = normalizeCategory(post.category) || mapByTitle(post.title);
-                    if (!mapped) return acc;
-                    if (!acc[mapped]) acc[mapped] = [];
-                    acc[mapped].push({
-                      name: post.title || `Blog #${post.id}`,
-                      path: post.slug ? `/blog/${post.slug}` : `/blog/${post.id}`,
-                    });
-                    return acc;
-                  }, {});
-
-                  const getCategoryPosts = (category) => {
-                    if (grouped[category]?.length) return grouped[category];
-                    return blogPosts
-                      .filter((post) => {
-                        const mapped = normalizeCategory(post.category) || mapByTitle(post.title);
-                        return mapped === category;
-                      })
-                      .map((post) => ({
-                        name: post.title || `Blog #${post.id}`,
-                        path: post.slug ? `/blog/${post.slug}` : `/blog/${post.id}`,
-                      }));
-                  };
-
-                  const orderedCategories = categoryOrder;
-
                   return (
                     <div
-                      key={`${link.path}-${link.name}-${index}`}
-                      className="relative nav-underline"
-                      onMouseEnter={() => setOpenMenu(link.name)}
-                      onMouseLeave={() => {
-                        setOpenMenu(null);
-                        setOpenSubmenu(null);
-                      }}
+                      key={link.name}
+                      className="relative"
+                      onMouseEnter={() => handleMenuEnter(link.name)}
+                      onMouseLeave={handleMenuLeave}
                     >
                       <button
-                        className={`${isActive(link.path) ? 'text-[rgba(0,0,102)]' : 'text-gray-700 hover:text-[rgba(0,0,102)]'} px-3 py-2 text-sm font-semibold transition-colors duration-200`}
+                        type="button"
                         onClick={() => setOpenMenu(openMenu === link.name ? null : link.name)}
+                        className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                          active
+                            ? 'text-[rgba(0,0,102)] bg-blue-50/80 font-bold'
+                            : 'text-gray-700 hover:text-[rgba(0,0,102)] hover:bg-slate-50'
+                        }`}
                       >
-                        {link.name}
+                        <span>{link.name}</span>
+                        <svg
+                          className={`w-4 h-4 transition-transform duration-200 ${
+                            openMenu === link.name ? 'rotate-180 text-[rgba(0,0,102)]' : 'text-gray-400'
+                          }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                        </svg>
                       </button>
 
                       {openMenu === link.name && (
-                        <div className="absolute left-0 top-full mt-1 w-72 bg-white rounded-md shadow-xl z-50 border border-gray-200">
-                          <div className="py-2">
+                        <div className="absolute left-0 top-full pt-2 w-72 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                          <div className="bg-white rounded-xl shadow-2xl border border-gray-100 py-2.5">
                             <Link
                               href="/blog"
-                              className="block px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-100"
+                              className="flex items-center justify-between px-4 py-2.5 text-sm font-bold text-[rgba(0,0,102)] bg-blue-50/60 hover:bg-blue-50 border-b border-gray-100 transition-colors"
                             >
-                              All Blog
+                              <span>All Islamic Guides & Blogs</span>
+                              <span className="text-xs font-semibold bg-[rgba(0,0,102)] text-white px-2 py-0.5 rounded-full">
+                                Read
+                              </span>
                             </Link>
-                            {orderedCategories.map((category) => (
-                              <div key={category} className="relative" onMouseEnter={() => setOpenSubmenu(category)} onMouseLeave={() => setOpenSubmenu(null)}>
-                                <button className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200">
-                                  {category}
-                                </button>
-                                {openSubmenu === category && (
-                                  <div className="absolute top-0 right-full mr-1 w-80 bg-white rounded-md shadow-xl border border-gray-200 max-h-[420px] overflow-y-auto">
-                                    {getCategoryPosts(category)?.length ? (
-                                      getCategoryPosts(category).map((post) => (
-                                        <Link
-                                          key={post.name}
-                                          href={post.path}
-                                          className="block px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-100 last:border-b-0"
-                                        >
-                                          {post.name}
-                                        </Link>
-                                      ))
-                                    ) : (
-                                      <div className="px-4 py-3 text-sm text-gray-500">No blogs in this category.</div>
+
+                            <div className="py-1">
+                              {blogCategories.map((cat) => (
+                                <div
+                                  key={cat.name}
+                                  className="relative"
+                                  onMouseEnter={() => setOpenSubmenu(cat.name)}
+                                >
+                                  <button
+                                    type="button"
+                                    className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50/70 hover:text-[rgba(0,0,102)] transition-colors text-left font-medium"
+                                  >
+                                    <span>{cat.name}</span>
+                                    {cat.posts.length > 0 && (
+                                      <svg
+                                        className="w-3.5 h-3.5 text-gray-400"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth="2"
+                                          d="M9 5l7 7-7 7"
+                                        />
+                                      </svg>
                                     )}
-                                  </div>
+                                  </button>
+
+                                  {openSubmenu === cat.name && cat.posts.length > 0 && (
+                                    <div className="absolute top-0 left-full pl-2 w-80 z-50 animate-in fade-in slide-in-from-left-2 duration-150">
+                                      <div className="bg-white rounded-xl shadow-2xl border border-gray-100 py-2 max-h-[380px] overflow-y-auto">
+                                        <div className="px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-gray-400 border-b border-gray-100">
+                                          {cat.name} Articles
+                                        </div>
+                                        {cat.posts.map((post) => (
+                                          <Link
+                                            key={post.name}
+                                            href={post.path}
+                                            className="block px-4 py-2 text-xs leading-snug text-gray-700 hover:bg-blue-50/70 hover:text-[rgba(0,0,102)] transition-colors border-b border-gray-50 last:border-b-0"
+                                          >
+                                            {post.name}
+                                          </Link>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
+                // --- Standard Dropdowns (Community, Contact) ---
+                if (link.children && link.children.length > 0) {
+                  return (
+                    <div
+                      key={link.name}
+                      className="relative"
+                      onMouseEnter={() => handleMenuEnter(link.name)}
+                      onMouseLeave={handleMenuLeave}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setOpenMenu(openMenu === link.name ? null : link.name)}
+                        className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                          active
+                            ? 'text-[rgba(0,0,102)] bg-blue-50/80 font-bold'
+                            : 'text-gray-700 hover:text-[rgba(0,0,102)] hover:bg-slate-50'
+                        }`}
+                      >
+                        <span>{link.name}</span>
+                        <svg
+                          className={`w-4 h-4 transition-transform duration-200 ${
+                            openMenu === link.name ? 'rotate-180 text-[rgba(0,0,102)]' : 'text-gray-400'
+                          }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+
+                      {openMenu === link.name && (
+                        <div className="absolute left-0 top-full pt-2 w-64 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                          <div className="bg-white rounded-xl shadow-2xl border border-gray-100 py-2">
+                            {link.children.map((child) => (
+                              <Link
+                                key={child.name}
+                                href={child.path}
+                                className="block px-4 py-2.5 hover:bg-blue-50/70 transition-colors border-b border-gray-50 last:border-b-0 group"
+                              >
+                                <div className="text-sm font-semibold text-gray-800 group-hover:text-[rgba(0,0,102)]">
+                                  {child.name}
+                                </div>
+                                {child.desc && (
+                                  <div className="text-xs text-gray-500 mt-0.5">{child.desc}</div>
                                 )}
-                              </div>
+                              </Link>
                             ))}
                           </div>
                         </div>
@@ -486,90 +631,16 @@ export default function Navbar() {
                   );
                 }
 
-                if (Array.isArray(link.children) && link.children.length > 0 && !link.isButton) {
-                  return (
-                    <div
-                      key={`${link.path}-${link.name}-${index}`}
-                      className="relative nav-underline"
-                      onMouseEnter={() => setOpenMenu(link.name)}
-                      onMouseLeave={() => {
-                        setOpenMenu(null);
-                        setOpenSubmenu(null);
-                      }}
-                    >
-                      <button
-                        className={`${isActive(link.path) ? 'text-[rgba(0,0,102)]' : 'text-gray-700 hover:text-[rgba(0,0,102)]'} px-3 py-2 text-sm font-semibold transition-colors duration-200`}
-                        onClick={() => setOpenMenu(openMenu === link.name ? null : link.name)}
-                      >
-                        {link.name}
-                      </button>
-
-                      {openMenu === link.name && (
-                        <div className="absolute left-0 top-full mt-1 w-64 bg-white rounded-md shadow-xl z-50 border border-gray-200">
-                          <div className="py-2">
-                            {link.children.map((child) => {
-                              if (child.children) {
-                                return (
-                                  <div key={child.name} className="relative" onMouseEnter={() => setOpenSubmenu(child.name)}>
-                                    <button className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200">
-                                      {child.name}
-                                    </button>
-                                    {openSubmenu === child.name && (
-                                      <div
-                                        className="absolute top-0 left-full ml-1 w-64 bg-white rounded-md shadow-xl border border-gray-200"
-                                        onMouseEnter={() => {
-                                          setOpenMenu(link.name);
-                                          setOpenSubmenu(child.name);
-                                        }}
-                                      >
-                                        {child.children.map((sub) => (
-                                          <Link
-                                            key={sub.name}
-                                            href={sub.path}
-                                            className="block px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-100 last:border-b-0"
-                                          >
-                                            {sub.name}
-                                          </Link>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              }
-                              return (
-                                <Link
-                                  key={child.name}
-                                  href={child.path}
-                                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-100 last:border-b-0"
-                                >
-                                  {child.name}
-                                </Link>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                }
-
-                if (link.isButton) {
-                  return (
-                    <Link
-                      key={`${link.path}-${link.name}-${index}`}
-                      href={link.path}
-                      className="bg-[rgba(0,0,102)] text-white px-5 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(51,102,153)] transition-colors duration-200"
-                    >
-                      {link.name}
-                    </Link>
-                  );
-                }
-
+                // --- Single Top-Level Links ---
                 return (
                   <Link
-                    key={`${link.path}-${link.name}-${index}`}
+                    key={link.name}
                     href={link.path}
-                    className={`${isActive(link.path) ? 'text-[rgba(0,0,102)]' : 'text-gray-700 hover:text-[rgba(0,0,102)]'} nav-underline px-3 py-2 text-sm font-semibold transition-colors duration-200`}
+                    className={`px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                      active
+                        ? 'text-[rgba(0,0,102)] bg-blue-50/80 font-bold'
+                        : 'text-gray-700 hover:text-[rgba(0,0,102)] hover:bg-slate-50'
+                    }`}
                   >
                     {link.name}
                   </Link>
@@ -577,45 +648,59 @@ export default function Navbar() {
               })}
             </div>
 
-            <div className="hidden md:flex items-center justify-end">
-              {profileInfo && (
+            {/* Desktop Action Buttons (Right) */}
+            <div className="hidden lg:flex items-center gap-3">
+              {profileInfo ? (
                 <Link
                   href="/dashboard"
-                  className="mr-3 inline-flex items-center gap-3 rounded-full border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 hover:border-[rgba(0,0,102)] hover:text-[rgba(0,0,102)] transition-colors"
+                  className="inline-flex items-center gap-2.5 rounded-full border border-gray-200 bg-white pl-2 pr-4 py-1.5 text-sm font-semibold text-gray-700 shadow-sm hover:border-[rgba(0,0,102)] hover:text-[rgba(0,0,102)] transition-all"
                 >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(0,0,102)] text-white text-sm font-bold">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(0,0,102)] text-white text-xs font-bold">
                     {profileInfo.name?.[0]?.toUpperCase() || 'A'}
                   </span>
-                  <span className="hidden lg:block leading-tight">
-                    <span className="block">{profileInfo.name}</span>
-                    <span className="block text-xs text-gray-500">{profileInfo.email}</span>
-                  </span>
+                  <span className="text-xs font-medium">Dashboard</span>
+                </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  className="text-xs font-semibold text-gray-600 hover:text-[rgba(0,0,102)] px-3 py-2 rounded-md hover:bg-slate-50 transition-colors"
+                >
+                  Student Login
                 </Link>
               )}
-              {visibleNavLinks.filter((link) => link.isButton).map((link, index) => (
-                <Link
-                  key={`${link.path}-${link.name}-${index}`}
-                  href={link.path}
-                  className="bg-[rgba(0,0,102)] text-white px-5 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(51,102,153)] transition-colors duration-200"
-                >
-                  {link.name}
-                </Link>
-              ))}
+
+              <Link
+                href="/free-trial"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[rgba(0,0,102)] px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-[rgba(0,0,102,0.2)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[rgba(51,102,153)] hover:shadow-lg"
+              >
+                <span>Free Trial Class</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </Link>
             </div>
 
-            <div className="md:hidden flex items-center justify-end">
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-[rgba(0,0,102)] focus:outline-none"
-                aria-expanded="false"
+            {/* Mobile Hamburger Button */}
+            <div className="lg:hidden flex items-center gap-2">
+              <Link
+                href="/free-trial"
+                className="inline-flex items-center rounded-lg bg-[rgba(0,0,102)] px-3 py-1.5 text-xs font-bold text-white shadow-sm"
               >
-                <span className="sr-only">Open main menu</span>
-                {isMenuOpen ? (
-                  <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                Free Trial
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="inline-flex items-center justify-center p-2 rounded-lg text-gray-700 hover:text-[rgba(0,0,102)] hover:bg-gray-100 transition-colors focus:outline-none"
+                aria-label="Toggle navigation menu"
+              >
+                {isMobileMenuOpen ? (
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 ) : (
-                  <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
                 )}
@@ -624,104 +709,244 @@ export default function Navbar() {
           </div>
         </div>
 
-        {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t border-gray-200">
-              {visibleNavLinks.map((link, index) => {
-                if (Array.isArray(link.children) && link.children.length > 0 && !link.isButton) {
-                  return (
-                    <div key={`${link.path}-${link.name}-${index}`} className="relative">
-                      <button
-                        className={`${isActive(link.path) ? 'bg-green-50 text-green-600' : 'text-gray-700 hover:bg-gray-50'} block px-3 py-2 rounded-md text-base font-medium w-full text-left`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          toggleMobileMenu(link.name);
-                        }}
-                      >
-                        {link.name}
-                      </button>
-                      {mobileOpenMenus[link.name] && (
-                        <div className="ml-4 mt-2 bg-gray-100 rounded-md border border-gray-200">
-                          <div className="py-2">
-                            {(link.name === 'Courses'
-                              ? courseGroups.length
-                                ? [{ name: 'All Courses', path: '/courses' }, ...courseGroups]
-                                : [{ name: 'All Courses', path: '/courses' }]
-                              : link.name === 'Library'
-                              ? libraryGroups.length
-                                ? libraryGroups
-                                : [{ name: 'Library', children: [{ name: 'View Library', path: '/library' }] }]
-                              : link.name === 'Blog'
-                              ? blogPosts.length
-                                ? [
-                                    { name: 'All Blog', path: '/blog' },
-                                    ...blogPosts.map((post) => ({
-                                      name: post.title || `Blog #${post.id}`,
-                                      path: post.slug ? `/blog/${post.slug}` : `/blog/${post.id}`,
-                                    })),
-                                  ]
-                                : [{ name: 'All Blog', path: '/blog' }]
-                              : link.children
-                            ).map((child) => {
-                              if (child.children) {
-                                return (
-                                  <div key={child.name} className="px-2">
-                                    <button
-                                      onClick={() => toggleMobileSubmenu(child.name)}
-                                      className="w-full text-left px-3 py-2 text-sm font-semibold text-gray-700"
-                                    >
-                                      {child.name}
-                                    </button>
-                                    {mobileOpenSubmenus[child.name] && (
-                                      <div className="ml-3">
-                                        {child.children.map((sub) => (
-                                          <Link
-                                            key={sub.name}
-                                            href={sub.path}
-                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200"
-                                            onClick={() => setIsMenuOpen(false)}
-                                          >
-                                            {sub.name}
-                                          </Link>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              }
-                              return (
-                                <Link
-                                  key={child.name}
-                                  href={child.path}
-                                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-[rgba(0,0,102,0.06)] hover:text-[rgba(0,0,102)] transition-colors duration-200 border-b border-gray-200 last:border-b-0"
-                                  onClick={() => setIsMenuOpen(false)}
-                                >
-                                  {child.name}
-                                </Link>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                }
-                return (
-                  <Link
-                    key={`${link.path}-${link.name}-${index}`}
-                    href={link.path}
-                    className={`${link.isButton ? 'bg-[rgba(0,0,102)] text-white hover:bg-[rgba(51,102,153)]' : isActive(link.path) ? 'bg-green-50 text-green-600' : 'text-gray-700 hover:bg-gray-50'} block px-3 py-2 rounded-md text-base font-semibold`}
-                    onClick={() => setIsMenuOpen(false)}
+        {/* 3. MOBILE DRAWER / ACCORDION MENU */}
+        {isMobileMenuOpen && (
+          <div className="lg:hidden bg-white border-t border-gray-100 shadow-xl max-h-[80vh] overflow-y-auto animate-in slide-in-from-top-3 duration-200">
+            <div className="p-4 space-y-1.5">
+              {/* Home */}
+              <Link
+                href="/"
+                className={`block px-4 py-3 rounded-lg text-sm font-semibold transition-colors ${
+                  pathname === '/'
+                    ? 'bg-blue-50 text-[rgba(0,0,102)] font-bold border-l-4 border-[rgba(0,0,102)]'
+                    : 'text-gray-800 hover:bg-gray-50'
+                }`}
+              >
+                Home
+              </Link>
+
+              {/* Courses Accordion */}
+              <div className="rounded-lg overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => toggleMobileMenu('Courses')}
+                  className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-lg transition-colors ${
+                    pathname.startsWith('/courses')
+                      ? 'bg-blue-50 text-[rgba(0,0,102)] font-bold'
+                      : 'text-gray-800 hover:bg-gray-50'
+                  }`}
+                >
+                  <span>Courses</span>
+                  <svg
+                    className={`w-4 h-4 transition-transform duration-200 ${
+                      mobileOpenMenus['Courses'] ? 'rotate-180 text-[rgba(0,0,102)]' : 'text-gray-400'
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    {link.name}
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {mobileOpenMenus['Courses'] && (
+                  <div className="pl-3 pr-2 py-2 space-y-1 bg-slate-50 rounded-lg mt-1">
+                    <Link
+                      href="/courses"
+                      className="block px-3 py-2 text-xs font-bold text-[rgba(0,0,102)] bg-white rounded shadow-sm"
+                    >
+                      View All Courses →
+                    </Link>
+                    {courseGroups.map((group) => (
+                      <div key={group.name} className="py-0.5">
+                        <button
+                          type="button"
+                          onClick={() => toggleMobileSubmenu(group.name)}
+                          className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-700 hover:text-[rgba(0,0,102)] text-left"
+                        >
+                          <span>{group.name}</span>
+                          <span className="text-gray-400">{mobileOpenSubmenus[group.name] ? '−' : '+'}</span>
+                        </button>
+                        {mobileOpenSubmenus[group.name] && (
+                          <div className="pl-3 py-1 space-y-1 border-l-2 border-blue-200 ml-2">
+                            {group.children.map((sub) => (
+                              <Link
+                                key={sub.name}
+                                href={sub.path}
+                                className="block px-2 py-1.5 text-xs text-gray-600 hover:text-[rgba(0,0,102)]"
+                              >
+                                {sub.name}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Community Accordion */}
+              <div className="rounded-lg overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => toggleMobileMenu('Community')}
+                  className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-lg transition-colors ${
+                    pathname.startsWith('/students') || pathname.startsWith('/teachers')
+                      ? 'bg-blue-50 text-[rgba(0,0,102)] font-bold'
+                      : 'text-gray-800 hover:bg-gray-50'
+                  }`}
+                >
+                  <span>Community</span>
+                  <svg
+                    className={`w-4 h-4 transition-transform duration-200 ${
+                      mobileOpenMenus['Community'] ? 'rotate-180 text-[rgba(0,0,102)]' : 'text-gray-400'
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {mobileOpenMenus['Community'] && (
+                  <div className="pl-4 pr-2 py-2 space-y-1 bg-slate-50 rounded-lg mt-1">
+                    <Link
+                      href="/students"
+                      className="block px-3 py-2 text-xs font-semibold text-gray-700 hover:text-[rgba(0,0,102)]"
+                    >
+                      Our Students (Reviews & Stories)
+                    </Link>
+                    <Link
+                      href="/teachers"
+                      className="block px-3 py-2 text-xs font-semibold text-gray-700 hover:text-[rgba(0,0,102)]"
+                    >
+                      Our Teachers (Certified Faculty)
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              {/* Library */}
+              <Link
+                href="/library"
+                className={`block px-4 py-3 rounded-lg text-sm font-semibold transition-colors ${
+                  pathname.startsWith('/library')
+                    ? 'bg-blue-50 text-[rgba(0,0,102)] font-bold border-l-4 border-[rgba(0,0,102)]'
+                    : 'text-gray-800 hover:bg-gray-50'
+                }`}
+              >
+                Library
+              </Link>
+
+              {/* Fee Structure */}
+              <Link
+                href="/fee-structure"
+                className={`block px-4 py-3 rounded-lg text-sm font-semibold transition-colors ${
+                  pathname === '/fee-structure'
+                    ? 'bg-blue-50 text-[rgba(0,0,102)] font-bold border-l-4 border-[rgba(0,0,102)]'
+                    : 'text-gray-800 hover:bg-gray-50'
+                }`}
+              >
+                Fee Structure
+              </Link>
+
+              {/* Contact Accordion */}
+              <div className="rounded-lg overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => toggleMobileMenu('Contact')}
+                  className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-lg transition-colors ${
+                    pathname.startsWith('/contact') || pathname.startsWith('/about')
+                      ? 'bg-blue-50 text-[rgba(0,0,102)] font-bold'
+                      : 'text-gray-800 hover:bg-gray-50'
+                  }`}
+                >
+                  <span>Contact & About</span>
+                  <svg
+                    className={`w-4 h-4 transition-transform duration-200 ${
+                      mobileOpenMenus['Contact'] ? 'rotate-180 text-[rgba(0,0,102)]' : 'text-gray-400'
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {mobileOpenMenus['Contact'] && (
+                  <div className="pl-4 pr-2 py-2 space-y-1 bg-slate-50 rounded-lg mt-1">
+                    <Link
+                      href="/contact"
+                      className="block px-3 py-2 text-xs font-semibold text-gray-700 hover:text-[rgba(0,0,102)]"
+                    >
+                      Contact Us
+                    </Link>
+                    <Link
+                      href="/about"
+                      className="block px-3 py-2 text-xs font-semibold text-gray-700 hover:text-[rgba(0,0,102)]"
+                    >
+                      About Us
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              {/* Blog */}
+              <Link
+                href="/blog"
+                className={`block px-4 py-3 rounded-lg text-sm font-semibold transition-colors ${
+                  pathname.startsWith('/blog')
+                    ? 'bg-blue-50 text-[rgba(0,0,102)] font-bold border-l-4 border-[rgba(0,0,102)]'
+                    : 'text-gray-800 hover:bg-gray-50'
+                }`}
+              >
+                Blog & Guides
+              </Link>
+
+              {/* Mobile CTAs Bottom */}
+              <div className="pt-4 mt-4 border-t border-gray-100 space-y-2">
+                <Link
+                  href="/free-trial"
+                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-[rgba(0,0,102)] py-3 text-sm font-bold text-white shadow-md"
+                >
+                  <span>Book Free Trial Class</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </Link>
+
+                <a
+                  href="https://wa.me/923260054808"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3 text-sm font-bold text-white shadow-sm"
+                >
+                  <span>Chat on WhatsApp</span>
+                </a>
+
+                {profileInfo ? (
+                  <Link
+                    href="/dashboard"
+                    className="w-full flex items-center justify-center py-2.5 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl"
+                  >
+                    Go to Dashboard
                   </Link>
-                );
-              })}
+                ) : (
+                  <Link
+                    href="/login"
+                    className="w-full flex items-center justify-center py-2.5 text-sm font-semibold text-gray-700 hover:text-[rgba(0,0,102)]"
+                  >
+                    Student Login
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         )}
       </nav>
-    </div>
+    </header>
   );
 }
-
