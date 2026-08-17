@@ -26,6 +26,11 @@ body {
   font-family: var(--font-sans);
   scroll-behavior: smooth;
   color-scheme: light;
+}
+
+/* keep horizontal overflow on the root only; on body it turns body into a
+   scroll container and breaks every position: sticky element on the site */
+html {
   overflow-x: hidden;
 }
 
@@ -392,6 +397,75 @@ body.dark {
 
 .countries-marquee:active .country-card {
   cursor: grabbing;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.65s ease-out,
+    transform 0.65s ease-out;
+}
+
+/* transform must return to none so nested position: sticky keeps working */
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.course-flag {
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.course-flag:hover {
+  transform: translateY(-3px);
+  border-color: rgba(0, 0, 102, 0.4);
+  box-shadow: 0 10px 20px -10px rgba(0, 0, 102, 0.22);
+}
+
+.course-card-hover {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.course-card-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0, 0, 102, 0.16);
+  box-shadow: 0 14px 28px -14px rgba(0, 0, 102, 0.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+.site-footer .footer-block {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.65s ease-out,
+    transform 0.65s ease-out;
+}
+
+.site-footer.is-visible .footer-block {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-footer .footer-block {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

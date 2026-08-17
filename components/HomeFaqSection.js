@@ -142,7 +142,7 @@ export default function HomeFaqSection() {
   };
 
   return (
-    <div>
+    <div id="faqs">
       <div className="mb-8 text-left">
         <span className="text-sm font-bold tracking-widest text-[rgba(0,0,102)]">FAQS</span>
         <h2 className="mt-2 text-3xl font-bold text-[rgba(0,0,102)]">Online Quran Classes FAQs</h2>

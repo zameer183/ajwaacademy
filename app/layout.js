@@ -1,4 +1,4 @@
-﻿import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "../components/ThemeProvider";
 import Script from "next/script";
@@ -84,6 +84,9 @@ export const metadata = {
     apple: "/apple-touch-icon.png",
   },
   manifest: "/site.webmanifest",
+  verification: {
+    google: "VZpXig2JdsDK5IyDQ-2PcJ8hvN1MhWUwZIaPMK6p180",
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -182,19 +185,31 @@ export default function RootLayout({ children }) {
               name: "Ajwa Academy",
               url: siteUrl,
               logo: `${siteUrl}/ajwa-logo.png`,
+              description:
+                "Ajwa Academy provides online Quran classes for kids and adults through certified Quran teachers with Tajweed, Noorani Qaida, Hifz, and one-to-one live classes.",
               telephone: "+92-326-0054808",
               email: "ajwaacademyofficial@gmail.com",
-              contactPoint: {
-                "@type": "ContactPoint",
-                telephone: "+92-326-0054808",
-                contactType: "customer service",
-                availableLanguage: ["English", "Urdu"],
-              },
+              contactPoint: [
+                {
+                  "@type": "ContactPoint",
+                  telephone: "+92-326-0054808",
+                  contactType: "customer service",
+                  availableLanguage: ["English", "Urdu", "Arabic"],
+                  areaServed: "Worldwide",
+                },
+                {
+                  "@type": "ContactPoint",
+                  contactType: "sales",
+                  email: "ajwaacademyofficial@gmail.com",
+                  url: `${siteUrl}/free-trial`,
+                  availableLanguage: ["English", "Urdu"],
+                },
+              ],
               sameAs: [
                 "https://www.facebook.com/ajwaacademyy",
                 "https://www.instagram.com/ajwaacademyofficial/",
                 "https://www.linkedin.com/company/http-ajwaacademy.com/?viewAsMember=true",
-                "https://x.com/ajwaacademy786",
+                "https://www.youtube.com/@ajwaacademy",
               ],
             }),
           }}
@@ -207,9 +222,16 @@ export default function RootLayout({ children }) {
               "@type": "WebSite",
               name: "Ajwa Academy",
               url: siteUrl,
+              description:
+                "Learn Quran online with Ajwa Academy through live online Quran classes, certified teachers, and flexible one-to-one lessons.",
+              publisher: {
+                "@type": "Organization",
+                name: "Ajwa Academy",
+                url: siteUrl,
+              },
               potentialAction: {
                 "@type": "SearchAction",
-                target: `${siteUrl}/search?q={search_term_string}`,
+                target: `${siteUrl}/blog?q={search_term_string}`,
                 "query-input": "required name=search_term_string",
               },
             }),
