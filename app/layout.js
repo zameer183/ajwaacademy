@@ -94,6 +94,9 @@ export const metadata = {
   verification: {
     google: "VZpXig2JdsDK5IyDQ-2PcJ8hvN1MhWUwZIaPMK6p180",
   },
+  other: {
+    "google-adsense-account": "ca-pub-7784006101063230",
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -102,6 +105,12 @@ export default function RootLayout({ children }) {
       <body suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} ${amiri.variable} antialiased`}>
         {isProduction && (
           <>
+            <Script
+              async
+              src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7784006101063230"
+              crossOrigin="anonymous"
+              strategy="afterInteractive"
+            />
             <Script id="google-tag-manager" strategy="afterInteractive">
               {`
                 (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
