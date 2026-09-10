@@ -1,26 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-
-const COUNTRY_OPTIONS = [
-  'United Kingdom (UK)',
-  'United States (USA)',
-  'Canada',
-  'Australia',
-  'United Arab Emirates (UAE)',
-  'Saudi Arabia',
-  'Germany',
-  'France',
-  'New Zealand',
-  'Other / Worldwide',
-];
+import { COUNTRIES_DATA, formatInternationalPhone, findCountry } from '@/lib/countries';
+import PhoneInputWithCountry from '@/components/PhoneInputWithCountry';
 
 export default function HomeContactCard({ className = '' }) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    whatsapp: '',
-    country: '',
+    phone: '',
+    dialCode: '+44',
+    country: 'United Kingdom',
     message: '',
   });
   const [errors, setErrors] = useState({});
@@ -30,17 +20,45 @@ export default function HomeContactCard({ className = '' }) {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => {
+      const next = { ...prev, [name]: value };
+      if (name === 'country') {
+        const matched = findCountry(value);
+        if (matched && matched.dialCode) {
+          next.dialCode = matched.dialCode;
+        }
+      }
+      return next;
+    });
+
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
     if (submitError) setSubmitError('');
   };
 
+  const handleDialCodeChange = (newDialCode) => {
+    setFormData((prev) => {
+      const next = { ...prev, dialCode: newDialCode };
+      const matched = COUNTRIES_DATA.find((c) => c.dialCode === newDialCode);
+      if (matched && matched.name !== 'Other / Worldwide') {
+        next.country = matched.name;
+      }
+      return next;
+    });
+  };
+
+  const handlePhoneChange = (newPhone) => {
+    setFormData((prev) => ({ ...prev, phone: newPhone }));
+    if (errors.phone || errors.whatsapp) {
+      setErrors((prev) => ({ ...prev, phone: '', whatsapp: '' }));
+    }
+  };
+
   const validate = () => {
     const nextErrors = {};
     if (!formData.name.trim()) nextErrors.name = 'Full name is required';
-    if (!formData.whatsapp.trim()) nextErrors.whatsapp = 'Phone / WhatsApp number is required';
+    if (!formData.phone.trim()) nextErrors.phone = 'Phone / WhatsApp number is required';
     if (!formData.email.trim()) {
       nextErrors.email = 'Email address is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
@@ -61,10 +79,12 @@ export default function HomeContactCard({ className = '' }) {
     setIsSubmitting(true);
     setSubmitError('');
 
+    const fullInternationalPhone = formatInternationalPhone(formData.phone, formData.dialCode);
+
     try {
       const payload = {
         name: formData.name.trim(),
-        whatsapp: formData.whatsapp.trim(),
+        whatsapp: fullInternationalPhone,
         email: formData.email.trim(),
         country: formData.country.trim(),
         message: formData.message.trim() || 'Free Trial requested from homepage form.',
@@ -81,7 +101,14 @@ export default function HomeContactCard({ className = '' }) {
       const result = await response.json();
       if (response.ok && result?.success) {
         setSubmitSuccess(true);
-        setFormData({ name: '', email: '', whatsapp: '', country: '', message: '' });
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          dialCode: '+44',
+          country: 'United Kingdom',
+          message: '',
+        });
       } else {
         setSubmitError(result?.error || 'Failed to submit request. Please try WhatsApp.');
       }
@@ -149,21 +176,45 @@ export default function HomeContactCard({ className = '' }) {
             {errors.name && <p className="mt-1 text-xs text-red-300">{errors.name}</p>}
           </div>
 
-          {/* WhatsApp / Phone */}
+          {/* Country Select */}
+          <div>
+            <label htmlFor="home-form-country" className="block text-xs font-semibold uppercase tracking-wider text-white/80 mb-1.5">
+              Your Country *
+            </label>
+            <select
+              id="home-form-country"
+              name="country"
+              value={formData.country}
+              onChange={handleChange}
+              className="w-full h-12 rounded-xl border border-white/20 bg-slate-900 px-4 text-sm text-white focus:border-white focus:outline-none focus:ring-2 focus:ring-white/20 transition-all cursor-pointer"
+            >
+              {COUNTRIES_DATA.map((c) => (
+                <option key={c.name} value={c.name} className="text-gray-900 bg-white">
+                  {c.flag} {c.name} ({c.dialCode})
+                </option>
+              ))}
+            </select>
+            {errors.country && <p className="mt-1 text-xs text-red-300">{errors.country}</p>}
+          </div>
+
+          {/* WhatsApp / Phone with Dial Code */}
           <div>
             <label htmlFor="home-form-whatsapp" className="block text-xs font-semibold uppercase tracking-wider text-white/80 mb-1.5">
-              WhatsApp / Mobile Number *
+              WhatsApp / Mobile Number (With Country Code) *
             </label>
-            <input
+            <PhoneInputWithCountry
               id="home-form-whatsapp"
-              type="tel"
-              name="whatsapp"
-              placeholder="e.g. +44 7123 456789"
-              value={formData.whatsapp}
-              onChange={handleChange}
-              className="w-full h-12 rounded-xl border border-white/20 bg-white/10 px-4 text-sm text-white placeholder-white/40 focus:border-white focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all"
+              phone={formData.phone}
+              dialCode={formData.dialCode}
+              onPhoneChange={handlePhoneChange}
+              onDialCodeChange={handleDialCodeChange}
+              error={errors.phone}
+              theme="dark"
+              placeholder="e.g. 7123 456789"
             />
-            {errors.whatsapp && <p className="mt-1 text-xs text-red-300">{errors.whatsapp}</p>}
+            <p className="mt-1 text-[11px] text-white/60">
+              Formatted: <span className="font-bold text-emerald-400">{formatInternationalPhone(formData.phone, formData.dialCode) || formData.dialCode}</span>
+            </p>
           </div>
 
           {/* Email */}
@@ -181,30 +232,6 @@ export default function HomeContactCard({ className = '' }) {
               className="w-full h-12 rounded-xl border border-white/20 bg-white/10 px-4 text-sm text-white placeholder-white/40 focus:border-white focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all"
             />
             {errors.email && <p className="mt-1 text-xs text-red-300">{errors.email}</p>}
-          </div>
-
-          {/* Country Select */}
-          <div>
-            <label htmlFor="home-form-country" className="block text-xs font-semibold uppercase tracking-wider text-white/80 mb-1.5">
-              Your Country *
-            </label>
-            <select
-              id="home-form-country"
-              name="country"
-              value={formData.country}
-              onChange={handleChange}
-              className="w-full h-12 rounded-xl border border-white/20 bg-slate-900 px-4 text-sm text-white focus:border-white focus:outline-none focus:ring-2 focus:ring-white/20 transition-all"
-            >
-              <option value="" disabled className="text-gray-400">
-                Select your country...
-              </option>
-              {COUNTRY_OPTIONS.map((c) => (
-                <option key={c} value={c} className="text-gray-900 bg-white">
-                  {c}
-                </option>
-              ))}
-            </select>
-            {errors.country && <p className="mt-1 text-xs text-red-300">{errors.country}</p>}
           </div>
 
           {/* Notes / Message */}
