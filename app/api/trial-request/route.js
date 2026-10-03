@@ -4,8 +4,18 @@ import { createClient } from '@supabase/supabase-js';
 export const runtime = 'nodejs';
 export const preferredRegion = 'syd1';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+const DEFAULT_SUPABASE_URL = 'https://cqcitgazqwajbdyxqhtl.supabase.co';
+const DEFAULT_SUPABASE_SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxY2l0Z2F6cXdhamJkeXhxaHRsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MTAyNjg0NywiZXhwIjoyMTA2NjAyODQ3fQ.lWH89WCLiz0iZVg7GFnshv_nyUBvK2wJB2vRLnOCk8g';
+
+const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+const rawServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+
+const isRestrictedInstance = Boolean(
+  rawUrl && (rawUrl.includes('vdzwhurilkucadjgcshv') || rawUrl.includes('xydbeeyzsuqsdrygndhe') || rawUrl.includes('aawqtepmkpsiynxxokxn'))
+);
+
+const supabaseUrl = (!rawUrl || isRestrictedInstance) ? DEFAULT_SUPABASE_URL : rawUrl;
+const supabaseServiceRoleKey = (!rawServiceKey || isRestrictedInstance) ? DEFAULT_SUPABASE_SERVICE_ROLE_KEY : rawServiceKey;
 
 const hasServerSupabase = Boolean(supabaseUrl && supabaseServiceRoleKey);
 

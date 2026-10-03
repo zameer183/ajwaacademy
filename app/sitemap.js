@@ -2,6 +2,9 @@ import { createClient } from "@supabase/supabase-js";
 
 const baseUrl = "https://www.ajwaacademy.com";
 
+const DEFAULT_SUPABASE_URL = "https://cqcitgazqwajbdyxqhtl.supabase.co";
+const DEFAULT_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxY2l0Z2F6cXdhamJkeXhxaHRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwMjY4NDcsImV4cCI6MjEwNjYwMjg0N30.12ve7ROgwlPzLnL8Jc4o-zdv-1QdSN3VRB5RljazVFw";
+
 export default async function sitemap() {
   const now = new Date();
 
@@ -26,8 +29,15 @@ export default async function sitemap() {
     { url: `${baseUrl}/courses/islamic-studies-for-kids-online`, lastModified: now },
   ];
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const rawAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+
+  const isRestrictedInstance = Boolean(
+    rawUrl && (rawUrl.includes("vdzwhurilkucadjgcshv") || rawUrl.includes("xydbeeyzsuqsdrygndhe") || rawUrl.includes("aawqtepmkpsiynxxokxn"))
+  );
+
+  const supabaseUrl = (!rawUrl || isRestrictedInstance) ? DEFAULT_SUPABASE_URL : rawUrl;
+  const supabaseAnonKey = (!rawAnonKey || isRestrictedInstance) ? DEFAULT_SUPABASE_ANON_KEY : rawAnonKey;
 
   if (!supabaseUrl || !supabaseAnonKey) {
     return staticUrls;
