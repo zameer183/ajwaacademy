@@ -2170,49 +2170,90 @@ export default function AdminDashboardPage() {
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Course Image (Upload or Paste URL)</label>
-                <div className="flex items-center gap-2">
+                <label className="font-bold text-slate-800 block mb-1 text-xs">
+                  🖼️ Course Featured Image
+                </label>
+                
+                {/* Prominent Upload Box */}
+                <div className="border-2 border-dashed border-[#0B3D91]/40 hover:border-[#0B3D91] bg-[#0B3D91]/5 hover:bg-[#0B3D91]/10 rounded-2xl p-4 text-center transition-all cursor-pointer relative group">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={uploadingCourseImage}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setUploadingCourseImage(true);
+                      try {
+                        const res = await uploadMedia({ file, pathPrefix: 'courses' });
+                        setCourseModal(prev => ({ ...prev, data: { ...prev.data, image: res.publicUrl } }));
+                        showToast('Course image uploaded successfully!');
+                      } catch (err) {
+                        showToast(err.message || 'Image upload failed', 'error');
+                      } finally {
+                        setUploadingCourseImage(false);
+                        e.target.value = '';
+                      }
+                    }}
+                    className="absolute inset-0 opacity-0 w-full h-full cursor-pointer z-10"
+                  />
+                  
+                  {uploadingCourseImage ? (
+                    <div className="py-3 flex flex-col items-center justify-center gap-2">
+                      <div className="w-8 h-8 border-3 border-[#0B3D91] border-t-transparent rounded-full animate-spin" />
+                      <p className="text-xs font-bold text-[#0B3D91]">Uploading image to Supabase Storage...</p>
+                    </div>
+                  ) : courseModal.data.image ? (
+                    <div className="flex items-center gap-4 text-left">
+                      <img
+                        src={courseModal.data.image}
+                        alt="Course Preview"
+                        className="w-24 h-16 rounded-xl object-cover border-2 border-white shadow-sm shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <span className="inline-block px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-md font-bold text-[10px] mb-1">
+                          ✓ Image Attached
+                        </span>
+                        <p className="text-xs font-bold text-slate-800 truncate">{courseModal.data.image}</p>
+                        <p className="text-[11px] text-[#0B3D91] font-semibold mt-0.5">Click box or drag new file to change image</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCourseModal(prev => ({ ...prev, data: { ...prev.data, image: '' } }));
+                        }}
+                        className="z-20 px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-bold shrink-0"
+                      >
+                        ✕ Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="py-3 flex flex-col items-center justify-center gap-1.5">
+                      <div className="w-12 h-12 rounded-full bg-[#0B3D91]/10 text-[#0B3D91] flex items-center justify-center text-2xl font-bold mb-0.5">
+                        📸
+                      </div>
+                      <p className="text-sm font-extrabold text-[#0B3D91]">
+                        Click here to Upload Course Image from Device
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        Select PNG, JPG, or WebP (Stores directly in Supabase Cloud Storage)
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Direct URL input */}
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-[11px] text-slate-400 font-bold shrink-0">Or Image URL:</span>
                   <input
                     type="text"
                     value={courseModal.data.image}
                     onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, image: e.target.value } }))}
-                    placeholder="https://... or upload below"
-                    className="flex-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                    placeholder="https://..."
+                    className="flex-1 px-3 py-1 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-700"
                   />
-                  <label className="px-3.5 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-xl cursor-pointer text-xs flex items-center gap-1 shadow-xs transition-colors shrink-0">
-                    <span>{uploadingCourseImage ? '⏳ Uploading...' : '📁 Upload Image'}</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      disabled={uploadingCourseImage}
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        setUploadingCourseImage(true);
-                        try {
-                          const res = await uploadMedia({ file, pathPrefix: 'courses' });
-                          setCourseModal(prev => ({ ...prev, data: { ...prev.data, image: res.publicUrl } }));
-                          showToast('Course image uploaded successfully!');
-                        } catch (err) {
-                          showToast(err.message || 'Image upload failed', 'error');
-                        } finally {
-                          setUploadingCourseImage(false);
-                          e.target.value = '';
-                        }
-                      }}
-                    />
-                  </label>
                 </div>
-                {courseModal.data.image && (
-                  <div className="mt-2 flex items-center gap-3 p-2 bg-slate-50 rounded-xl border border-slate-200">
-                    <img src={courseModal.data.image} alt="Preview" className="w-16 h-12 rounded-lg object-cover border border-slate-200" />
-                    <div className="overflow-hidden flex-1">
-                      <p className="text-[11px] font-bold text-emerald-600">✓ Image Attached</p>
-                      <p className="text-[10px] text-slate-400 truncate">{courseModal.data.image}</p>
-                    </div>
-                  </div>
-                )}
               </div>
 
               <div>
@@ -2322,49 +2363,90 @@ export default function AdminDashboardPage() {
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Featured Image (Upload or Paste URL)</label>
-                <div className="flex items-center gap-2">
+                <label className="font-bold text-slate-800 block mb-1 text-xs">
+                  🖼️ Featured Blog Image
+                </label>
+                
+                {/* Prominent Upload Box */}
+                <div className="border-2 border-dashed border-[#0B3D91]/40 hover:border-[#0B3D91] bg-[#0B3D91]/5 hover:bg-[#0B3D91]/10 rounded-2xl p-4 text-center transition-all cursor-pointer relative group">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={uploadingBlogImage}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setUploadingBlogImage(true);
+                      try {
+                        const res = await uploadMedia({ file, pathPrefix: 'blogs' });
+                        setBlogModal(prev => ({ ...prev, data: { ...prev.data, image: res.publicUrl } }));
+                        showToast('Blog image uploaded successfully!');
+                      } catch (err) {
+                        showToast(err.message || 'Image upload failed', 'error');
+                      } finally {
+                        setUploadingBlogImage(false);
+                        e.target.value = '';
+                      }
+                    }}
+                    className="absolute inset-0 opacity-0 w-full h-full cursor-pointer z-10"
+                  />
+                  
+                  {uploadingBlogImage ? (
+                    <div className="py-3 flex flex-col items-center justify-center gap-2">
+                      <div className="w-8 h-8 border-3 border-[#0B3D91] border-t-transparent rounded-full animate-spin" />
+                      <p className="text-xs font-bold text-[#0B3D91]">Uploading image to Supabase Storage...</p>
+                    </div>
+                  ) : blogModal.data.image ? (
+                    <div className="flex items-center gap-4 text-left">
+                      <img
+                        src={blogModal.data.image}
+                        alt="Blog Preview"
+                        className="w-24 h-16 rounded-xl object-cover border-2 border-white shadow-sm shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <span className="inline-block px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-md font-bold text-[10px] mb-1">
+                          ✓ Image Attached
+                        </span>
+                        <p className="text-xs font-bold text-slate-800 truncate">{blogModal.data.image}</p>
+                        <p className="text-[11px] text-[#0B3D91] font-semibold mt-0.5">Click box or drag new file to change image</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setBlogModal(prev => ({ ...prev, data: { ...prev.data, image: '' } }));
+                        }}
+                        className="z-20 px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-bold shrink-0"
+                      >
+                        ✕ Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="py-3 flex flex-col items-center justify-center gap-1.5">
+                      <div className="w-12 h-12 rounded-full bg-[#0B3D91]/10 text-[#0B3D91] flex items-center justify-center text-2xl font-bold mb-0.5">
+                        📸
+                      </div>
+                      <p className="text-sm font-extrabold text-[#0B3D91]">
+                        Click here to Upload Featured Image from Device
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        Select PNG, JPG, or WebP (Stores directly in Supabase Cloud Storage)
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Direct URL input */}
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-[11px] text-slate-400 font-bold shrink-0">Or Image URL:</span>
                   <input
                     type="text"
                     value={blogModal.data.image}
                     onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, image: e.target.value } }))}
-                    placeholder="https://... or upload below"
-                    className="flex-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                    placeholder="https://..."
+                    className="flex-1 px-3 py-1 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-700"
                   />
-                  <label className="px-3.5 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-xl cursor-pointer text-xs flex items-center gap-1 shadow-xs transition-colors shrink-0">
-                    <span>{uploadingBlogImage ? '⏳ Uploading...' : '📁 Upload Image'}</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      disabled={uploadingBlogImage}
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        setUploadingBlogImage(true);
-                        try {
-                          const res = await uploadMedia({ file, pathPrefix: 'blogs' });
-                          setBlogModal(prev => ({ ...prev, data: { ...prev.data, image: res.publicUrl } }));
-                          showToast('Blog image uploaded successfully!');
-                        } catch (err) {
-                          showToast(err.message || 'Image upload failed', 'error');
-                        } finally {
-                          setUploadingBlogImage(false);
-                          e.target.value = '';
-                        }
-                      }}
-                    />
-                  </label>
                 </div>
-                {blogModal.data.image && (
-                  <div className="mt-2 flex items-center gap-3 p-2 bg-slate-50 rounded-xl border border-slate-200">
-                    <img src={blogModal.data.image} alt="Preview" className="w-16 h-12 rounded-lg object-cover border border-slate-200" />
-                    <div className="overflow-hidden flex-1">
-                      <p className="text-[11px] font-bold text-emerald-600">✓ Image Attached</p>
-                      <p className="text-[10px] text-slate-400 truncate">{blogModal.data.image}</p>
-                    </div>
-                  </div>
-                )}
               </div>
 
               <div>
