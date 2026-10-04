@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { supabase, supabaseEnabled } from '@/lib/supabase';
@@ -111,6 +111,7 @@ export default function AdminDashboardPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Authentication State
   const [authLoading, setAuthLoading] = useState(true);
@@ -134,7 +135,99 @@ export default function AdminDashboardPage() {
   const [contactMessages, setContactMessages] = useState(INITIAL_CONTACT_MESSAGES);
   const [trialStatusFilter, setTrialStatusFilter] = useState('all');
 
-  // Show Toast helper
+  // --- MODAL EDIT STATES ---
+  // 1. Course Modal
+  const [courseModal, setCourseModal] = useState({
+    isOpen: false,
+    mode: 'create', // 'create' | 'edit'
+    data: {
+      id: null,
+      title: '',
+      slug: '',
+      category: 'Quran Reading',
+      level: 'Beginner',
+      price: 45,
+      original_price: 60,
+      duration: '3 Months',
+      lesson_count: 24,
+      instructor_name: 'Certified Quran Scholar',
+      description: '',
+      image: '',
+    },
+  });
+
+  // 2. Blog Modal
+  const [blogModal, setBlogModal] = useState({
+    isOpen: false,
+    mode: 'create', // 'create' | 'edit'
+    data: {
+      id: null,
+      title: '',
+      slug: '',
+      category: 'Quran & Tajweed',
+      author: 'Ajwa Academy Scholar',
+      read_time: '5 min read',
+      excerpt: '',
+      content: '',
+      image: '',
+      status: 'published',
+    },
+  });
+
+  // 3. Trial Lead Modal
+  const [trialModal, setTrialModal] = useState({
+    isOpen: false,
+    mode: 'create', // 'create' | 'edit'
+    data: {
+      id: null,
+      name: '',
+      whatsapp: '',
+      email: '',
+      country: 'United Kingdom',
+      course_title: 'Noorani Qaida Course',
+      status: 'pending',
+      message: '',
+    },
+  });
+
+  // 4. Teacher Modal
+  const [teacherModal, setTeacherModal] = useState({
+    isOpen: false,
+    mode: 'create', // 'create' | 'edit'
+    data: {
+      id: null,
+      name: '',
+      title: '',
+      experience: '5+ Years Exp',
+      gender: 'Male',
+      languages: 'Arabic, English, Urdu',
+      bio: '',
+    },
+  });
+
+  // 5. FAQ Modal
+  const [faqModal, setFaqModal] = useState({
+    isOpen: false,
+    mode: 'create',
+    data: { id: null, question: '', answer: '', category: 'Classes' },
+  });
+
+  // 6. Testimonial Modal
+  const [testimonialModal, setTestimonialModal] = useState({
+    isOpen: false,
+    mode: 'create',
+    data: { id: null, name: '', country: '', course: '', rating: 5, comment: '' },
+  });
+
+  // 7. Delete Confirmation Modal
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+  });
+
+  // Helper Toast
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
@@ -148,6 +241,18 @@ export default function AdminDashboardPage() {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
     setActivityLogs((prev) => [newLog, ...prev.slice(0, 30)]);
+  };
+
+  // --- API CRUD HELPER ---
+  const callCrudApi = async (action, table, id, data) => {
+    const res = await fetch('/api/admin/crud', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, table, id, data }),
+    });
+    const json = await res.json();
+    if (!res.ok || json.error) throw new Error(json.error || 'Operation failed');
+    return json;
   };
 
   // --- AUTH CHECK ---
@@ -210,12 +315,311 @@ export default function AdminDashboardPage() {
     fetchData();
   }, []);
 
-  // --- ACTIONS & HANDLERS ---
+  // =========================================================================
+  // --- CRUD ACTIONS: COURSES ---
+  // =========================================================================
+  const handleOpenCreateCourse = () => {
+    setCourseModal({
+      isOpen: true,
+      mode: 'create',
+      data: {
+        id: null,
+        title: '',
+        slug: '',
+        category: 'Quran Reading',
+        level: 'Beginner',
+        price: 45,
+        original_price: 60,
+        duration: '3 Months',
+        lesson_count: 24,
+        instructor_name: 'Certified Quran Scholar',
+        description: '',
+        image: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?auto=format&fit=crop&w=800&q=80',
+      },
+    });
+  };
+
+  const handleOpenEditCourse = (course) => {
+    setCourseModal({
+      isOpen: true,
+      mode: 'edit',
+      data: {
+        id: course.id,
+        title: course.title || '',
+        slug: course.slug || '',
+        category: course.category || 'Quran Reading',
+        level: course.level || 'Beginner',
+        price: course.price || 45,
+        original_price: course.original_price || 60,
+        duration: course.duration || '3 Months',
+        lesson_count: course.lesson_count || 24,
+        instructor_name: course.instructor_name || 'Certified Quran Scholar',
+        description: course.description || '',
+        image: course.image || '',
+      },
+    });
+  };
+
+  const handleSaveCourse = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    const { mode, data } = courseModal;
+
+    try {
+      const slug = data.slug || data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      const payload = {
+        title: data.title,
+        slug,
+        category: data.category,
+        level: data.level,
+        price: Number(data.price),
+        original_price: Number(data.original_price),
+        duration: data.duration,
+        lesson_count: Number(data.lesson_count),
+        instructor_name: data.instructor_name,
+        description: data.description,
+        image: data.image,
+      };
+
+      if (mode === 'create') {
+        const res = await callCrudApi('create', 'courses', null, payload);
+        const createdRecord = res.record || { ...payload, id: Date.now() };
+        setCourses(prev => [...prev, createdRecord]);
+        showToast('New Course created successfully!');
+        addLog('Course Created', `Added new course: "${data.title}"`);
+      } else {
+        await callCrudApi('update', 'courses', data.id, payload);
+        setCourses(prev => prev.map(c => (c.id === data.id ? { ...c, ...payload } : c)));
+        showToast('Course updated successfully!');
+        addLog('Course Updated', `Updated course: "${data.title}" (#${data.id})`);
+      }
+      setCourseModal(prev => ({ ...prev, isOpen: false }));
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Failed to save course', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteCourse = (course) => {
+    setDeleteModal({
+      isOpen: true,
+      title: 'Delete Course',
+      message: `Are you sure you want to permanently delete "${course.title}"? This cannot be undone.`,
+      onConfirm: async () => {
+        try {
+          await callCrudApi('delete', 'courses', course.id);
+          setCourses(prev => prev.filter(c => c.id !== course.id));
+          showToast(`Course "${course.title}" deleted.`);
+          addLog('Course Deleted', `Deleted course: "${course.title}" (#${course.id})`);
+        } catch (err) {
+          showToast(err.message || 'Failed to delete course', 'error');
+        } finally {
+          setDeleteModal(prev => ({ ...prev, isOpen: false }));
+        }
+      },
+    });
+  };
+
+  // =========================================================================
+  // --- CRUD ACTIONS: BLOG POSTS ---
+  // =========================================================================
+  const handleOpenCreateBlog = () => {
+    setBlogModal({
+      isOpen: true,
+      mode: 'create',
+      data: {
+        id: null,
+        title: '',
+        slug: '',
+        category: 'Quran & Tajweed',
+        author: 'Ajwa Academy Scholar',
+        read_time: '5 min read',
+        excerpt: '',
+        content: '',
+        image: 'https://images.unsplash.com/photo-1585036156171-384164a8c675?auto=format&fit=crop&w=800&q=80',
+        status: 'published',
+      },
+    });
+  };
+
+  const handleOpenEditBlog = (blog) => {
+    setBlogModal({
+      isOpen: true,
+      mode: 'edit',
+      data: {
+        id: blog.id,
+        title: blog.title || '',
+        slug: blog.slug || '',
+        category: blog.category || 'Quran & Tajweed',
+        author: blog.author || 'Ajwa Academy Scholar',
+        read_time: blog.read_time || '5 min read',
+        excerpt: blog.excerpt || '',
+        content: blog.content || '',
+        image: blog.image || '',
+        status: blog.status || 'published',
+      },
+    });
+  };
+
+  const handleSaveBlog = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    const { mode, data } = blogModal;
+
+    try {
+      const slug = data.slug || data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      const payload = {
+        title: data.title,
+        slug,
+        category: data.category,
+        author: data.author,
+        read_time: data.read_time,
+        excerpt: data.excerpt,
+        content: data.content,
+        image: data.image,
+        status: data.status,
+      };
+
+      if (mode === 'create') {
+        const res = await callCrudApi('create', 'blog_posts', null, payload);
+        const createdRecord = res.record || { ...payload, id: Date.now() };
+        setBlogs(prev => [createdRecord, ...prev]);
+        showToast('New Blog Post published successfully!');
+        addLog('Blog Created', `Published new article: "${data.title}"`);
+      } else {
+        await callCrudApi('update', 'blog_posts', data.id, payload);
+        setBlogs(prev => prev.map(b => (b.id === data.id ? { ...b, ...payload } : b)));
+        showToast('Blog Post updated successfully!');
+        addLog('Blog Updated', `Updated article: "${data.title}" (#${data.id})`);
+      }
+      setBlogModal(prev => ({ ...prev, isOpen: false }));
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Failed to save blog post', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteBlog = (blog) => {
+    setDeleteModal({
+      isOpen: true,
+      title: 'Delete Blog Post',
+      message: `Are you sure you want to permanently delete article "${blog.title}"?`,
+      onConfirm: async () => {
+        try {
+          await callCrudApi('delete', 'blog_posts', blog.id);
+          setBlogs(prev => prev.filter(b => b.id !== blog.id));
+          showToast(`Blog article deleted.`);
+          addLog('Blog Deleted', `Deleted article: "${blog.title}" (#${blog.id})`);
+        } catch (err) {
+          showToast(err.message || 'Failed to delete blog', 'error');
+        } finally {
+          setDeleteModal(prev => ({ ...prev, isOpen: false }));
+        }
+      },
+    });
+  };
+
+  // =========================================================================
+  // --- CRUD ACTIONS: APPLICATIONS & LEADS ---
+  // =========================================================================
+  const handleOpenCreateLead = () => {
+    setTrialModal({
+      isOpen: true,
+      mode: 'create',
+      data: {
+        id: null,
+        name: '',
+        whatsapp: '',
+        email: '',
+        country: 'United Kingdom',
+        course_title: 'Noorani Qaida Course',
+        status: 'pending',
+        message: '',
+      },
+    });
+  };
+
+  const handleOpenEditLead = (lead) => {
+    setTrialModal({
+      isOpen: true,
+      mode: 'edit',
+      data: {
+        id: lead.id,
+        name: lead.name || '',
+        whatsapp: lead.whatsapp || '',
+        email: lead.email || '',
+        country: lead.country || 'United Kingdom',
+        course_title: lead.course_title || 'Noorani Qaida Course',
+        status: lead.status || 'pending',
+        message: lead.message || '',
+      },
+    });
+  };
+
+  const handleSaveLead = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    const { mode, data } = trialModal;
+
+    try {
+      const payload = {
+        name: data.name,
+        whatsapp: data.whatsapp,
+        email: data.email,
+        country: data.country,
+        course_title: data.course_title,
+        status: data.status,
+        message: data.message,
+      };
+
+      if (mode === 'create') {
+        const res = await callCrudApi('create', 'trial_requests', null, payload);
+        const createdRecord = res.record || { ...payload, id: Date.now() };
+        setTrialRequests(prev => [createdRecord, ...prev]);
+        showToast('New Trial Lead added successfully!');
+        addLog('Lead Added', `Added trial application for ${data.name}`);
+      } else {
+        await callCrudApi('update', 'trial_requests', data.id, payload);
+        setTrialRequests(prev => prev.map(t => (t.id === data.id ? { ...t, ...payload } : t)));
+        showToast('Trial Lead updated successfully!');
+        addLog('Lead Updated', `Updated trial request for ${data.name} (#${data.id})`);
+      }
+      setTrialModal(prev => ({ ...prev, isOpen: false }));
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Failed to save lead', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteLead = (lead) => {
+    setDeleteModal({
+      isOpen: true,
+      title: 'Delete Trial Application',
+      message: `Are you sure you want to delete lead #${lead.id} (${lead.name})?`,
+      onConfirm: async () => {
+        try {
+          await callCrudApi('delete', 'trial_requests', lead.id);
+          setTrialRequests(prev => prev.filter(t => t.id !== lead.id));
+          showToast('Lead deleted successfully.');
+          addLog('Lead Deleted', `Deleted trial lead #${lead.id} (${lead.name})`);
+        } catch (err) {
+          showToast(err.message || 'Failed to delete lead', 'error');
+        } finally {
+          setDeleteModal(prev => ({ ...prev, isOpen: false }));
+        }
+      },
+    });
+  };
+
   const handleUpdateTrialStatus = async (trialId, newStatus) => {
     try {
-      if (supabaseEnabled && supabase) {
-        await supabase.from('trial_requests').update({ status: newStatus }).eq('id', trialId);
-      }
+      await callCrudApi('update', 'trial_requests', trialId, { status: newStatus });
       setTrialRequests(prev => prev.map(t => (t.id === trialId ? { ...t, status: newStatus } : t)));
       showToast(`Status updated to ${newStatus.toUpperCase()}`);
       addLog('Trial Status Changed', `Trial ID #${trialId} marked as ${newStatus}`);
@@ -241,16 +645,156 @@ export default function AdminDashboardPage() {
     addLog('WhatsApp Contact Initiated', `Contacted ${studentName} (${cleanPhone})`);
   };
 
-  const handleSaveSettings = (e) => {
-    e.preventDefault();
-    showToast('General Settings updated successfully!');
-    addLog('Settings Updated', 'Academy general configuration saved');
+  // =========================================================================
+  // --- CRUD ACTIONS: TEACHERS ---
+  // =========================================================================
+  const handleOpenCreateTeacher = () => {
+    setTeacherModal({
+      isOpen: true,
+      mode: 'create',
+      data: {
+        id: null,
+        name: '',
+        title: '',
+        experience: '5+ Years Exp',
+        gender: 'Male',
+        languages: 'Arabic, English, Urdu',
+        bio: '',
+      },
+    });
   };
 
+  const handleOpenEditTeacher = (teacher) => {
+    setTeacherModal({
+      isOpen: true,
+      mode: 'edit',
+      data: { ...teacher },
+    });
+  };
+
+  const handleSaveTeacher = (e) => {
+    e.preventDefault();
+    const { mode, data } = teacherModal;
+    if (mode === 'create') {
+      const newT = { ...data, id: Date.now() };
+      setTeachers(prev => [...prev, newT]);
+      showToast('Teacher added to faculty directory!');
+      addLog('Teacher Added', `Added faculty instructor: ${data.name}`);
+    } else {
+      setTeachers(prev => prev.map(t => (t.id === data.id ? { ...data } : t)));
+      showToast('Teacher details updated!');
+      addLog('Teacher Updated', `Updated teacher: ${data.name}`);
+    }
+    setTeacherModal(prev => ({ ...prev, isOpen: false }));
+  };
+
+  const handleDeleteTeacher = (teacher) => {
+    setDeleteModal({
+      isOpen: true,
+      title: 'Delete Teacher',
+      message: `Are you sure you want to remove "${teacher.name}" from faculty list?`,
+      onConfirm: () => {
+        setTeachers(prev => prev.filter(t => t.id !== teacher.id));
+        showToast('Teacher removed.');
+        addLog('Teacher Deleted', `Removed instructor: ${teacher.name}`);
+        setDeleteModal(prev => ({ ...prev, isOpen: false }));
+      },
+    });
+  };
+
+  // =========================================================================
+  // --- CRUD ACTIONS: FAQS ---
+  // =========================================================================
+  const handleOpenCreateFaq = () => {
+    setFaqModal({
+      isOpen: true,
+      mode: 'create',
+      data: { id: null, question: '', answer: '', category: 'Classes' },
+    });
+  };
+
+  const handleOpenEditFaq = (faq) => {
+    setFaqModal({
+      isOpen: true,
+      mode: 'edit',
+      data: { ...faq },
+    });
+  };
+
+  const handleSaveFaq = (e) => {
+    e.preventDefault();
+    const { mode, data } = faqModal;
+    if (mode === 'create') {
+      const newFaq = { ...data, id: Date.now() };
+      setFaqs(prev => [...prev, newFaq]);
+      showToast('New FAQ added!');
+      addLog('FAQ Added', `Added FAQ: "${data.question}"`);
+    } else {
+      setFaqs(prev => prev.map(f => (f.id === data.id ? { ...data } : f)));
+      showToast('FAQ updated!');
+      addLog('FAQ Updated', `Updated FAQ: "${data.question}"`);
+    }
+    setFaqModal(prev => ({ ...prev, isOpen: false }));
+  };
+
+  const handleDeleteFaq = (faq) => {
+    setFaqs(prev => prev.filter(f => f.id !== faq.id));
+    showToast('FAQ deleted.');
+    addLog('FAQ Deleted', `Deleted FAQ: "${faq.question}"`);
+  };
+
+  // =========================================================================
+  // --- CRUD ACTIONS: TESTIMONIALS ---
+  // =========================================================================
+  const handleOpenCreateTestimonial = () => {
+    setTestimonialModal({
+      isOpen: true,
+      mode: 'create',
+      data: { id: null, name: '', country: 'United Kingdom 🇬🇧', course: 'Tajweed & Recitation', rating: 5, comment: '' },
+    });
+  };
+
+  const handleOpenEditTestimonial = (test) => {
+    setTestimonialModal({
+      isOpen: true,
+      mode: 'edit',
+      data: { ...test },
+    });
+  };
+
+  const handleSaveTestimonial = (e) => {
+    e.preventDefault();
+    const { mode, data } = testimonialModal;
+    if (mode === 'create') {
+      const newTest = { ...data, id: Date.now() };
+      setTestimonials(prev => [...prev, newTest]);
+      showToast('New Testimonial added!');
+      addLog('Testimonial Added', `Added review from ${data.name}`);
+    } else {
+      setTestimonials(prev => prev.map(t => (t.id === data.id ? { ...data } : t)));
+      showToast('Testimonial updated!');
+      addLog('Testimonial Updated', `Updated review from ${data.name}`);
+    }
+    setTestimonialModal(prev => ({ ...prev, isOpen: false }));
+  };
+
+  const handleDeleteTestimonial = (test) => {
+    setTestimonials(prev => prev.filter(t => t.id !== test.id));
+    showToast('Testimonial deleted.');
+    addLog('Testimonial Deleted', `Deleted review from ${test.name}`);
+  };
+
+  // --- SAVE HERO & SETTINGS ---
   const handleSaveHero = (e) => {
     e.preventDefault();
     showToast('Homepage Hero customized & saved!');
     addLog('Homepage Hero Updated', 'Hero banner text & CTA buttons updated');
+  };
+
+  const handleSaveSettings = (e) => {
+    e.preventDefault();
+    showToast('General Settings updated successfully!');
+    addLog('Settings Updated', 'Academy general configuration saved');
   };
 
   // --- FILTERED DATA FOR ACTIVE SEARCH ---
@@ -416,7 +960,7 @@ export default function AdminDashboardPage() {
 
       {/* Main Wrapper */}
       <div className="flex-1 flex min-h-0">
-        {/* --- SIDEBAR NAVIGATION (OFFICIAL AJWA ACADEMY BRANDING) --- */}
+        {/* --- SIDEBAR NAVIGATION --- */}
         <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-[#E2E8F0] shadow-sm transform transition-transform duration-200 ease-in-out md:static md:translate-x-0 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="h-full flex flex-col justify-between">
             {/* Brand Header */}
@@ -544,7 +1088,7 @@ export default function AdminDashboardPage() {
                   {activeTab.replace('_', ' ')}
                 </h2>
                 <span className="hidden sm:inline-block text-[11px] bg-[#14B8A6]/10 text-[#14B8A6] border border-[#14B8A6]/30 px-2 py-0.5 rounded-full font-bold">
-                  ● Live Supabase Connected
+                  ● Live Connected
                 </span>
               </div>
             </div>
@@ -554,7 +1098,7 @@ export default function AdminDashboardPage() {
               <div className="relative w-48 sm:w-64">
                 <input
                   type="text"
-                  placeholder="Search..."
+                  placeholder="Search records..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#0B3D91] focus:ring-1 focus:ring-[#0B3D91] transition-all"
@@ -631,18 +1175,18 @@ export default function AdminDashboardPage() {
                 {/* Quick Actions Bar */}
                 <div className="bg-white border border-[#E2E8F0] rounded-2xl p-5 flex flex-wrap items-center justify-between gap-3 shadow-sm">
                   <div>
-                    <h4 className="text-sm font-extrabold text-[#0B3D91]">⚡ Quick Academy Operations</h4>
-                    <p className="text-xs text-slate-500">Fast access to admissions, content, and branding tools</p>
+                    <h4 className="text-sm font-extrabold text-[#0B3D91]">⚡ Fast Management Actions</h4>
+                    <p className="text-xs text-slate-500">Quickly create courses, publish blogs, or add leads</p>
                   </div>
                   <div className="flex flex-wrap gap-2.5">
-                    <button onClick={() => setActiveTab('applications')} className="px-4 py-2 rounded-xl bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm">
-                      <span>📬 View Applications ({trialRequests.length})</span>
+                    <button onClick={handleOpenCreateCourse} className="px-4 py-2 rounded-xl bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm">
+                      <span>➕ Add New Course</span>
                     </button>
-                    <button onClick={() => setActiveTab('blog_posts')} className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#0B3D91] text-xs font-bold flex items-center gap-1.5 transition-colors border border-slate-200">
-                      <span>✍️ Manage Blogs ({blogs.length})</span>
+                    <button onClick={handleOpenCreateBlog} className="px-4 py-2 rounded-xl bg-[#14B8A6] hover:bg-[#0f9485] text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm">
+                      <span>✍️ Write New Blog</span>
                     </button>
-                    <button onClick={() => setActiveTab('homepage_hero')} className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition-colors border border-slate-200">
-                      <span>🎨 Edit Homepage Hero</span>
+                    <button onClick={handleOpenCreateLead} className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#0B3D91] text-xs font-bold flex items-center gap-1.5 transition-colors border border-slate-200">
+                      <span>➕ Add New Lead</span>
                     </button>
                   </div>
                 </div>
@@ -667,7 +1211,7 @@ export default function AdminDashboardPage() {
                           <th className="px-4 py-3.5">Country</th>
                           <th className="px-4 py-3.5">Course</th>
                           <th className="px-4 py-3.5">Status</th>
-                          <th className="px-4 py-3.5 text-right">1-Click Action</th>
+                          <th className="px-4 py-3.5 text-right">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[#E2E8F0]/70">
@@ -682,10 +1226,16 @@ export default function AdminDashboardPage() {
                                 {trial.status || 'Pending'}
                               </span>
                             </td>
-                            <td className="px-4 py-3.5 text-right">
+                            <td className="px-4 py-3.5 text-right space-x-1.5">
+                              <button
+                                onClick={() => handleOpenEditLead(trial)}
+                                className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-colors"
+                              >
+                                ✏️ Edit
+                              </button>
                               <button
                                 onClick={() => openWhatsAppLead(trial)}
-                                className="px-3 py-1.5 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-lg text-xs font-bold inline-flex items-center gap-1.5 transition-colors shadow-xs"
+                                className="px-3 py-1.5 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-lg text-xs font-bold inline-flex items-center gap-1 transition-colors shadow-xs"
                               >
                                 <span>💬 WhatsApp</span>
                               </button>
@@ -707,20 +1257,29 @@ export default function AdminDashboardPage() {
                 <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
                   <div>
                     <h3 className="text-base font-extrabold text-[#0B3D91]">Trial Applications Pipeline ({filteredTrials.length})</h3>
-                    <p className="text-xs text-slate-500">Manage all student leads, schedule trial classes, and contact parents directly via WhatsApp</p>
+                    <p className="text-xs text-slate-500">Manage all student leads, update status, edit details, and contact on WhatsApp</p>
                   </div>
 
-                  {/* Filter Tabs */}
-                  <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
-                    {['all', 'pending', 'contacted', 'enrolled', 'cancelled'].map((st) => (
-                      <button
-                        key={st}
-                        onClick={() => setTrialStatusFilter(st)}
-                        className={`px-3 py-1 rounded-lg capitalize font-bold transition-colors ${trialStatusFilter === st ? 'bg-white text-[#0B3D91] shadow-xs border border-slate-200' : 'text-slate-600 hover:text-slate-900'}`}
-                      >
-                        {st}
-                      </button>
-                    ))}
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      onClick={handleOpenCreateLead}
+                      className="px-4 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
+                    >
+                      <span>➕ Add New Lead</span>
+                    </button>
+
+                    {/* Filter Tabs */}
+                    <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+                      {['all', 'pending', 'contacted', 'enrolled', 'cancelled'].map((st) => (
+                        <button
+                          key={st}
+                          onClick={() => setTrialStatusFilter(st)}
+                          className={`px-3 py-1 rounded-lg capitalize font-bold transition-colors ${trialStatusFilter === st ? 'bg-white text-[#0B3D91] shadow-xs border border-slate-200' : 'text-slate-600 hover:text-slate-900'}`}
+                        >
+                          {st}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
@@ -737,7 +1296,7 @@ export default function AdminDashboardPage() {
                           <th className="px-4 py-3.5">Country</th>
                           <th className="px-4 py-3.5">Requested Course</th>
                           <th className="px-4 py-3.5">Status</th>
-                          <th className="px-4 py-3.5 text-right">1-Click Action</th>
+                          <th className="px-4 py-3.5 text-right">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[#E2E8F0]/70">
@@ -753,7 +1312,7 @@ export default function AdminDashboardPage() {
                               <select
                                 value={trial.status || 'pending'}
                                 onChange={(e) => handleUpdateTrialStatus(trial.id, e.target.value)}
-                                className="bg-white border border-slate-300 text-slate-800 text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-[#0B3D91] font-semibold"
+                                className="bg-white border border-slate-300 text-slate-800 text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-[#0B3D91] font-semibold cursor-pointer"
                               >
                                 <option value="pending">Pending</option>
                                 <option value="contacted">Contacted</option>
@@ -762,13 +1321,26 @@ export default function AdminDashboardPage() {
                                 <option value="cancelled">Cancelled</option>
                               </select>
                             </td>
-                            <td className="px-4 py-3.5 text-right">
+                            <td className="px-4 py-3.5 text-right space-x-1.5">
+                              <button
+                                onClick={() => handleOpenEditLead(trial)}
+                                className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-colors"
+                                title="Edit Lead"
+                              >
+                                ✏️ Edit
+                              </button>
                               <button
                                 onClick={() => openWhatsAppLead(trial)}
-                                className="px-3 py-1.5 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-lg text-xs font-bold inline-flex items-center gap-1.5 transition-colors shadow-xs"
+                                className="px-3 py-1.5 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-lg text-xs font-bold inline-flex items-center gap-1 transition-colors shadow-xs"
                               >
-                                <span>💬</span>
-                                <span>Chat on WhatsApp</span>
+                                <span>💬 WhatsApp</span>
+                              </button>
+                              <button
+                                onClick={() => handleDeleteLead(trial)}
+                                className="px-2 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-bold transition-colors"
+                                title="Delete Lead"
+                              >
+                                🗑️
                               </button>
                             </td>
                           </tr>
@@ -785,11 +1357,17 @@ export default function AdminDashboardPage() {
             {/* ======================================================== */}
             {activeTab === 'students' && (
               <div className="space-y-4">
-                <div className="flex justify-between items-center bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
+                <div className="flex flex-wrap justify-between items-center gap-3 bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
                   <div>
                     <h3 className="text-base font-extrabold text-[#0B3D91]">Active Student Directory ({students.length})</h3>
                     <p className="text-xs text-slate-500">Regular enrolled students currently attending Quran classes</p>
                   </div>
+                  <button
+                    onClick={handleOpenCreateLead}
+                    className="px-4 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
+                  >
+                    <span>➕ Enroll New Student</span>
+                  </button>
                 </div>
 
                 <div className="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-sm">
@@ -802,7 +1380,7 @@ export default function AdminDashboardPage() {
                           <th className="px-4 py-3.5">Course Enrolled</th>
                           <th className="px-4 py-3.5">Country</th>
                           <th className="px-4 py-3.5">Status</th>
-                          <th className="px-4 py-3.5 text-right">Quick Contact</th>
+                          <th className="px-4 py-3.5 text-right">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[#E2E8F0]/70">
@@ -817,10 +1395,16 @@ export default function AdminDashboardPage() {
                                 Active Student
                               </span>
                             </td>
-                            <td className="px-4 py-3.5 text-right">
+                            <td className="px-4 py-3.5 text-right space-x-1.5">
+                              <button
+                                onClick={() => handleOpenEditLead(st)}
+                                className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold"
+                              >
+                                ✏️ Edit
+                              </button>
                               <button
                                 onClick={() => openWhatsAppLead(st)}
-                                className="px-3 py-1 bg-slate-100 hover:bg-[#25D366] hover:text-white text-slate-700 rounded-lg text-[11px] font-bold inline-flex items-center gap-1 transition-colors border border-slate-200"
+                                className="px-3 py-1 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-lg text-xs font-bold inline-flex items-center gap-1"
                               >
                                 <span>WhatsApp</span>
                               </button>
@@ -839,17 +1423,28 @@ export default function AdminDashboardPage() {
             {/* ======================================================== */}
             {activeTab === 'courses' && (
               <div className="space-y-4">
-                <div className="flex justify-between items-center bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
+                <div className="flex flex-wrap justify-between items-center gap-3 bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
                   <div>
                     <h3 className="text-base font-extrabold text-[#0B3D91]">Courses Catalog ({filteredCourses.length})</h3>
-                    <p className="text-xs text-slate-500">All live courses, duration, pricing, and curriculum</p>
+                    <p className="text-xs text-slate-500">Create, edit, and manage all academy courses, duration, pricing, and curriculum</p>
                   </div>
+                  <button
+                    onClick={handleOpenCreateCourse}
+                    className="px-4 py-2.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
+                  >
+                    <span>➕ Add New Course</span>
+                  </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                   {filteredCourses.map((c) => (
                     <div key={c.id} className="bg-white border border-[#E2E8F0] rounded-2xl p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow">
                       <div>
+                        {c.image && (
+                          <div className="h-32 w-full rounded-xl overflow-hidden mb-3.5 bg-slate-100 relative">
+                            <img src={c.image} alt={c.title} className="w-full h-full object-cover" />
+                          </div>
+                        )}
                         <div className="flex justify-between items-start gap-2">
                           <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-[#0B3D91]/10 text-[#0B3D91] border border-[#0B3D91]/20">
                             {c.category || 'Quran'}
@@ -862,12 +1457,35 @@ export default function AdminDashboardPage() {
                         <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">{c.description || 'Complete Quran learning course for all ages.'}</p>
                       </div>
 
-                      <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-[11px] text-slate-500">
-                        <span>⏱ {c.duration || '3 Months'}</span>
-                        <span>Level: {c.level || 'Beginner'}</span>
-                        <a href={`/courses/${c.slug}`} target="_blank" rel="noreferrer" className="text-[#3B82F6] hover:underline font-bold">
-                          View ↗
-                        </a>
+                      <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap justify-between items-center gap-2">
+                        <div className="text-[11px] text-slate-500 flex items-center gap-2">
+                          <span>⏱ {c.duration || '3 Months'}</span>
+                          <span>•</span>
+                          <span>{c.level || 'Beginner'}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => handleOpenEditCourse(c)}
+                            className="px-2.5 py-1 bg-[#0B3D91]/10 hover:bg-[#0B3D91] text-[#0B3D91] hover:text-white rounded-lg text-xs font-bold transition-colors"
+                          >
+                            ✏️ Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCourse(c)}
+                            className="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-bold transition-colors"
+                            title="Delete Course"
+                          >
+                            🗑️
+                          </button>
+                          <a
+                            href={`/courses/${c.slug}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-colors"
+                          >
+                            View ↗
+                          </a>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -880,25 +1498,48 @@ export default function AdminDashboardPage() {
             {/* ======================================================== */}
             {activeTab === 'teachers' && (
               <div className="space-y-4">
-                <div className="flex justify-between items-center bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
+                <div className="flex flex-wrap justify-between items-center gap-3 bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
                   <div>
                     <h3 className="text-base font-extrabold text-[#0B3D91]">Faculty & Teachers ({teachers.length})</h3>
                     <p className="text-xs text-slate-500">Certified Male & Female Quran scholars and instructors</p>
                   </div>
+                  <button
+                    onClick={handleOpenCreateTeacher}
+                    className="px-4 py-2.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
+                  >
+                    <span>➕ Add New Teacher</span>
+                  </button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {teachers.map((t) => (
-                    <div key={t.id} className="bg-white border border-[#E2E8F0] rounded-2xl p-6 text-center shadow-xs">
-                      <div className="w-16 h-16 rounded-full bg-[#0B3D91]/10 border-2 border-[#0B3D91] mx-auto flex items-center justify-center text-xl text-[#0B3D91] font-extrabold mb-3">
-                        {t.name[0]}
+                    <div key={t.id} className="bg-white border border-[#E2E8F0] rounded-2xl p-6 text-center shadow-xs flex flex-col justify-between">
+                      <div>
+                        <div className="w-16 h-16 rounded-full bg-[#0B3D91]/10 border-2 border-[#0B3D91] mx-auto flex items-center justify-center text-xl text-[#0B3D91] font-extrabold mb-3">
+                          {t.name[0]}
+                        </div>
+                        <h4 className="text-sm font-bold text-slate-900">{t.name}</h4>
+                        <p className="text-xs text-[#14B8A6] font-bold">{t.title}</p>
+                        <p className="text-[11px] text-slate-500 mt-1">{t.experience} • {t.languages}</p>
+                        <p className="text-xs text-slate-600 mt-3 bg-slate-50 p-3 rounded-xl border border-slate-200 text-left leading-relaxed">
+                          {t.bio}
+                        </p>
                       </div>
-                      <h4 className="text-sm font-bold text-slate-900">{t.name}</h4>
-                      <p className="text-xs text-[#14B8A6] font-bold">{t.title}</p>
-                      <p className="text-[11px] text-slate-500 mt-1">{t.experience} • {t.languages}</p>
-                      <p className="text-xs text-slate-600 mt-3 bg-slate-50 p-3 rounded-xl border border-slate-200 text-left leading-relaxed">
-                        {t.bio}
-                      </p>
+
+                      <div className="mt-4 pt-3 border-t border-slate-100 flex justify-end gap-2">
+                        <button
+                          onClick={() => handleOpenEditTeacher(t)}
+                          className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-colors"
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteTeacher(t)}
+                          className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-bold transition-colors"
+                        >
+                          🗑️ Delete
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -910,11 +1551,17 @@ export default function AdminDashboardPage() {
             {/* ======================================================== */}
             {activeTab === 'blog_posts' && (
               <div className="space-y-4">
-                <div className="flex justify-between items-center bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
+                <div className="flex flex-wrap justify-between items-center gap-3 bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
                   <div>
                     <h3 className="text-base font-extrabold text-[#0B3D91]">Blog Articles & SEO Posts ({filteredBlogs.length})</h3>
-                    <p className="text-xs text-slate-500">All 57+ published articles driving organic Google search traffic</p>
+                    <p className="text-xs text-slate-500">Write, edit, and publish SEO blog posts to drive Google traffic</p>
                   </div>
+                  <button
+                    onClick={handleOpenCreateBlog}
+                    className="px-4 py-2.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
+                  >
+                    <span>✍️ Write New Blog Post</span>
+                  </button>
                 </div>
 
                 <div className="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-sm">
@@ -927,7 +1574,7 @@ export default function AdminDashboardPage() {
                           <th className="px-4 py-3.5">Category</th>
                           <th className="px-4 py-3.5">Author</th>
                           <th className="px-4 py-3.5">Read Time</th>
-                          <th className="px-4 py-3.5 text-right">View Article</th>
+                          <th className="px-4 py-3.5 text-right">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[#E2E8F0]/70">
@@ -944,15 +1591,28 @@ export default function AdminDashboardPage() {
                             </td>
                             <td className="px-4 py-3.5 text-slate-500">{post.author || 'Ajwa Academy'}</td>
                             <td className="px-4 py-3.5 text-slate-500">{post.read_time || '5 min'}</td>
-                            <td className="px-4 py-3.5 text-right">
+                            <td className="px-4 py-3.5 text-right space-x-1.5">
+                              <button
+                                onClick={() => handleOpenEditBlog(post)}
+                                className="px-2.5 py-1.5 bg-[#0B3D91]/10 hover:bg-[#0B3D91] text-[#0B3D91] hover:text-white rounded-lg text-xs font-bold transition-colors"
+                              >
+                                ✏️ Edit
+                              </button>
                               <a
                                 href={`/blog/${post.slug}`}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="px-3 py-1 bg-slate-100 hover:bg-[#0B3D91] hover:text-white text-[#0B3D91] rounded-lg text-[11px] font-bold transition-colors border border-slate-200"
+                                className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-colors"
                               >
-                                Live Post ↗
+                                Live ↗
                               </a>
+                              <button
+                                onClick={() => handleDeleteBlog(post)}
+                                className="px-2 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-bold transition-colors"
+                                title="Delete Blog Post"
+                              >
+                                🗑️
+                              </button>
                             </td>
                           </tr>
                         ))}
@@ -1030,9 +1690,9 @@ export default function AdminDashboardPage() {
                       id="noticeActive"
                       checked={settings.noticeActive}
                       onChange={(e) => setSettings({ ...settings, noticeActive: e.target.checked })}
-                      className="w-4 h-4 text-[#0B3D91] rounded bg-white border-slate-300"
+                      className="w-4 h-4 text-[#0B3D91] rounded bg-white border-slate-300 cursor-pointer"
                     />
-                    <label htmlFor="noticeActive" className="text-xs font-bold text-slate-700">Show Announcement Bar on Website</label>
+                    <label htmlFor="noticeActive" className="text-xs font-bold text-slate-700 cursor-pointer">Show Announcement Bar on Website</label>
                   </div>
 
                   <button
@@ -1122,19 +1782,41 @@ export default function AdminDashboardPage() {
             {/* ======================================================== */}
             {activeTab === 'faqs' && (
               <div className="space-y-4">
-                <div className="flex justify-between items-center bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
+                <div className="flex flex-wrap justify-between items-center gap-3 bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
                   <div>
                     <h3 className="text-base font-extrabold text-[#0B3D91]">Frequently Asked Questions ({faqs.length})</h3>
-                    <p className="text-xs text-slate-500">Questions and answers shown on the `/free-trial` and `/about` pages</p>
+                    <p className="text-xs text-slate-500">Add, edit, or remove questions shown on the `/free-trial` and `/about` pages</p>
                   </div>
+                  <button
+                    onClick={handleOpenCreateFaq}
+                    className="px-4 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
+                  >
+                    <span>➕ Add New FAQ</span>
+                  </button>
                 </div>
 
                 <div className="space-y-3">
                   {faqs.map((faq) => (
                     <div key={faq.id} className="bg-white border border-[#E2E8F0] rounded-2xl p-5 shadow-xs">
                       <div className="flex justify-between items-start gap-2">
-                        <h4 className="text-sm font-bold text-slate-900">{faq.question}</h4>
-                        <span className="text-[10px] px-2.5 py-0.5 rounded-md bg-[#0B3D91]/10 text-[#0B3D91] font-bold border border-[#0B3D91]/20">{faq.category}</span>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-sm font-bold text-slate-900">{faq.question}</h4>
+                          <span className="text-[10px] px-2.5 py-0.5 rounded-md bg-[#0B3D91]/10 text-[#0B3D91] font-bold border border-[#0B3D91]/20">{faq.category}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleOpenEditFaq(faq)}
+                            className="text-xs text-[#0B3D91] hover:underline font-bold"
+                          >
+                            ✏️ Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteFaq(faq)}
+                            className="text-xs text-rose-600 hover:underline font-bold"
+                          >
+                            🗑️ Delete
+                          </button>
+                        </div>
                       </div>
                       <p className="text-xs text-slate-700 mt-2.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200 leading-relaxed">
                         {faq.answer}
@@ -1150,11 +1832,17 @@ export default function AdminDashboardPage() {
             {/* ======================================================== */}
             {activeTab === 'testimonials' && (
               <div className="space-y-4">
-                <div className="flex justify-between items-center bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
+                <div className="flex flex-wrap justify-between items-center gap-3 bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
                   <div>
                     <h3 className="text-base font-extrabold text-[#0B3D91]">Parent & Student Reviews ({testimonials.length})</h3>
                     <p className="text-xs text-slate-500">5-Star feedback and testimonials displayed on the homepage</p>
                   </div>
+                  <button
+                    onClick={handleOpenCreateTestimonial}
+                    className="px-4 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
+                  >
+                    <span>➕ Add New Review</span>
+                  </button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1167,6 +1855,14 @@ export default function AdminDashboardPage() {
                         </div>
                         <p className="text-[11px] text-[#14B8A6] font-bold mt-0.5">{test.country} • {test.course}</p>
                         <p className="text-xs text-slate-600 mt-3 italic leading-relaxed">"{test.comment}"</p>
+                      </div>
+                      <div className="mt-4 pt-3 border-t border-slate-100 flex justify-end gap-2 text-xs">
+                        <button onClick={() => handleOpenEditTestimonial(test)} className="text-[#0B3D91] hover:underline font-bold">
+                          ✏️ Edit
+                        </button>
+                        <button onClick={() => handleDeleteTestimonial(test)} className="text-rose-600 hover:underline font-bold">
+                          🗑️ Delete
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -1331,8 +2027,8 @@ export default function AdminDashboardPage() {
                   {(activityLogs.length > 0 ? activityLogs : [
                     { id: 1, action: 'Brand Style Applied', details: 'Applied official Ajwa Academy brand guidelines and colors (#0B3D91, #3B82F6, #14B8A6)', timestamp: 'Just now' },
                     { id: 2, action: 'Light Mode Implemented', details: 'Clean standalone full-screen dashboard without public navbar/footer', timestamp: 'Recent' },
-                    { id: 3, action: '51 Blogs Imported', details: 'Imported all published blog posts from CSV backup', timestamp: 'Recent' },
-                    { id: 4, action: '48 Leads Imported', details: 'Restored all trial applications and student requests', timestamp: 'Recent' },
+                    { id: 3, action: '57 Blogs Live', details: 'SEO articles synced with Supabase', timestamp: 'Recent' },
+                    { id: 4, action: '15 Courses Live', details: 'Courses catalog active and manageable', timestamp: 'Recent' },
                   ]).map((log, idx) => (
                     <div key={idx} className="pt-3.5 first:pt-0 flex items-start justify-between gap-3">
                       <div className="flex items-start gap-2.5">
@@ -1351,6 +2047,702 @@ export default function AdminDashboardPage() {
           </main>
         </div>
       </div>
+
+      {/* =================================================================== */}
+      {/* --- ALL EDIT / CREATE MODALS ---                                   */}
+      {/* =================================================================== */}
+
+      {/* 1. COURSE MODAL */}
+      {courseModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 my-8">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
+              <h3 className="text-base font-extrabold text-[#0B3D91]">
+                {courseModal.mode === 'create' ? '➕ Add New Course' : '✏️ Edit Course'}
+              </h3>
+              <button
+                onClick={() => setCourseModal(prev => ({ ...prev, isOpen: false }))}
+                className="text-slate-400 hover:text-slate-700 text-lg font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCourse} className="space-y-4 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Course Title *</label>
+                  <input
+                    type="text"
+                    required
+                    value={courseModal.data.title}
+                    onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, title: e.target.value } }))}
+                    placeholder="e.g. Noorani Qaida Course"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">URL Slug (leave blank to auto-generate)</label>
+                  <input
+                    type="text"
+                    value={courseModal.data.slug}
+                    onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, slug: e.target.value } }))}
+                    placeholder="e.g. noorani-qaida-course"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Category</label>
+                  <select
+                    value={courseModal.data.category}
+                    onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, category: e.target.value } }))}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                  >
+                    <option value="Quran Reading">Quran Reading</option>
+                    <option value="Tajweed & Tarteel">Tajweed & Tarteel</option>
+                    <option value="Quran Memorization (Hifz)">Quran Memorization (Hifz)</option>
+                    <option value="Quran Translation & Tafseer">Translation & Tafseer</option>
+                    <option value="Islamic Studies for Kids">Islamic Studies for Kids</option>
+                    <option value="Arabic Language">Arabic Language</option>
+                    <option value="General">General</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Level</label>
+                  <select
+                    value={courseModal.data.level}
+                    onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, level: e.target.value } }))}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                  >
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                    <option value="All Levels">All Levels</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Monthly Price (£)</label>
+                  <input
+                    type="number"
+                    value={courseModal.data.price}
+                    onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, price: e.target.value } }))}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Duration</label>
+                  <input
+                    type="text"
+                    value={courseModal.data.duration}
+                    onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, duration: e.target.value } }))}
+                    placeholder="e.g. 3 Months"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Total Lessons</label>
+                  <input
+                    type="number"
+                    value={courseModal.data.lesson_count}
+                    onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, lesson_count: e.target.value } }))}
+                    placeholder="24"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Instructor / Faculty</label>
+                  <input
+                    type="text"
+                    value={courseModal.data.instructor_name}
+                    onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, instructor_name: e.target.value } }))}
+                    placeholder="e.g. Certified Quran Scholar"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Featured Image URL</label>
+                <input
+                  type="url"
+                  value={courseModal.data.image}
+                  onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, image: e.target.value } }))}
+                  placeholder="https://images.unsplash.com/..."
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Course Description</label>
+                <textarea
+                  rows={3}
+                  value={courseModal.data.description}
+                  onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, description: e.target.value } }))}
+                  placeholder="Detailed course overview, learning outcomes, syllabus..."
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setCourseModal(prev => ({ ...prev, isOpen: false }))}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-5 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-xl shadow-xs transition-colors disabled:opacity-50"
+                >
+                  {isSubmitting ? 'Saving...' : courseModal.mode === 'create' ? 'Create Course' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 2. BLOG POST MODAL */}
+      {blogModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-slate-200 my-8">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
+              <h3 className="text-base font-extrabold text-[#0B3D91]">
+                {blogModal.mode === 'create' ? '✍️ Write New Blog Post' : '✏️ Edit Blog Post'}
+              </h3>
+              <button
+                onClick={() => setBlogModal(prev => ({ ...prev, isOpen: false }))}
+                className="text-slate-400 hover:text-slate-700 text-lg font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveBlog} className="space-y-4 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Article Title *</label>
+                  <input
+                    type="text"
+                    required
+                    value={blogModal.data.title}
+                    onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, title: e.target.value } }))}
+                    placeholder="e.g. 10 Benefits of Learning Quran with Tajweed"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">URL Slug</label>
+                  <input
+                    type="text"
+                    value={blogModal.data.slug}
+                    onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, slug: e.target.value } }))}
+                    placeholder="e.g. 10-benefits-of-learning-quran-tajweed"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Category</label>
+                  <input
+                    type="text"
+                    value={blogModal.data.category}
+                    onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, category: e.target.value } }))}
+                    placeholder="Quran & Tajweed"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Author Name</label>
+                  <input
+                    type="text"
+                    value={blogModal.data.author}
+                    onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, author: e.target.value } }))}
+                    placeholder="Ajwa Academy Scholar"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Read Time</label>
+                  <input
+                    type="text"
+                    value={blogModal.data.read_time}
+                    onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, read_time: e.target.value } }))}
+                    placeholder="5 min read"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Featured Image URL</label>
+                <input
+                  type="url"
+                  value={blogModal.data.image}
+                  onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, image: e.target.value } }))}
+                  placeholder="https://..."
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Short Excerpt / SEO Meta Summary</label>
+                <textarea
+                  rows={2}
+                  value={blogModal.data.excerpt}
+                  onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, excerpt: e.target.value } }))}
+                  placeholder="Brief summary of the article..."
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Full Article Content (Markdown / HTML)</label>
+                <textarea
+                  rows={8}
+                  value={blogModal.data.content}
+                  onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, content: e.target.value } }))}
+                  placeholder="Write full article here..."
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono text-xs"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setBlogModal(prev => ({ ...prev, isOpen: false }))}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-5 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-xl shadow-xs transition-colors disabled:opacity-50"
+                >
+                  {isSubmitting ? 'Saving...' : blogModal.mode === 'create' ? 'Publish Article' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 3. TRIAL APPLICATION / LEAD MODAL */}
+      {trialModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 my-8">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
+              <h3 className="text-base font-extrabold text-[#0B3D91]">
+                {trialModal.mode === 'create' ? '➕ Add New Lead / Application' : '✏️ Edit Student Lead'}
+              </h3>
+              <button
+                onClick={() => setTrialModal(prev => ({ ...prev, isOpen: false }))}
+                className="text-slate-400 hover:text-slate-700 text-lg font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveLead} className="space-y-3.5 text-xs">
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Student / Parent Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={trialModal.data.name}
+                  onChange={(e) => setTrialModal(prev => ({ ...prev, data: { ...prev.data, name: e.target.value } }))}
+                  placeholder="e.g. Maryam Khan"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">WhatsApp / Phone *</label>
+                  <input
+                    type="text"
+                    required
+                    value={trialModal.data.whatsapp}
+                    onChange={(e) => setTrialModal(prev => ({ ...prev, data: { ...prev.data, whatsapp: e.target.value } }))}
+                    placeholder="+44 7912 345678"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Email Address</label>
+                  <input
+                    type="email"
+                    value={trialModal.data.email}
+                    onChange={(e) => setTrialModal(prev => ({ ...prev, data: { ...prev.data, email: e.target.value } }))}
+                    placeholder="parent@gmail.com"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Country</label>
+                  <input
+                    type="text"
+                    value={trialModal.data.country}
+                    onChange={(e) => setTrialModal(prev => ({ ...prev, data: { ...prev.data, country: e.target.value } }))}
+                    placeholder="United Kingdom"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Admission Status</label>
+                  <select
+                    value={trialModal.data.status}
+                    onChange={(e) => setTrialModal(prev => ({ ...prev, data: { ...prev.data, status: e.target.value } }))}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="enrolled">Enrolled</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Requested Course</label>
+                <input
+                  type="text"
+                  value={trialModal.data.course_title}
+                  onChange={(e) => setTrialModal(prev => ({ ...prev, data: { ...prev.data, course_title: e.target.value } }))}
+                  placeholder="e.g. Noorani Qaida Course"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Parent Message / Notes</label>
+                <textarea
+                  rows={3}
+                  value={trialModal.data.message}
+                  onChange={(e) => setTrialModal(prev => ({ ...prev, data: { ...prev.data, message: e.target.value } }))}
+                  placeholder="Preferred timings, kids age, etc."
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setTrialModal(prev => ({ ...prev, isOpen: false }))}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-5 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-xl shadow-xs transition-colors disabled:opacity-50"
+                >
+                  {isSubmitting ? 'Saving...' : trialModal.mode === 'create' ? 'Save Lead' : 'Update Lead'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 4. TEACHER MODAL */}
+      {teacherModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 my-8">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
+              <h3 className="text-base font-extrabold text-[#0B3D91]">
+                {teacherModal.mode === 'create' ? '➕ Add Faculty Instructor' : '✏️ Edit Teacher Details'}
+              </h3>
+              <button
+                onClick={() => setTeacherModal(prev => ({ ...prev, isOpen: false }))}
+                className="text-slate-400 hover:text-slate-700 text-lg font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveTeacher} className="space-y-3.5 text-xs">
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Teacher Full Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={teacherModal.data.name}
+                  onChange={(e) => setTeacherModal(prev => ({ ...prev, data: { ...prev.data, name: e.target.value } }))}
+                  placeholder="e.g. Qari Muhammad Ahmed"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Title / Designation</label>
+                  <input
+                    type="text"
+                    value={teacherModal.data.title}
+                    onChange={(e) => setTeacherModal(prev => ({ ...prev, data: { ...prev.data, title: e.target.value } }))}
+                    placeholder="Senior Tajweed Scholar"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Experience</label>
+                  <input
+                    type="text"
+                    value={teacherModal.data.experience}
+                    onChange={(e) => setTeacherModal(prev => ({ ...prev, data: { ...prev.data, experience: e.target.value } }))}
+                    placeholder="8+ Years Exp"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Gender</label>
+                  <select
+                    value={teacherModal.data.gender}
+                    onChange={(e) => setTeacherModal(prev => ({ ...prev, data: { ...prev.data, gender: e.target.value } }))}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                  >
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Spoken Languages</label>
+                  <input
+                    type="text"
+                    value={teacherModal.data.languages}
+                    onChange={(e) => setTeacherModal(prev => ({ ...prev, data: { ...prev.data, languages: e.target.value } }))}
+                    placeholder="English, Arabic, Urdu"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Short Biography & Credentials</label>
+                <textarea
+                  rows={3}
+                  value={teacherModal.data.bio}
+                  onChange={(e) => setTeacherModal(prev => ({ ...prev, data: { ...prev.data, bio: e.target.value } }))}
+                  placeholder="Ijazah certifications, teaching background..."
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setTeacherModal(prev => ({ ...prev, isOpen: false }))}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-xl shadow-xs transition-colors"
+                >
+                  Save Teacher
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 5. FAQ MODAL */}
+      {faqModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
+              <h3 className="text-base font-extrabold text-[#0B3D91]">
+                {faqModal.mode === 'create' ? '➕ Add New FAQ' : '✏️ Edit FAQ'}
+              </h3>
+              <button
+                onClick={() => setFaqModal(prev => ({ ...prev, isOpen: false }))}
+                className="text-slate-400 hover:text-slate-700 text-lg font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveFaq} className="space-y-3.5 text-xs">
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Question *</label>
+                <input
+                  type="text"
+                  required
+                  value={faqModal.data.question}
+                  onChange={(e) => setFaqModal(prev => ({ ...prev, data: { ...prev.data, question: e.target.value } }))}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Category</label>
+                <input
+                  type="text"
+                  value={faqModal.data.category}
+                  onChange={(e) => setFaqModal(prev => ({ ...prev, data: { ...prev.data, category: e.target.value } }))}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Answer *</label>
+                <textarea
+                  rows={4}
+                  required
+                  value={faqModal.data.answer}
+                  onChange={(e) => setFaqModal(prev => ({ ...prev, data: { ...prev.data, answer: e.target.value } }))}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setFaqModal(prev => ({ ...prev, isOpen: false }))}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-xl shadow-xs transition-colors"
+                >
+                  Save FAQ
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 6. TESTIMONIAL MODAL */}
+      {testimonialModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
+              <h3 className="text-base font-extrabold text-[#0B3D91]">
+                {testimonialModal.mode === 'create' ? '➕ Add Review' : '✏️ Edit Review'}
+              </h3>
+              <button
+                onClick={() => setTestimonialModal(prev => ({ ...prev, isOpen: false }))}
+                className="text-slate-400 hover:text-slate-700 text-lg font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveTestimonial} className="space-y-3.5 text-xs">
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Parent / Student Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={testimonialModal.data.name}
+                  onChange={(e) => setTestimonialModal(prev => ({ ...prev, data: { ...prev.data, name: e.target.value } }))}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Country</label>
+                  <input
+                    type="text"
+                    value={testimonialModal.data.country}
+                    onChange={(e) => setTestimonialModal(prev => ({ ...prev, data: { ...prev.data, country: e.target.value } }))}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Course</label>
+                  <input
+                    type="text"
+                    value={testimonialModal.data.course}
+                    onChange={(e) => setTestimonialModal(prev => ({ ...prev, data: { ...prev.data, course: e.target.value } }))}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Testimonial Comment *</label>
+                <textarea
+                  rows={4}
+                  required
+                  value={testimonialModal.data.comment}
+                  onChange={(e) => setTestimonialModal(prev => ({ ...prev, data: { ...prev.data, comment: e.target.value } }))}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setTestimonialModal(prev => ({ ...prev, isOpen: false }))}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-xl shadow-xs transition-colors"
+                >
+                  Save Testimonial
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 7. DELETE CONFIRMATION MODAL */}
+      {deleteModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 text-center space-y-4">
+            <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-xl mx-auto">
+              ⚠️
+            </div>
+            <div>
+              <h3 className="text-base font-extrabold text-slate-900">{deleteModal.title}</h3>
+              <p className="text-xs text-slate-500 mt-1">{deleteModal.message}</p>
+            </div>
+            <div className="flex justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteModal(prev => ({ ...prev, isOpen: false }))}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={deleteModal.onConfirm}
+                className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs shadow-xs"
+              >
+                Confirm Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* --- OFFICIAL BRAND BANNER FOOTER --- */}
       <footer className="h-10 border-t border-[#E2E8F0] bg-white px-6 flex items-center justify-between text-[11px] text-slate-500">
