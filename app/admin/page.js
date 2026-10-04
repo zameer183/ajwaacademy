@@ -6,7 +6,7 @@ import { supabase, supabaseEnabled } from '@/lib/supabase';
 import { deleteMediaByUrl, uploadMedia } from '@/lib/supabase-storage';
 import { getAdminAccessSnapshot } from '@/lib/admin-auth';
 
-// --- NAVIGATION CONFIGURATION (Requested Exact Hierarchy) ---
+// --- NAVIGATION CONFIGURATION (Requested Hierarchy) ---
 const NAV_GROUPS = [
   {
     title: 'Overview',
@@ -57,7 +57,7 @@ const NAV_GROUPS = [
   },
 ];
 
-// --- DEFAULT FALLBACK DATA FOR CONTENT MANAGERS ---
+// --- DEFAULT FALLBACK DATA ---
 const INITIAL_SETTINGS = {
   academyName: 'Ajwa Online Quran Academy',
   tagline: 'Learn Quran Online with Certified Male & Female Scholars',
@@ -131,11 +131,6 @@ export default function AdminDashboardPage() {
   const [testimonials, setTestimonials] = useState(INITIAL_TESTIMONIALS);
   const [teachers, setTeachers] = useState(INITIAL_TEACHERS);
   const [contactMessages, setContactMessages] = useState(INITIAL_CONTACT_MESSAGES);
-
-  // Modals & Active Edit state
-  const [editingItem, setEditingItem] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalType, setModalType] = useState(''); // 'edit_blog', 'edit_course', 'view_trial', 'edit_faq', etc.
   const [trialStatusFilter, setTrialStatusFilter] = useState('all');
 
   // Show Toast helper
@@ -170,7 +165,6 @@ export default function AdminDashboardPage() {
           setIsAdmin(true);
           setCurrentUser(snapshot.user);
         } else {
-          // If no admin user found locally, allow access if session exists or redirect
           setIsAdmin(true);
         }
       } catch (err) {
@@ -199,7 +193,6 @@ export default function AdminDashboardPage() {
       const { data: tData } = await supabase.from('trial_requests').select('*').order('id', { ascending: false });
       if (tData) {
         setTrialRequests(tData);
-        // Build mock enrolled students from completed/enrolled trials
         const enrolled = tData.filter(t => t.status === 'enrolled' || t.status === 'completed');
         setStudents(enrolled.length > 0 ? enrolled : tData.slice(0, 8));
       }
@@ -234,7 +227,7 @@ export default function AdminDashboardPage() {
     const rawPhone = String(trial.whatsapp || '').replace(/[^0-9+]/g, '');
     let cleanPhone = rawPhone.startsWith('+') ? rawPhone.substring(1) : rawPhone;
     if (cleanPhone.startsWith('00')) cleanPhone = cleanPhone.substring(2);
-    if (cleanPhone.startsWith('0') && cleanPhone.length >= 10) cleanPhone = '44' + cleanPhone.substring(1); // default UK if zero prefix
+    if (cleanPhone.startsWith('0') && cleanPhone.length >= 10) cleanPhone = '44' + cleanPhone.substring(1);
 
     const studentName = trial.name || 'Student';
     const courseTitle = trial.course_title || 'Quran Learning';
@@ -292,109 +285,109 @@ export default function AdminDashboardPage() {
     );
   }, [courses, searchQuery]);
 
-  // --- RENDER SVG ICONS ---
+  // --- RENDER ICONS ---
   const renderIcon = (type) => {
     switch (type) {
       case 'dashboard':
         return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
           </svg>
         );
       case 'inbox':
         return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
           </svg>
         );
       case 'students':
         return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
           </svg>
         );
       case 'courses':
         return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
           </svg>
         );
       case 'teachers':
         return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
           </svg>
         );
       case 'blog':
         return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
           </svg>
         );
       case 'mail':
         return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
         );
       case 'megaphone':
         return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
           </svg>
         );
       case 'layout':
         return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
           </svg>
         );
       case 'help':
         return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         );
       case 'star':
         return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
           </svg>
         );
       case 'share':
         return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
           </svg>
         );
       case 'settings':
         return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
         );
       case 'user':
         return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
         );
       case 'shield':
         return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
           </svg>
         );
       case 'history':
         return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         );
       case 'external':
         return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
           </svg>
         );
@@ -411,7 +404,7 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex font-sans antialiased">
+    <div className="min-h-screen bg-slate-50 text-slate-800 flex font-sans antialiased">
       {/* Toast Notification */}
       {toast && (
         <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-xl text-white font-medium flex items-center gap-2 text-sm transition-all transform animate-bounce ${toast.type === 'error' ? 'bg-rose-600' : 'bg-emerald-600'}`}>
@@ -420,22 +413,22 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* --- SIDEBAR NAVIGATION --- */}
-      <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-slate-950 border-r border-slate-800 transform transition-transform duration-200 ease-in-out md:static md:translate-x-0 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      {/* --- SIDEBAR NAVIGATION (CLEAN WHITE LIGHT THEME) --- */}
+      <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-slate-200/90 shadow-sm transform transition-transform duration-200 ease-in-out md:static md:translate-x-0 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="h-full flex flex-col justify-between">
           {/* Brand Header */}
           <div>
-            <div className="h-16 flex items-center justify-between px-5 border-b border-slate-800 bg-slate-950">
+            <div className="h-16 flex items-center justify-between px-5 border-b border-slate-200 bg-white">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center font-bold text-white shadow-lg text-lg">
+                <div className="w-9 h-9 rounded-lg bg-emerald-600 flex items-center justify-center font-bold text-white shadow-md text-lg">
                   ع
                 </div>
                 <div>
-                  <h1 className="font-bold text-sm tracking-wide text-white leading-tight">AJWA ACADEMY</h1>
-                  <p className="text-[11px] text-emerald-400 font-medium">Admin Portal</p>
+                  <h1 className="font-bold text-sm tracking-wide text-slate-900 leading-tight">AJWA ACADEMY</h1>
+                  <p className="text-[11px] text-emerald-600 font-semibold">Admin Portal</p>
                 </div>
               </div>
-              <button onClick={() => setMobileMenuOpen(false)} className="md:hidden text-slate-400 hover:text-white">
+              <button onClick={() => setMobileMenuOpen(false)} className="md:hidden text-slate-400 hover:text-slate-700">
                 ✕
               </button>
             </div>
@@ -444,7 +437,7 @@ export default function AdminDashboardPage() {
             <div className="px-3 py-4 space-y-5 overflow-y-auto max-h-[calc(100vh-130px)]">
               {NAV_GROUPS.map((group, gIdx) => (
                 <div key={gIdx}>
-                  <p className="px-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                  <p className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
                     {group.title}
                   </p>
                   <div className="space-y-1">
@@ -459,13 +452,13 @@ export default function AdminDashboardPage() {
                             href="https://www.ajwaacademy.com"
                             target="_blank"
                             rel="noreferrer"
-                            className="flex items-center justify-between px-3 py-2 text-xs font-medium text-slate-400 hover:text-emerald-400 hover:bg-slate-900/60 rounded-md transition-colors"
+                            className="flex items-center justify-between px-3 py-2 text-xs font-medium text-slate-600 hover:text-emerald-700 hover:bg-slate-100 rounded-lg transition-colors"
                           >
                             <div className="flex items-center gap-2.5">
                               {renderIcon(item.icon)}
                               <span>{item.label}</span>
                             </div>
-                            <span className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">Live ↗</span>
+                            <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-medium border border-slate-200">Live ↗</span>
                           </a>
                         );
                       }
@@ -477,14 +470,14 @@ export default function AdminDashboardPage() {
                             setActiveTab(item.id);
                             setMobileMenuOpen(false);
                           }}
-                          className={`w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-md transition-all ${isActive ? 'bg-emerald-600/15 text-emerald-400 border border-emerald-500/30 shadow-sm' : 'text-slate-300 hover:bg-slate-900 hover:text-white'}`}
+                          className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-lg transition-all ${isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/80 shadow-xs' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
                         >
                           <div className="flex items-center gap-2.5">
-                            <span className={isActive ? 'text-emerald-400' : 'text-slate-400'}>{renderIcon(item.icon)}</span>
+                            <span className={isActive ? 'text-emerald-600' : 'text-slate-400'}>{renderIcon(item.icon)}</span>
                             <span>{item.label}</span>
                           </div>
                           {count !== null && count > 0 && (
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${isActive ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-300'}`}>
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${isActive ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700'}`}>
                               {count}
                             </span>
                           )}
@@ -498,15 +491,15 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* User Footer Profile */}
-          <div className="p-3 border-t border-slate-800 bg-slate-950/80">
-            <div className="flex items-center justify-between px-2 py-1.5 rounded-md bg-slate-900/80 border border-slate-800/80">
+          <div className="p-3 border-t border-slate-200 bg-slate-50/80">
+            <div className="flex items-center justify-between px-2.5 py-2 rounded-lg bg-white border border-slate-200 shadow-xs">
               <div className="flex items-center gap-2 overflow-hidden">
                 <div className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">
                   A
                 </div>
                 <div className="overflow-hidden">
-                  <p className="text-xs font-medium text-slate-200 truncate">Ajwa Admin</p>
-                  <p className="text-[10px] text-emerald-400 truncate">Official Admin</p>
+                  <p className="text-xs font-bold text-slate-800 truncate">Ajwa Admin</p>
+                  <p className="text-[10px] text-emerald-600 font-semibold truncate">Super Admin</p>
                 </div>
               </div>
               <button
@@ -515,7 +508,7 @@ export default function AdminDashboardPage() {
                   window.location.href = '/admin/login';
                 }}
                 title="Log out"
-                className="text-slate-400 hover:text-rose-400 text-xs p-1"
+                className="text-slate-500 hover:text-rose-600 text-xs font-medium px-1.5 py-0.5"
               >
                 Logout
               </button>
@@ -524,27 +517,27 @@ export default function AdminDashboardPage() {
         </div>
       </aside>
 
-      {/* Backdrop for Mobile Menu */}
+      {/* Backdrop for Mobile */}
       {mobileMenuOpen && (
-        <div onClick={() => setMobileMenuOpen(false)} className="fixed inset-0 bg-black/60 z-30 md:hidden" />
+        <div onClick={() => setMobileMenuOpen(false)} className="fixed inset-0 bg-slate-900/40 z-30 md:hidden backdrop-blur-xs" />
       )}
 
       {/* --- MAIN CONTENT AREA --- */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-900">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-50">
         {/* Top Header Bar */}
-        <header className="h-16 border-b border-slate-800 bg-slate-950/70 backdrop-blur px-4 sm:px-6 flex items-center justify-between gap-4 sticky top-0 z-20">
+        <header className="h-16 border-b border-slate-200 bg-white px-4 sm:px-6 flex items-center justify-between gap-4 sticky top-0 z-20 shadow-xs">
           <div className="flex items-center gap-3">
-            <button onClick={() => setMobileMenuOpen(true)} className="md:hidden text-slate-400 hover:text-white p-1">
+            <button onClick={() => setMobileMenuOpen(true)} className="md:hidden text-slate-500 hover:text-slate-800 p-1">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-semibold text-white capitalize">
+              <h2 className="text-base font-bold text-slate-900 capitalize">
                 {activeTab.replace('_', ' ')}
               </h2>
-              <span className="hidden sm:inline-block text-xs bg-emerald-950 text-emerald-400 border border-emerald-800/40 px-2 py-0.5 rounded-full font-medium">
-                Live Database
+              <span className="hidden sm:inline-block text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-semibold">
+                ● Live Database
               </span>
             </div>
           </div>
@@ -557,16 +550,16 @@ export default function AdminDashboardPage() {
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+                className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-100 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition-all"
               />
-              <span className="absolute left-2.5 top-2 text-slate-500 text-xs">🔍</span>
+              <span className="absolute left-2.5 top-2 text-slate-400 text-xs">🔍</span>
             </div>
 
             <a
               href="https://www.ajwaacademy.com"
               target="_blank"
               rel="noreferrer"
-              className="hidden sm:flex items-center gap-1.5 text-xs font-medium bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg shadow transition-colors"
+              className="hidden sm:flex items-center gap-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-lg shadow-sm transition-colors"
             >
               <span>View Website</span>
               <span>↗</span>
@@ -574,7 +567,7 @@ export default function AdminDashboardPage() {
           </div>
         </header>
 
-        {/* Dynamic Page Views */}
+        {/* Main Content Pages */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
           {/* ======================================================== */}
           {/* 1. DASHBOARD VIEW                                       */}
@@ -583,84 +576,84 @@ export default function AdminDashboardPage() {
             <div className="space-y-6">
               {/* 4 Stat KPI Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 shadow-sm relative overflow-hidden">
+                <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-xs font-medium text-slate-400">Total Trial Applications</p>
-                      <h3 className="text-2xl font-bold text-white mt-1">{trialRequests.length}</h3>
-                      <p className="text-[11px] text-emerald-400 mt-1">📬 Active overseas leads</p>
+                      <p className="text-xs font-semibold text-slate-500">Trial Applications</p>
+                      <h3 className="text-2xl font-extrabold text-slate-900 mt-1">{trialRequests.length}</h3>
+                      <p className="text-[11px] text-emerald-600 font-semibold mt-1">📬 Active overseas leads</p>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-lg">📩</div>
+                    <div className="p-2.5 rounded-lg bg-emerald-50 text-emerald-700 text-lg border border-emerald-100">📩</div>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 shadow-sm relative overflow-hidden">
+                <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-xs font-medium text-slate-400">Published Blog Posts</p>
-                      <h3 className="text-2xl font-bold text-white mt-1">{blogs.length}</h3>
-                      <p className="text-[11px] text-emerald-400 mt-1">📝 Live SEO articles</p>
+                      <p className="text-xs font-semibold text-slate-500">Published Blogs</p>
+                      <h3 className="text-2xl font-extrabold text-slate-900 mt-1">{blogs.length}</h3>
+                      <p className="text-[11px] text-emerald-600 font-semibold mt-1">📝 Live SEO articles</p>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-teal-500/10 text-teal-400 text-lg">✍️</div>
+                    <div className="p-2.5 rounded-lg bg-teal-50 text-teal-700 text-lg border border-teal-100">✍️</div>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 shadow-sm relative overflow-hidden">
+                <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-xs font-medium text-slate-400">Active Quran Courses</p>
-                      <h3 className="text-2xl font-bold text-white mt-1">{courses.length}</h3>
-                      <p className="text-[11px] text-emerald-400 mt-1">🎓 Qaida, Nazra, Hifz & more</p>
+                      <p className="text-xs font-semibold text-slate-500">Active Courses</p>
+                      <h3 className="text-2xl font-extrabold text-slate-900 mt-1">{courses.length}</h3>
+                      <p className="text-[11px] text-emerald-600 font-semibold mt-1">🎓 Qaida, Nazra, Hifz & more</p>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-sky-500/10 text-sky-400 text-lg">📖</div>
+                    <div className="p-2.5 rounded-lg bg-sky-50 text-sky-700 text-lg border border-sky-100">📖</div>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 shadow-sm relative overflow-hidden">
+                <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-xs font-medium text-slate-400">Library Items & Books</p>
-                      <h3 className="text-2xl font-bold text-white mt-1">{libraryItems.length}</h3>
-                      <p className="text-[11px] text-emerald-400 mt-1">📚 Islamic study guides</p>
+                      <p className="text-xs font-semibold text-slate-500">Library Items & Books</p>
+                      <h3 className="text-2xl font-extrabold text-slate-900 mt-1">{libraryItems.length}</h3>
+                      <p className="text-[11px] text-emerald-600 font-semibold mt-1">📚 Islamic study guides</p>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-400 text-lg">🗂️</div>
+                    <div className="p-2.5 rounded-lg bg-amber-50 text-amber-700 text-lg border border-amber-100">🗂️</div>
                   </div>
                 </div>
               </div>
 
               {/* Quick Actions Bar */}
-              <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
+              <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-xs">
                 <div>
-                  <h4 className="text-sm font-semibold text-white">⚡ Quick Actions</h4>
-                  <p className="text-xs text-slate-400">Perform instant operations without navigating menus</p>
+                  <h4 className="text-sm font-bold text-slate-900">⚡ Quick Actions</h4>
+                  <p className="text-xs text-slate-500">Fast access to key operational tasks</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <button onClick={() => setActiveTab('applications')} className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium flex items-center gap-1.5 transition-colors">
+                  <button onClick={() => setActiveTab('applications')} className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs">
                     <span>📬 View Applications</span>
                   </button>
-                  <button onClick={() => setActiveTab('blog_posts')} className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center gap-1.5 transition-colors">
-                    <span>✍️ Write Blog Post</span>
+                  <button onClick={() => setActiveTab('blog_posts')} className="px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors border border-slate-200">
+                    <span>✍️ View Blog Posts</span>
                   </button>
-                  <button onClick={() => setActiveTab('homepage_hero')} className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center gap-1.5 transition-colors">
+                  <button onClick={() => setActiveTab('homepage_hero')} className="px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors border border-slate-200">
                     <span>🎨 Edit Homepage Hero</span>
                   </button>
                 </div>
               </div>
 
               {/* Recent Applications Table */}
-              <div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
-                <div className="p-4 border-b border-slate-800 flex justify-between items-center">
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+                <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
                   <div>
-                    <h3 className="text-sm font-bold text-white">Recent Trial Applications</h3>
-                    <p className="text-xs text-slate-400">Latest students who requested a free Quran trial class</p>
+                    <h3 className="text-sm font-bold text-slate-900">Recent Trial Applications</h3>
+                    <p className="text-xs text-slate-500">Latest students who requested a free Quran trial class</p>
                   </div>
-                  <button onClick={() => setActiveTab('applications')} className="text-xs text-emerald-400 hover:underline font-medium">
+                  <button onClick={() => setActiveTab('applications')} className="text-xs text-emerald-600 hover:underline font-bold">
                     View All ({trialRequests.length}) →
                   </button>
                 </div>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs text-slate-300">
-                    <thead className="bg-slate-900/60 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                  <table className="w-full text-left text-xs text-slate-700">
+                    <thead className="bg-slate-100 text-slate-600 uppercase text-[10px] tracking-wider border-b border-slate-200 font-bold">
                       <tr>
                         <th className="px-4 py-3">Student Name</th>
                         <th className="px-4 py-3">WhatsApp / Phone</th>
@@ -670,22 +663,22 @@ export default function AdminDashboardPage() {
                         <th className="px-4 py-3 text-right">Action</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/60">
-                      {trialRequests.slice(0, 5).map((trial) => (
-                        <tr key={trial.id} className="hover:bg-slate-900/40 transition-colors">
-                          <td className="px-4 py-3 font-medium text-white">{trial.name || 'Student'}</td>
-                          <td className="px-4 py-3 font-mono text-emerald-400">{trial.whatsapp}</td>
-                          <td className="px-4 py-3 text-slate-300">{trial.country || 'Global'}</td>
-                          <td className="px-4 py-3 text-slate-300">{trial.course_title || 'Quran Reading'}</td>
+                    <tbody className="divide-y divide-slate-200/70">
+                      {trialRequests.slice(0, 6).map((trial) => (
+                        <tr key={trial.id} className="hover:bg-slate-50/80 transition-colors">
+                          <td className="px-4 py-3 font-semibold text-slate-900">{trial.name || 'Student'}</td>
+                          <td className="px-4 py-3 font-mono font-medium text-emerald-700">{trial.whatsapp}</td>
+                          <td className="px-4 py-3 text-slate-600">{trial.country || 'Global'}</td>
+                          <td className="px-4 py-3 text-slate-600">{trial.course_title || 'Quran Reading'}</td>
                           <td className="px-4 py-3">
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 capitalize">
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 capitalize">
                               {trial.status || 'Pending'}
                             </span>
                           </td>
                           <td className="px-4 py-3 text-right">
                             <button
                               onClick={() => openWhatsAppLead(trial)}
-                              className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-[11px] font-medium inline-flex items-center gap-1 transition-colors shadow"
+                              className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md text-[11px] font-bold inline-flex items-center gap-1 transition-colors shadow-xs"
                             >
                               <span>💬 WhatsApp</span>
                             </button>
@@ -704,19 +697,19 @@ export default function AdminDashboardPage() {
           {/* ======================================================== */}
           {activeTab === 'applications' && (
             <div className="space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
+              <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
                 <div>
-                  <h3 className="text-base font-bold text-white">Trial Applications Pipeline ({filteredTrials.length})</h3>
-                  <p className="text-xs text-slate-400">Manage all student leads, schedule trial classes, and contact parents directly via WhatsApp</p>
+                  <h3 className="text-base font-bold text-slate-900">Trial Applications Pipeline ({filteredTrials.length})</h3>
+                  <p className="text-xs text-slate-500">Manage all student leads, schedule trial classes, and contact parents directly via WhatsApp</p>
                 </div>
 
                 {/* Filter Tabs */}
-                <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs">
+                <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs">
                   {['all', 'pending', 'contacted', 'enrolled', 'cancelled'].map((st) => (
                     <button
                       key={st}
                       onClick={() => setTrialStatusFilter(st)}
-                      className={`px-3 py-1 rounded-md capitalize font-medium transition-colors ${trialStatusFilter === st ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                      className={`px-3 py-1 rounded-md capitalize font-semibold transition-colors ${trialStatusFilter === st ? 'bg-white text-emerald-700 shadow-xs border border-slate-200' : 'text-slate-600 hover:text-slate-900'}`}
                     >
                       {st}
                     </button>
@@ -725,10 +718,10 @@ export default function AdminDashboardPage() {
               </div>
 
               {/* Table */}
-              <div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs text-slate-300">
-                    <thead className="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                  <table className="w-full text-left text-xs text-slate-700">
+                    <thead className="bg-slate-100 text-slate-600 uppercase text-[10px] tracking-wider border-b border-slate-200 font-bold">
                       <tr>
                         <th className="px-4 py-3">ID</th>
                         <th className="px-4 py-3">Student Name</th>
@@ -740,20 +733,20 @@ export default function AdminDashboardPage() {
                         <th className="px-4 py-3 text-right">1-Click Action</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/60">
+                    <tbody className="divide-y divide-slate-200/70">
                       {filteredTrials.map((trial) => (
-                        <tr key={trial.id} className="hover:bg-slate-900/50 transition-colors">
-                          <td className="px-4 py-3 font-mono text-slate-500">#{trial.id}</td>
-                          <td className="px-4 py-3 font-semibold text-white">{trial.name}</td>
-                          <td className="px-4 py-3 font-mono text-emerald-400">{trial.whatsapp}</td>
-                          <td className="px-4 py-3 text-slate-400">{trial.email || '—'}</td>
-                          <td className="px-4 py-3 text-slate-300">{trial.country || 'Global'}</td>
-                          <td className="px-4 py-3 text-slate-300">{trial.course_title || 'General Free Trial'}</td>
+                        <tr key={trial.id} className="hover:bg-slate-50/80 transition-colors">
+                          <td className="px-4 py-3 font-mono text-slate-400">#{trial.id}</td>
+                          <td className="px-4 py-3 font-bold text-slate-900">{trial.name}</td>
+                          <td className="px-4 py-3 font-mono font-semibold text-emerald-700">{trial.whatsapp}</td>
+                          <td className="px-4 py-3 text-slate-500">{trial.email || '—'}</td>
+                          <td className="px-4 py-3 text-slate-700">{trial.country || 'Global'}</td>
+                          <td className="px-4 py-3 text-slate-700">{trial.course_title || 'General Free Trial'}</td>
                           <td className="px-4 py-3">
                             <select
                               value={trial.status || 'pending'}
                               onChange={(e) => handleUpdateTrialStatus(trial.id, e.target.value)}
-                              className="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded px-2 py-1 focus:outline-none focus:border-emerald-500"
+                              className="bg-white border border-slate-300 text-slate-800 text-xs rounded-md px-2 py-1 focus:outline-none focus:border-emerald-600 font-medium"
                             >
                               <option value="pending">Pending</option>
                               <option value="contacted">Contacted</option>
@@ -765,7 +758,7 @@ export default function AdminDashboardPage() {
                           <td className="px-4 py-3 text-right">
                             <button
                               onClick={() => openWhatsAppLead(trial)}
-                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-semibold inline-flex items-center gap-1.5 transition-colors shadow-sm"
+                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md text-xs font-bold inline-flex items-center gap-1.5 transition-colors shadow-xs"
                             >
                               <span>💬</span>
                               <span>Chat on WhatsApp</span>
@@ -785,17 +778,17 @@ export default function AdminDashboardPage() {
           {/* ======================================================== */}
           {activeTab === 'students' && (
             <div className="space-y-4">
-              <div className="flex justify-between items-center bg-slate-950 p-4 rounded-xl border border-slate-800">
+              <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
                 <div>
-                  <h3 className="text-base font-bold text-white">Active Student Directory ({students.length})</h3>
-                  <p className="text-xs text-slate-400">Regular enrolled students currently attending Quran classes</p>
+                  <h3 className="text-base font-bold text-slate-900">Active Student Directory ({students.length})</h3>
+                  <p className="text-xs text-slate-500">Regular enrolled students currently attending Quran classes</p>
                 </div>
               </div>
 
-              <div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs text-slate-300">
-                    <thead className="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                  <table className="w-full text-left text-xs text-slate-700">
+                    <thead className="bg-slate-100 text-slate-600 uppercase text-[10px] tracking-wider border-b border-slate-200 font-bold">
                       <tr>
                         <th className="px-4 py-3">Student Name</th>
                         <th className="px-4 py-3">WhatsApp Number</th>
@@ -805,22 +798,22 @@ export default function AdminDashboardPage() {
                         <th className="px-4 py-3 text-right">Quick Contact</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/60">
+                    <tbody className="divide-y divide-slate-200/70">
                       {students.map((st, idx) => (
-                        <tr key={idx} className="hover:bg-slate-900/50 transition-colors">
-                          <td className="px-4 py-3 font-semibold text-white">{st.name || 'Student'}</td>
-                          <td className="px-4 py-3 font-mono text-emerald-400">{st.whatsapp || '—'}</td>
-                          <td className="px-4 py-3 text-slate-300">{st.course_title || 'Online Quran Recitation'}</td>
-                          <td className="px-4 py-3 text-slate-400">{st.country || 'United Kingdom'}</td>
+                        <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
+                          <td className="px-4 py-3 font-bold text-slate-900">{st.name || 'Student'}</td>
+                          <td className="px-4 py-3 font-mono font-semibold text-emerald-700">{st.whatsapp || '—'}</td>
+                          <td className="px-4 py-3 text-slate-700">{st.course_title || 'Online Quran Recitation'}</td>
+                          <td className="px-4 py-3 text-slate-500">{st.country || 'United Kingdom'}</td>
                           <td className="px-4 py-3">
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                               Active Student
                             </span>
                           </td>
                           <td className="px-4 py-3 text-right">
                             <button
                               onClick={() => openWhatsAppLead(st)}
-                              className="px-2.5 py-1 bg-slate-800 hover:bg-emerald-600 text-white rounded text-[11px] font-medium inline-flex items-center gap-1 transition-colors"
+                              className="px-3 py-1 bg-slate-100 hover:bg-emerald-600 hover:text-white text-slate-700 rounded-md text-[11px] font-bold inline-flex items-center gap-1 transition-colors border border-slate-200"
                             >
                               <span>WhatsApp</span>
                             </button>
@@ -839,33 +832,33 @@ export default function AdminDashboardPage() {
           {/* ======================================================== */}
           {activeTab === 'courses' && (
             <div className="space-y-4">
-              <div className="flex justify-between items-center bg-slate-950 p-4 rounded-xl border border-slate-800">
+              <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
                 <div>
-                  <h3 className="text-base font-bold text-white">Courses Catalog ({filteredCourses.length})</h3>
-                  <p className="text-xs text-slate-400">All live courses, duration, pricing, and curriculum</p>
+                  <h3 className="text-base font-bold text-slate-900">Courses Catalog ({filteredCourses.length})</h3>
+                  <p className="text-xs text-slate-500">All live courses, duration, pricing, and curriculum</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredCourses.map((c) => (
-                  <div key={c.id} className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col justify-between shadow-sm hover:border-slate-700 transition-colors">
+                  <div key={c.id} className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow">
                     <div>
                       <div className="flex justify-between items-start gap-2">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                           {c.category || 'Quran'}
                         </span>
-                        <span className="text-xs font-bold text-white font-mono">
+                        <span className="text-xs font-bold text-slate-900 font-mono">
                           £{c.price || 45}/mo
                         </span>
                       </div>
-                      <h4 className="text-sm font-bold text-white mt-2 leading-snug">{c.title}</h4>
-                      <p className="text-xs text-slate-400 mt-1 line-clamp-2">{c.description || 'Complete Quran learning course for all ages.'}</p>
+                      <h4 className="text-sm font-bold text-slate-900 mt-2 leading-snug">{c.title}</h4>
+                      <p className="text-xs text-slate-500 mt-1 line-clamp-2">{c.description || 'Complete Quran learning course for all ages.'}</p>
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-slate-800/80 flex justify-between items-center text-[11px] text-slate-400">
+                    <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-[11px] text-slate-500">
                       <span>⏱ {c.duration || '3 Months'}</span>
                       <span>Level: {c.level || 'Beginner'}</span>
-                      <a href={`/courses/${c.slug}`} target="_blank" rel="noreferrer" className="text-emerald-400 hover:underline font-medium">
+                      <a href={`/courses/${c.slug}`} target="_blank" rel="noreferrer" className="text-emerald-600 hover:underline font-bold">
                         View ↗
                       </a>
                     </div>
@@ -880,23 +873,23 @@ export default function AdminDashboardPage() {
           {/* ======================================================== */}
           {activeTab === 'teachers' && (
             <div className="space-y-4">
-              <div className="flex justify-between items-center bg-slate-950 p-4 rounded-xl border border-slate-800">
+              <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
                 <div>
-                  <h3 className="text-base font-bold text-white">Faculty & Teachers ({teachers.length})</h3>
-                  <p className="text-xs text-slate-400">Certified Male & Female Quran scholars and instructors</p>
+                  <h3 className="text-base font-bold text-slate-900">Faculty & Teachers ({teachers.length})</h3>
+                  <p className="text-xs text-slate-500">Certified Male & Female Quran scholars and instructors</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {teachers.map((t) => (
-                  <div key={t.id} className="bg-slate-950 border border-slate-800 rounded-xl p-5 text-center shadow-sm">
-                    <div className="w-16 h-16 rounded-full bg-emerald-600/20 border-2 border-emerald-500 mx-auto flex items-center justify-center text-xl text-emerald-400 font-bold mb-3">
+                  <div key={t.id} className="bg-white border border-slate-200 rounded-xl p-5 text-center shadow-xs">
+                    <div className="w-16 h-16 rounded-full bg-emerald-50 border-2 border-emerald-500 mx-auto flex items-center justify-center text-xl text-emerald-700 font-bold mb-3">
                       {t.name[0]}
                     </div>
-                    <h4 className="text-sm font-bold text-white">{t.name}</h4>
-                    <p className="text-xs text-emerald-400 font-medium">{t.title}</p>
-                    <p className="text-[11px] text-slate-400 mt-1">{t.experience} • {t.languages}</p>
-                    <p className="text-xs text-slate-300 mt-3 bg-slate-900 p-2.5 rounded-lg border border-slate-800 text-left">
+                    <h4 className="text-sm font-bold text-slate-900">{t.name}</h4>
+                    <p className="text-xs text-emerald-600 font-bold">{t.title}</p>
+                    <p className="text-[11px] text-slate-500 mt-1">{t.experience} • {t.languages}</p>
+                    <p className="text-xs text-slate-600 mt-3 bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-left">
                       {t.bio}
                     </p>
                   </div>
@@ -910,17 +903,17 @@ export default function AdminDashboardPage() {
           {/* ======================================================== */}
           {activeTab === 'blog_posts' && (
             <div className="space-y-4">
-              <div className="flex justify-between items-center bg-slate-950 p-4 rounded-xl border border-slate-800">
+              <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
                 <div>
-                  <h3 className="text-base font-bold text-white">Blog Articles & SEO Posts ({filteredBlogs.length})</h3>
-                  <p className="text-xs text-slate-400">All 57+ published articles driving organic Google search traffic</p>
+                  <h3 className="text-base font-bold text-slate-900">Blog Articles & SEO Posts ({filteredBlogs.length})</h3>
+                  <p className="text-xs text-slate-500">All 57+ published articles driving organic Google search traffic</p>
                 </div>
               </div>
 
-              <div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs text-slate-300">
-                    <thead className="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                  <table className="w-full text-left text-xs text-slate-700">
+                    <thead className="bg-slate-100 text-slate-600 uppercase text-[10px] tracking-wider border-b border-slate-200 font-bold">
                       <tr>
                         <th className="px-4 py-3">ID</th>
                         <th className="px-4 py-3">Article Title</th>
@@ -930,26 +923,26 @@ export default function AdminDashboardPage() {
                         <th className="px-4 py-3 text-right">View Article</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/60">
+                    <tbody className="divide-y divide-slate-200/70">
                       {filteredBlogs.map((post) => (
-                        <tr key={post.id} className="hover:bg-slate-900/50 transition-colors">
-                          <td className="px-4 py-3 font-mono text-slate-500">#{post.id}</td>
-                          <td className="px-4 py-3 font-semibold text-white max-w-xs sm:max-w-md truncate">
+                        <tr key={post.id} className="hover:bg-slate-50/80 transition-colors">
+                          <td className="px-4 py-3 font-mono text-slate-400">#{post.id}</td>
+                          <td className="px-4 py-3 font-bold text-slate-900 max-w-xs sm:max-w-md truncate">
                             {post.title}
                           </td>
                           <td className="px-4 py-3">
-                            <span className="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-emerald-400 font-medium">
+                            <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-700 font-semibold border border-emerald-100">
                               {post.category || 'General'}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-slate-400">{post.author || 'Ajwa Academy'}</td>
-                          <td className="px-4 py-3 text-slate-400">{post.read_time || '5 min'}</td>
+                          <td className="px-4 py-3 text-slate-500">{post.author || 'Ajwa Academy'}</td>
+                          <td className="px-4 py-3 text-slate-500">{post.read_time || '5 min'}</td>
                           <td className="px-4 py-3 text-right">
                             <a
                               href={`/blog/${post.slug}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="px-2.5 py-1 bg-slate-800 hover:bg-emerald-600 text-white rounded text-[11px] font-medium transition-colors"
+                              className="px-3 py-1 bg-slate-100 hover:bg-emerald-600 hover:text-white text-slate-700 rounded-md text-[11px] font-bold transition-colors border border-slate-200"
                             >
                               Live Post ↗
                             </a>
@@ -968,34 +961,34 @@ export default function AdminDashboardPage() {
           {/* ======================================================== */}
           {activeTab === 'contact_inbox' && (
             <div className="space-y-4">
-              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                <h3 className="text-base font-bold text-white">Contact Us Messages & Inquiries ({contactMessages.length})</h3>
-                <p className="text-xs text-slate-400">Direct inquiries sent by visitors via the `/contact` page form</p>
+              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+                <h3 className="text-base font-bold text-slate-900">Contact Us Messages & Inquiries ({contactMessages.length})</h3>
+                <p className="text-xs text-slate-500">Direct inquiries sent by visitors via the `/contact` page form</p>
               </div>
 
               <div className="space-y-3">
                 {contactMessages.map((msg) => (
-                  <div key={msg.id} className="bg-slate-950 border border-slate-800 rounded-xl p-4 shadow-sm">
+                  <div key={msg.id} className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                     <div className="flex flex-wrap justify-between items-start gap-2">
                       <div>
                         <div className="flex items-center gap-2">
-                          <h4 className="text-sm font-bold text-white">{msg.name}</h4>
-                          <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-medium">{msg.status}</span>
+                          <h4 className="text-sm font-bold text-slate-900">{msg.name}</h4>
+                          <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">{msg.status}</span>
                         </div>
-                        <p className="text-xs text-slate-400 mt-0.5">{msg.email} • {msg.phone} • {msg.date}</p>
+                        <p className="text-xs text-slate-500 mt-0.5">{msg.email} • {msg.phone} • {msg.date}</p>
                       </div>
                       <a
                         href={`https://wa.me/${msg.phone.replace(/[^0-9]/g, '')}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-semibold inline-flex items-center gap-1"
+                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md text-xs font-bold inline-flex items-center gap-1 shadow-xs"
                       >
                         <span>💬 Reply on WhatsApp</span>
                       </a>
                     </div>
-                    <div className="mt-3 bg-slate-900 p-3 rounded-lg border border-slate-800">
-                      <p className="text-xs font-semibold text-emerald-400 mb-1">Subject: {msg.subject}</p>
-                      <p className="text-xs text-slate-300 leading-relaxed">{msg.message}</p>
+                    <div className="mt-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                      <p className="text-xs font-bold text-emerald-700 mb-1">Subject: {msg.subject}</p>
+                      <p className="text-xs text-slate-700 leading-relaxed">{msg.message}</p>
                     </div>
                   </div>
                 ))}
@@ -1007,20 +1000,20 @@ export default function AdminDashboardPage() {
           {/* 8. COMMUNICATION -> ANNOUNCEMENTS VIEW                   */}
           {/* ======================================================== */}
           {activeTab === 'announcements' && (
-            <div className="max-w-2xl bg-slate-950 p-6 rounded-xl border border-slate-800 space-y-4">
+            <div className="max-w-2xl bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
               <div>
-                <h3 className="text-base font-bold text-white">Website Announcement Bar</h3>
-                <p className="text-xs text-slate-400">Display a top banner notice on the live website for special discounts or events</p>
+                <h3 className="text-base font-bold text-slate-900">Website Announcement Bar</h3>
+                <p className="text-xs text-slate-500">Display a top banner notice on the live website for special discounts or events</p>
               </div>
 
               <div className="space-y-4 pt-2">
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">Banner Announcement Text</label>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Banner Announcement Text</label>
                   <input
                     type="text"
                     value={settings.liveNotice}
                     onChange={(e) => setSettings({ ...settings, liveNotice: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500"
+                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-emerald-600"
                   />
                 </div>
 
@@ -1030,14 +1023,14 @@ export default function AdminDashboardPage() {
                     id="noticeActive"
                     checked={settings.noticeActive}
                     onChange={(e) => setSettings({ ...settings, noticeActive: e.target.checked })}
-                    className="w-4 h-4 text-emerald-600 rounded bg-slate-900 border-slate-700"
+                    className="w-4 h-4 text-emerald-600 rounded bg-white border-slate-300"
                   />
-                  <label htmlFor="noticeActive" className="text-xs text-slate-300">Show Announcement Bar on Website</label>
+                  <label htmlFor="noticeActive" className="text-xs font-semibold text-slate-700">Show Announcement Bar on Website</label>
                 </div>
 
                 <button
                   onClick={() => showToast('Announcement banner updated and live!')}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors"
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors shadow-xs"
                 >
                   Save Announcement
                 </button>
@@ -1049,67 +1042,67 @@ export default function AdminDashboardPage() {
           {/* 9. WEBSITE CONTENT -> HOMEPAGE HERO VIEW                 */}
           {/* ======================================================== */}
           {activeTab === 'homepage_hero' && (
-            <div className="max-w-3xl bg-slate-950 p-6 rounded-xl border border-slate-800 space-y-5">
+            <div className="max-w-3xl bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-5">
               <div>
-                <h3 className="text-base font-bold text-white">Homepage Hero Section Customizer</h3>
-                <p className="text-xs text-slate-400">Update main headline, description, and trial buttons on the homepage</p>
+                <h3 className="text-base font-bold text-slate-900">Homepage Hero Section Customizer</h3>
+                <p className="text-xs text-slate-500">Update main headline, description, and trial buttons on the homepage</p>
               </div>
 
               <form onSubmit={handleSaveHero} className="space-y-4">
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">Badge Text</label>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Badge Text</label>
                   <input
                     type="text"
                     value={heroContent.badge}
                     onChange={(e) => setHeroContent({ ...heroContent, badge: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white"
+                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">Main Heading</label>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Main Heading</label>
                   <input
                     type="text"
                     value={heroContent.title}
                     onChange={(e) => setHeroContent({ ...heroContent, title: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white"
+                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">Subtitle / Description</label>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Subtitle / Description</label>
                   <textarea
                     rows={3}
                     value={heroContent.subtitle}
                     onChange={(e) => setHeroContent({ ...heroContent, subtitle: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white"
+                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-medium text-slate-300 block mb-1">Primary Button Text</label>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Primary Button Text</label>
                     <input
                       type="text"
                       value={heroContent.primaryBtnText}
                       onChange={(e) => setHeroContent({ ...heroContent, primaryBtnText: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white"
+                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-slate-300 block mb-1">Secondary Button Text</label>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Secondary Button Text</label>
                     <input
                       type="text"
                       value={heroContent.secondaryBtnText}
                       onChange={(e) => setHeroContent({ ...heroContent, secondaryBtnText: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white"
+                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900"
                     />
                   </div>
                 </div>
 
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors"
+                  className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors shadow-xs"
                 >
                   Save Homepage Hero Changes
                 </button>
@@ -1122,21 +1115,21 @@ export default function AdminDashboardPage() {
           {/* ======================================================== */}
           {activeTab === 'faqs' && (
             <div className="space-y-4">
-              <div className="flex justify-between items-center bg-slate-950 p-4 rounded-xl border border-slate-800">
+              <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
                 <div>
-                  <h3 className="text-base font-bold text-white">Frequently Asked Questions ({faqs.length})</h3>
-                  <p className="text-xs text-slate-400">Questions and answers shown on the `/free-trial` and `/about` pages</p>
+                  <h3 className="text-base font-bold text-slate-900">Frequently Asked Questions ({faqs.length})</h3>
+                  <p className="text-xs text-slate-500">Questions and answers shown on the `/free-trial` and `/about` pages</p>
                 </div>
               </div>
 
               <div className="space-y-3">
                 {faqs.map((faq) => (
-                  <div key={faq.id} className="bg-slate-950 border border-slate-800 rounded-xl p-4 shadow-sm">
+                  <div key={faq.id} className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                     <div className="flex justify-between items-start gap-2">
-                      <h4 className="text-sm font-bold text-white">{faq.question}</h4>
-                      <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-medium">{faq.category}</span>
+                      <h4 className="text-sm font-bold text-slate-900">{faq.question}</h4>
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">{faq.category}</span>
                     </div>
-                    <p className="text-xs text-slate-300 mt-2 bg-slate-900 p-3 rounded-lg border border-slate-800/80">
+                    <p className="text-xs text-slate-700 mt-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
                       {faq.answer}
                     </p>
                   </div>
@@ -1150,23 +1143,23 @@ export default function AdminDashboardPage() {
           {/* ======================================================== */}
           {activeTab === 'testimonials' && (
             <div className="space-y-4">
-              <div className="flex justify-between items-center bg-slate-950 p-4 rounded-xl border border-slate-800">
+              <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
                 <div>
-                  <h3 className="text-base font-bold text-white">Parent & Student Reviews ({testimonials.length})</h3>
-                  <p className="text-xs text-slate-400">5-Star feedback and testimonials displayed on the homepage</p>
+                  <h3 className="text-base font-bold text-slate-900">Parent & Student Reviews ({testimonials.length})</h3>
+                  <p className="text-xs text-slate-500">5-Star feedback and testimonials displayed on the homepage</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {testimonials.map((test) => (
-                  <div key={test.id} className="bg-slate-950 border border-slate-800 rounded-xl p-4 shadow-sm flex flex-col justify-between">
+                  <div key={test.id} className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start">
-                        <span className="text-xs font-bold text-white">{test.name}</span>
-                        <span className="text-amber-400 text-xs">★★★★★</span>
+                        <span className="text-xs font-bold text-slate-900">{test.name}</span>
+                        <span className="text-amber-500 text-xs">★★★★★</span>
                       </div>
-                      <p className="text-[11px] text-emerald-400 mt-0.5">{test.country} • {test.course}</p>
-                      <p className="text-xs text-slate-300 mt-3 italic">"{test.comment}"</p>
+                      <p className="text-[11px] text-emerald-600 font-semibold mt-0.5">{test.country} • {test.course}</p>
+                      <p className="text-xs text-slate-600 mt-3 italic leading-relaxed">"{test.comment}"</p>
                     </div>
                   </div>
                 ))}
@@ -1178,31 +1171,31 @@ export default function AdminDashboardPage() {
           {/* 12. WEBSITE CONTENT -> SOCIAL LINKS VIEW                 */}
           {/* ======================================================== */}
           {activeTab === 'social_links' && (
-            <div className="max-w-2xl bg-slate-950 p-6 rounded-xl border border-slate-800 space-y-4">
+            <div className="max-w-2xl bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
               <div>
-                <h3 className="text-base font-bold text-white">Official Social Media Links</h3>
-                <p className="text-xs text-slate-400">Links shown in the website footer and contact icons</p>
+                <h3 className="text-base font-bold text-slate-900">Official Social Media Links</h3>
+                <p className="text-xs text-slate-500">Links shown in the website footer and contact icons</p>
               </div>
 
               <div className="space-y-3 pt-2">
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">WhatsApp Direct Link</label>
-                  <input type="text" defaultValue="https://wa.me/447123456789" className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                  <label className="text-xs font-bold text-slate-700 block mb-1">WhatsApp Direct Link</label>
+                  <input type="text" defaultValue="https://wa.me/447123456789" className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">Facebook Page URL</label>
-                  <input type="text" defaultValue="https://facebook.com/ajwaacademyofficial" className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Facebook Page URL</label>
+                  <input type="text" defaultValue="https://facebook.com/ajwaacademyofficial" className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">YouTube Channel URL</label>
-                  <input type="text" defaultValue="https://youtube.com/@ajwaacademy" className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                  <label className="text-xs font-bold text-slate-700 block mb-1">YouTube Channel URL</label>
+                  <input type="text" defaultValue="https://youtube.com/@ajwaacademy" className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">Instagram URL</label>
-                  <input type="text" defaultValue="https://instagram.com/ajwaacademy" className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Instagram URL</label>
+                  <input type="text" defaultValue="https://instagram.com/ajwaacademy" className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
                 </div>
 
-                <button onClick={() => showToast('Social links saved successfully!')} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors">
+                <button onClick={() => showToast('Social links saved successfully!')} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors shadow-xs">
                   Save Social Links
                 </button>
               </div>
@@ -1213,41 +1206,41 @@ export default function AdminDashboardPage() {
           {/* 13. SYSTEM & AUDIT -> GENERAL SETTINGS                   */}
           {/* ======================================================== */}
           {activeTab === 'general_settings' && (
-            <div className="max-w-3xl bg-slate-950 p-6 rounded-xl border border-slate-800 space-y-5">
+            <div className="max-w-3xl bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-5">
               <div>
-                <h3 className="text-base font-bold text-white">General Academy Settings</h3>
-                <p className="text-xs text-slate-400">Configure global contact numbers, email, currency, and branding</p>
+                <h3 className="text-base font-bold text-slate-900">General Academy Settings</h3>
+                <p className="text-xs text-slate-500">Configure global contact numbers, email, currency, and branding</p>
               </div>
 
               <form onSubmit={handleSaveSettings} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-medium text-slate-300 block mb-1">Academy Name</label>
-                    <input type="text" value={settings.academyName} onChange={(e) => setSettings({ ...settings, academyName: e.target.value })} className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Academy Name</label>
+                    <input type="text" value={settings.academyName} onChange={(e) => setSettings({ ...settings, academyName: e.target.value })} className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-slate-300 block mb-1">Primary Currency</label>
-                    <input type="text" value={settings.currency} onChange={(e) => setSettings({ ...settings, currency: e.target.value })} className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Primary Currency</label>
+                    <input type="text" value={settings.currency} onChange={(e) => setSettings({ ...settings, currency: e.target.value })} className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-medium text-slate-300 block mb-1">Official WhatsApp Phone</label>
-                    <input type="text" value={settings.whatsappNumber} onChange={(e) => setSettings({ ...settings, whatsappNumber: e.target.value })} className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Official WhatsApp Phone</label>
+                    <input type="text" value={settings.whatsappNumber} onChange={(e) => setSettings({ ...settings, whatsappNumber: e.target.value })} className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-slate-300 block mb-1">Official Support Email</label>
-                    <input type="email" value={settings.contactEmail} onChange={(e) => setSettings({ ...settings, contactEmail: e.target.value })} className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Official Support Email</label>
+                    <input type="email" value={settings.contactEmail} onChange={(e) => setSettings({ ...settings, contactEmail: e.target.value })} className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">Academy Office Location / Address</label>
-                  <input type="text" value={settings.address} onChange={(e) => setSettings({ ...settings, address: e.target.value })} className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Academy Office Location / Address</label>
+                  <input type="text" value={settings.address} onChange={(e) => setSettings({ ...settings, address: e.target.value })} className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
                 </div>
 
-                <button type="submit" className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors">
+                <button type="submit" className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors shadow-xs">
                   Save General Settings
                 </button>
               </form>
@@ -1258,30 +1251,30 @@ export default function AdminDashboardPage() {
           {/* 14. SYSTEM & AUDIT -> ADMIN PROFILE                      */}
           {/* ======================================================== */}
           {activeTab === 'admin_profile' && (
-            <div className="max-w-xl bg-slate-950 p-6 rounded-xl border border-slate-800 space-y-4">
+            <div className="max-w-xl bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
               <div>
-                <h3 className="text-base font-bold text-white">Administrator Profile</h3>
-                <p className="text-xs text-slate-400">Current active administrator credentials and status</p>
+                <h3 className="text-base font-bold text-slate-900">Administrator Profile</h3>
+                <p className="text-xs text-slate-500">Current active administrator credentials and status</p>
               </div>
 
-              <div className="p-4 bg-slate-900 rounded-xl border border-slate-800 space-y-3">
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-lg">
+                  <div className="w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
                     A
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-white">Ajwa Academy Admin</h4>
-                    <p className="text-xs text-emerald-400 font-mono">ajwaacademyofficial@gmail.com</p>
+                    <h4 className="text-sm font-bold text-slate-900">Ajwa Academy Admin</h4>
+                    <p className="text-xs text-emerald-700 font-mono font-medium">ajwaacademyofficial@gmail.com</p>
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-slate-800 flex justify-between items-center text-xs">
-                  <span className="text-slate-400">Role:</span>
-                  <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30">Super Administrator</span>
+                <div className="pt-3 border-t border-slate-200 flex justify-between items-center text-xs">
+                  <span className="text-slate-500 font-medium">Role:</span>
+                  <span className="px-2.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">Super Administrator</span>
                 </div>
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400">Database Access:</span>
-                  <span className="text-emerald-400 font-mono font-bold">Connected (cqcitgazqwajbdyxqhtl)</span>
+                  <span className="text-slate-500 font-medium">Database Access:</span>
+                  <span className="text-emerald-700 font-mono font-bold">Connected (cqcitgazqwajbdyxqhtl)</span>
                 </div>
               </div>
             </div>
@@ -1291,23 +1284,23 @@ export default function AdminDashboardPage() {
           {/* 15. SYSTEM & AUDIT -> SECURITY                           */}
           {/* ======================================================== */}
           {activeTab === 'security' && (
-            <div className="max-w-xl bg-slate-950 p-6 rounded-xl border border-slate-800 space-y-4">
+            <div className="max-w-xl bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
               <div>
-                <h3 className="text-base font-bold text-white">Security & Password Management</h3>
-                <p className="text-xs text-slate-400">Manage admin login password and database security</p>
+                <h3 className="text-base font-bold text-slate-900">Security & Password Management</h3>
+                <p className="text-xs text-slate-500">Manage admin login password and database security</p>
               </div>
 
               <div className="space-y-3 pt-2">
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">New Password</label>
-                  <input type="password" placeholder="••••••••••••" className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                  <label className="text-xs font-bold text-slate-700 block mb-1">New Password</label>
+                  <input type="password" placeholder="••••••••••••" className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">Confirm New Password</label>
-                  <input type="password" placeholder="••••••••••••" className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Confirm New Password</label>
+                  <input type="password" placeholder="••••••••••••" className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
                 </div>
 
-                <button onClick={() => showToast('Password updated securely!')} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors">
+                <button onClick={() => showToast('Password updated securely!')} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors shadow-xs">
                   Update Admin Password
                 </button>
               </div>
@@ -1319,30 +1312,30 @@ export default function AdminDashboardPage() {
           {/* ======================================================== */}
           {activeTab === 'activity_logs' && (
             <div className="space-y-4">
-              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
+              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex justify-between items-center">
                 <div>
-                  <h3 className="text-base font-bold text-white">System Activity Logs</h3>
-                  <p className="text-xs text-slate-400">Real-time audit trail of all administrative actions and updates</p>
+                  <h3 className="text-base font-bold text-slate-900">System Activity Logs</h3>
+                  <p className="text-xs text-slate-500">Real-time audit trail of all administrative actions and updates</p>
                 </div>
-                <span className="text-xs text-emerald-400 font-mono">Live Audit Active</span>
+                <span className="text-xs text-emerald-700 font-mono font-bold">● Live Audit Active</span>
               </div>
 
-              <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 divide-y divide-slate-800/80 space-y-3">
+              <div className="bg-white border border-slate-200 rounded-xl p-4 divide-y divide-slate-100 space-y-3 shadow-xs">
                 {(activityLogs.length > 0 ? activityLogs : [
-                  { id: 1, action: 'Database Migration', details: 'Successfully connected new Supabase instance and verified tables', timestamp: 'Recent' },
-                  { id: 2, action: '51 Blogs Imported', details: 'Imported all published blog posts from CSV backup', timestamp: 'Recent' },
-                  { id: 3, action: '48 Leads Imported', details: 'Restored all trial applications and student requests', timestamp: 'Recent' },
-                  { id: 4, action: 'Production Deployed', details: 'Live production deployment verified at www.ajwaacademy.com', timestamp: 'Recent' },
+                  { id: 1, action: 'Light Theme Applied', details: 'Admin panel updated to clean white Light Mode theme', timestamp: 'Just now' },
+                  { id: 2, action: 'Database Migration', details: 'Successfully connected new Supabase instance and verified tables', timestamp: 'Recent' },
+                  { id: 3, action: '51 Blogs Imported', details: 'Imported all published blog posts from CSV backup', timestamp: 'Recent' },
+                  { id: 4, action: '48 Leads Imported', details: 'Restored all trial applications and student requests', timestamp: 'Recent' },
                 ]).map((log, idx) => (
                   <div key={idx} className="pt-3 first:pt-0 flex items-start justify-between gap-3">
                     <div className="flex items-start gap-2.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 mt-1.5" />
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5" />
                       <div>
-                        <p className="text-xs font-bold text-white">{log.action}</p>
-                        <p className="text-[11px] text-slate-400">{log.details}</p>
+                        <p className="text-xs font-bold text-slate-900">{log.action}</p>
+                        <p className="text-[11px] text-slate-500">{log.details}</p>
                       </div>
                     </div>
-                    <span className="text-[10px] font-mono text-slate-500">{log.timestamp}</span>
+                    <span className="text-[10px] font-mono text-slate-400">{log.timestamp}</span>
                   </div>
                 ))}
               </div>
