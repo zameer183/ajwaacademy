@@ -112,6 +112,8 @@ export default function AdminDashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadingCourseImage, setUploadingCourseImage] = useState(false);
+  const [uploadingBlogImage, setUploadingBlogImage] = useState(false);
 
   // Authentication State
   const [authLoading, setAuthLoading] = useState(true);
@@ -2168,14 +2170,49 @@ export default function AdminDashboardPage() {
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Featured Image URL</label>
-                <input
-                  type="url"
-                  value={courseModal.data.image}
-                  onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, image: e.target.value } }))}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
-                />
+                <label className="font-bold text-slate-700 block mb-1">Course Image (Upload or Paste URL)</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={courseModal.data.image}
+                    onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, image: e.target.value } }))}
+                    placeholder="https://... or upload below"
+                    className="flex-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                  />
+                  <label className="px-3.5 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-xl cursor-pointer text-xs flex items-center gap-1 shadow-xs transition-colors shrink-0">
+                    <span>{uploadingCourseImage ? '⏳ Uploading...' : '📁 Upload Image'}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={uploadingCourseImage}
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setUploadingCourseImage(true);
+                        try {
+                          const res = await uploadMedia({ file, pathPrefix: 'courses' });
+                          setCourseModal(prev => ({ ...prev, data: { ...prev.data, image: res.publicUrl } }));
+                          showToast('Course image uploaded successfully!');
+                        } catch (err) {
+                          showToast(err.message || 'Image upload failed', 'error');
+                        } finally {
+                          setUploadingCourseImage(false);
+                          e.target.value = '';
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+                {courseModal.data.image && (
+                  <div className="mt-2 flex items-center gap-3 p-2 bg-slate-50 rounded-xl border border-slate-200">
+                    <img src={courseModal.data.image} alt="Preview" className="w-16 h-12 rounded-lg object-cover border border-slate-200" />
+                    <div className="overflow-hidden flex-1">
+                      <p className="text-[11px] font-bold text-emerald-600">✓ Image Attached</p>
+                      <p className="text-[10px] text-slate-400 truncate">{courseModal.data.image}</p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -2285,14 +2322,49 @@ export default function AdminDashboardPage() {
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Featured Image URL</label>
-                <input
-                  type="url"
-                  value={blogModal.data.image}
-                  onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, image: e.target.value } }))}
-                  placeholder="https://..."
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
-                />
+                <label className="font-bold text-slate-700 block mb-1">Featured Image (Upload or Paste URL)</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={blogModal.data.image}
+                    onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, image: e.target.value } }))}
+                    placeholder="https://... or upload below"
+                    className="flex-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                  />
+                  <label className="px-3.5 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-xl cursor-pointer text-xs flex items-center gap-1 shadow-xs transition-colors shrink-0">
+                    <span>{uploadingBlogImage ? '⏳ Uploading...' : '📁 Upload Image'}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={uploadingBlogImage}
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setUploadingBlogImage(true);
+                        try {
+                          const res = await uploadMedia({ file, pathPrefix: 'blogs' });
+                          setBlogModal(prev => ({ ...prev, data: { ...prev.data, image: res.publicUrl } }));
+                          showToast('Blog image uploaded successfully!');
+                        } catch (err) {
+                          showToast(err.message || 'Image upload failed', 'error');
+                        } finally {
+                          setUploadingBlogImage(false);
+                          e.target.value = '';
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+                {blogModal.data.image && (
+                  <div className="mt-2 flex items-center gap-3 p-2 bg-slate-50 rounded-xl border border-slate-200">
+                    <img src={blogModal.data.image} alt="Preview" className="w-16 h-12 rounded-lg object-cover border border-slate-200" />
+                    <div className="overflow-hidden flex-1">
+                      <p className="text-[11px] font-bold text-emerald-600">✓ Image Attached</p>
+                      <p className="text-[10px] text-slate-400 truncate">{blogModal.data.image}</p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
