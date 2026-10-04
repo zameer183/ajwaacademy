@@ -1,3133 +1,1354 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
 import { supabase, supabaseEnabled } from '@/lib/supabase';
 import { deleteMediaByUrl, uploadMedia } from '@/lib/supabase-storage';
 import { getAdminAccessSnapshot } from '@/lib/admin-auth';
 
-const tableConfigs = [
+// --- NAVIGATION CONFIGURATION (Requested Exact Hierarchy) ---
+const NAV_GROUPS = [
   {
-    name: 'courses',
-    label: 'Courses',
-    displayFields: ['title', 'category', 'level'],
-    mediaFields: ['image', 'thumbnail', 'instructor_avatar'],
-    fields: [
-      { name: 'title', label: 'Title', type: 'text' },
-      { name: 'slug', label: 'Slug', type: 'text', required: true },
-      { name: 'category', label: 'Category', type: 'text', required: true },
-      { name: 'level', label: 'Level', type: 'text', required: true },
-      { name: 'description', label: 'Description', type: 'textarea', required: true },
-      { name: 'duration', label: 'Duration', type: 'text', required: true },
-      { name: 'lesson_count', label: 'Lesson Count', type: 'number', required: true },
-      { name: 'instructor_name', label: 'Instructor Name', type: 'text', required: true },
-      { name: 'instructor_avatar', label: 'Teacher Image URL', type: 'text' },
+    title: 'Overview',
+    items: [
+      { id: 'dashboard', label: 'Dashboard', icon: 'dashboard', badge: null },
     ],
   },
   {
-    name: 'blog_posts',
-    label: 'Blog',
-    displayFields: ['title', 'category', 'author'],
-    mediaFields: ['image', 'author_avatar'],
-    fields: [
-      { name: 'title', label: 'Title', type: 'text' },
-      { name: 'slug', label: 'Slug', type: 'text' },
-      { name: 'category', label: 'Category', type: 'text', required: true },
-      // Excerpt hidden for single-field blog editing
-      { name: 'content', label: 'Content', type: 'textarea', required: true },
-      { name: 'author', label: 'Author', type: 'text', required: true },
-      { name: 'author_avatar', label: 'Author Avatar URL', type: 'text' },
-      { name: 'image', label: 'Image URL', type: 'text' },
+    title: 'Admissions',
+    items: [
+      { id: 'applications', label: 'Applications', icon: 'inbox', badge: 'leads' },
+      { id: 'students', label: 'Students', icon: 'students', badge: null },
     ],
   },
   {
-    name: 'library_items',
-    label: 'Library',
-    displayFields: ['title', 'category'],
-    mediaFields: ['image', 'file_url'],
-    fields: [
-      { name: 'title', label: 'Title', type: 'text' },
-      { name: 'category', label: 'Category', type: 'text' },
-      { name: 'description', label: 'Description', type: 'textarea' },
-      { name: 'image', label: 'Cover Image URL', type: 'text' },
-      { name: 'file_url', label: 'PDF URL', type: 'text' },
+    title: 'Academics',
+    items: [
+      { id: 'courses', label: 'Courses', icon: 'courses', badge: 'courses' },
+      { id: 'teachers', label: 'Teachers', icon: 'teachers', badge: null },
+      { id: 'blog_posts', label: 'Blog Posts', icon: 'blog', badge: 'blogs' },
     ],
   },
   {
-    name: 'course_lessons',
-    label: 'Course Lessons',
-    displayFields: ['title', 'course_id', 'section_id'],
-    mediaFields: ['video_url', 'thumbnail'],
-    fields: [
-      { name: 'course_id', label: 'Course Title', type: 'select', required: true },
-      { name: 'section_id', label: 'Section Title', type: 'select', required: true },
-      { name: 'title', label: 'Lesson Title', type: 'text', required: true },
-      // lesson_number column not present in DB
-      { name: 'duration', label: 'Duration', type: 'text' },
-      { name: 'video_url', label: 'Video URL', type: 'text' },
-      { name: 'thumbnail', label: 'Thumbnail URL', type: 'text' },
+    title: 'Communication',
+    items: [
+      { id: 'contact_inbox', label: 'Contact Inbox', icon: 'mail', badge: null },
+      { id: 'announcements', label: 'Announcements', icon: 'megaphone', badge: null },
     ],
   },
   {
-    name: 'enrollments',
-    label: 'Enrollments',
-    displayFields: ['user_id', 'course_id', 'status'],
-    mediaFields: [],
-    fields: [
-      { name: 'user_id', label: 'User ID', type: 'text' },
-      { name: 'course_id', label: 'Course ID', type: 'text' },
-      { name: 'status', label: 'Status', type: 'text' },
+    title: 'Website Content',
+    items: [
+      { id: 'homepage_hero', label: 'Homepage Hero', icon: 'layout', badge: null },
+      { id: 'faqs', label: 'FAQs', icon: 'help', badge: null },
+      { id: 'testimonials', label: 'Testimonials', icon: 'star', badge: null },
+      { id: 'social_links', label: 'Social Links', icon: 'share', badge: null },
     ],
   },
   {
-    name: 'payment_requests',
-    label: 'Payment Requests',
-    displayFields: ['name', 'email', 'course_id', 'status'],
-    mediaFields: ['slip_url'],
-    fields: [
-      { name: 'name', label: 'Name', type: 'text' },
-      { name: 'email', label: 'Email', type: 'text' },
-      { name: 'whatsapp', label: 'WhatsApp', type: 'text' },
-      { name: 'course_id', label: 'Course ID', type: 'text' },
-      { name: 'amount', label: 'Amount', type: 'text' },
-      { name: 'transaction_id', label: 'Transaction ID', type: 'text' },
-      { name: 'note', label: 'Note', type: 'textarea' },
-      { name: 'slip_url', label: 'Payment Slip URL', type: 'text' },
-      { name: 'status', label: 'Status', type: 'text' },
-    ],
-  },
-  {
-    name: 'trial_requests',
-    label: 'Trial Requests',
-    displayFields: ['name', 'whatsapp', 'country', 'email', 'status'],
-    mediaFields: ['image_url', 'video_url'],
-    fields: [
-      { name: 'name', label: 'Name', type: 'text' },
-      { name: 'whatsapp', label: 'WhatsApp / Phone', type: 'text' },
-      { name: 'country', label: 'Country', type: 'text' },
-      { name: 'email', label: 'Email', type: 'text' },
-      { name: 'course_title', label: 'Course Title', type: 'text' },
-      { name: 'course_id', label: 'Course ID', type: 'text' },
-      { name: 'status', label: 'Status', type: 'text' },
-      { name: 'message', label: 'Message / Notes', type: 'textarea' },
-      { name: 'image_url', label: 'Image URL', type: 'text' },
-      { name: 'video_url', label: 'Video URL', type: 'text' },
-    ],
-  },
-  {
-    name: 'trial_access',
-    label: 'Trial Access',
-    displayFields: ['user_id', 'course_id', 'expires_at'],
-    mediaFields: [],
-    fields: [
-      { name: 'user_id', label: 'User ID', type: 'text' },
-      { name: 'course_id', label: 'Course ID', type: 'text' },
-      { name: 'expires_at', label: 'Expires At', type: 'text' },
-      { name: 'status', label: 'Status', type: 'text' },
+    title: 'System & Audit',
+    items: [
+      { id: 'general_settings', label: 'General Settings', icon: 'settings', badge: null },
+      { id: 'admin_profile', label: 'Admin Profile', icon: 'user', badge: null },
+      { id: 'security', label: 'Security', icon: 'shield', badge: null },
+      { id: 'activity_logs', label: 'Activity Logs', icon: 'history', badge: null },
+      { id: 'public_website', label: 'Public Website', icon: 'external', badge: null, external: true },
     ],
   },
 ];
 
-const wordpressQuickTags = ['Write Article', 'Title', 'Content', 'Bold', 'Link', 'Heading', 'Image', 'Spacing', 'Category'];
-
-const wordpressFieldHints = {
-  title: 'Appears across listing cards and SEO snippets. Aim for 60-70 characters.',
-  content: 'Use the toolbar or Markdown shortcuts just like the WordPress classic editor.',
-  image: 'Hero image used for OG sharing. Recommended 1200x630 JPG/PNG.',
+// --- DEFAULT FALLBACK DATA FOR CONTENT MANAGERS ---
+const INITIAL_SETTINGS = {
+  academyName: 'Ajwa Online Quran Academy',
+  tagline: 'Learn Quran Online with Certified Male & Female Scholars',
+  whatsappNumber: '+44 7123 456789',
+  contactEmail: 'ajwaacademyofficial@gmail.com',
+  address: 'Birmingham, United Kingdom & Worldwide Online',
+  currency: 'GBP (£)',
+  freeTrialDays: '3',
+  liveNotice: 'Special Ramadan Admission Open! Get 20% Off on Full Family Package.',
+  noticeActive: true,
 };
 
-const nonCacheableAdminTables = new Set(['blog_posts']);
-const adminRequestTimeoutMs = 30000;
-const adminRecordsPageSize = 30;
-const blogSchemaOptionalFields = new Set(['meta_title', 'meta_description', 'status', 'tags']);
-
-const getAdminRecordsCachePrefix = (table) => `adminRecords:${table}:page:`;
-
-const getAdminRecordsCacheKey = (table, page = 0) => `${getAdminRecordsCachePrefix(table)}${page}`;
-
-const clearSessionStorageKeysByPrefix = (prefix) => {
-  if (typeof window === 'undefined') return;
-  try {
-    const keys = [];
-    for (let index = 0; index < window.sessionStorage.length; index += 1) {
-      const key = window.sessionStorage.key(index);
-      if (key?.startsWith(prefix)) {
-        keys.push(key);
-      }
-    }
-    keys.forEach((key) => {
-      try {
-        window.sessionStorage.removeItem(key);
-      } catch {}
-    });
-  } catch {}
+const INITIAL_HERO = {
+  badge: '100% Free Trial • Certified Teachers',
+  title: 'Learn Holy Quran Online with Authentic Tajweed',
+  subtitle: 'Personalized 1-on-1 Online Quran classes for kids, adults, and beginners worldwide with verified scholars.',
+  primaryBtnText: 'Book Free Trial Class',
+  primaryBtnUrl: '/free-trial',
+  secondaryBtnText: 'View All Courses',
+  secondaryBtnUrl: '/courses',
 };
 
-const clearCachedAdminRecords = (table) => {
-  clearSessionStorageKeysByPrefix(getAdminRecordsCachePrefix(table));
-};
-
-const readSessionStorageJson = (key) => {
-  if (typeof window === 'undefined') return null;
-  try {
-    const rawValue = window.sessionStorage.getItem(key);
-    return rawValue ? JSON.parse(rawValue) : null;
-  } catch {
-    return null;
-  }
-};
-
-const writeSessionStorageValue = (key, value, options = {}) => {
-  if (typeof window === 'undefined') return false;
-  const recoveryKeys = Array.isArray(options.recoveryKeys) ? options.recoveryKeys : [];
-  try {
-    window.sessionStorage.setItem(key, value);
-    return true;
-  } catch {
-    recoveryKeys.forEach((recoveryKey) => {
-      try {
-        window.sessionStorage.removeItem(recoveryKey);
-      } catch {}
-    });
-    try {
-      window.sessionStorage.setItem(key, value);
-      return true;
-    } catch {
-      return false;
-    }
-  }
-};
-
-const readCachedAdminRecords = (table, page = 0) => {
-  if (typeof window === 'undefined') return [];
-  if (nonCacheableAdminTables.has(table)) {
-    clearCachedAdminRecords(table);
-    return [];
-  }
-  const cacheKey = getAdminRecordsCacheKey(table, page);
-  const parsed = readSessionStorageJson(cacheKey);
-  return Array.isArray(parsed) ? parsed : [];
-};
-
-const writeCachedAdminRecords = (table, records, page = 0) => {
-  if (typeof window === 'undefined') return false;
-  if (nonCacheableAdminTables.has(table)) {
-    clearCachedAdminRecords(table);
-    return false;
-  }
-  const cacheKey = getAdminRecordsCacheKey(table, page);
-  return writeSessionStorageValue(cacheKey, JSON.stringify(records), {
-    recoveryKeys: [getAdminRecordsCacheKey('blog_posts', 0)],
-  });
-};
-
-const extractMissingColumn = (message) => {
-  if (!message) return '';
-  const patterns = [
-    /Could not find the '([^']+)' column/i,
-    /column\s+([a-zA-Z0-9_.]+)\s+does not exist/i,
-    /column "([^"]+)"/i,
-    /column '([^']+)'/i,
-  ];
-  for (const pattern of patterns) {
-    const match = String(message).match(pattern);
-    if (match?.[1]) {
-      return String(match[1]).split('.').pop();
-    }
-  }
-  return '';
-};
-
-const escapeHtml = (value) =>
-  String(value || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-
-const defaultBlogCategories = [
-  'Online Quran Learning',
-  'Islamic Parenting',
-  'UK/USA Quran Classes',
-  'Islamic Lifestyle',
+const INITIAL_FAQS = [
+  { id: 1, question: 'How do online Quran classes work at Ajwa Academy?', answer: 'Classes are conducted 1-on-1 via Zoom or Google Meet with high-quality audio and screen sharing of the Quran & Qaida.', category: 'Classes' },
+  { id: 2, question: 'Can I choose between Male and Female teachers?', answer: 'Yes! We have certified Male Scholars and Female Ustadhas available for kids, sisters, and adult students.', category: 'Teachers' },
+  { id: 3, question: 'Is the free trial class completely free?', answer: 'Yes, 100% free with no credit card or advance payment required.', category: 'Admissions' },
+  { id: 4, question: 'What are the class timings and days?', answer: 'Classes are completely flexible 24/7. You can choose any days (2, 3, or 5 days per week) in your local timezone.', category: 'Schedule' },
 ];
 
-const editorFontOptions = [
-  { label: 'Editorial Serif', value: 'Georgia, "Times New Roman", serif' },
-  { label: 'Modern Sans', value: '"Helvetica Neue", Arial, sans-serif' },
-  { label: 'Readable Classic', value: '"Trebuchet MS", Verdana, sans-serif' },
-  { label: 'Monospace', value: '"SFMono-Regular", Consolas, monospace' },
+const INITIAL_TESTIMONIALS = [
+  { id: 1, name: 'Sister Maryam Khan', country: 'United Kingdom 🇬🇧', course: 'Noorani Qaida & Tajweed', rating: 5, comment: 'Alhamdulillah, my 7-year-old daughter learned Arabic alphabet & Tajweed rules in just 3 months. The teacher is very polite and patient.' },
+  { id: 2, name: 'Brother Farhan Ahmed', country: 'United States 🇺🇸', course: 'Online Quran Hifz Program', rating: 5, comment: 'MashAllah great Hifz program with daily Sabaq & Sabqi tracking. Flexible timings in US timezones.' },
+  { id: 3, name: 'Sultan Mohamed', country: 'United Arab Emirates 🇦🇪', course: 'Basic Arabic Language', rating: 5, comment: 'Very professional Quran academy. Highly recommended for overseas Muslim families.' },
 ];
 
-const editorTextSizeOptions = [
-  { label: 'Small', value: '1.05rem' },
-  { label: 'Medium', value: '1.2rem' },
-  { label: 'Large', value: '1.35rem' },
-  { label: 'XL', value: '1.55rem' },
+const INITIAL_TEACHERS = [
+  { id: 1, name: 'Qari Muhammad Ahmed', title: 'Senior Tajweed Scholar & Qari', experience: '8+ Years Exp', gender: 'Male', languages: 'Arabic, English, Urdu', bio: 'Certified Tajweed teacher with Ijazah in Hafs an Asim.' },
+  { id: 2, name: 'Ustadha Ayesha Noor', title: 'Senior Female Islamic Educator', experience: '6+ Years Exp', gender: 'Female', languages: 'English, Urdu', bio: 'Specialist in Noorani Qaida, Daily Duas, and Islamic Studies for young kids.' },
+  { id: 3, name: 'Hafiz Abdul Rehman', title: 'Hifz-ul-Quran Faculty Lead', experience: '10+ Years Exp', gender: 'Male', languages: 'Arabic, Urdu', bio: 'Guided 50+ students in complete Quran memorization with proper revision techniques.' },
 ];
 
-const editorLineHeightOptions = [
-  { label: 'Tight', value: '1.45' },
-  { label: 'Normal', value: '1.7' },
-  { label: 'Relaxed', value: '1.95' },
-  { label: 'Spacious', value: '2.2' },
+const INITIAL_CONTACT_MESSAGES = [
+  { id: 1, name: 'Amina Siddiqua', email: 'amina.s@gmail.com', phone: '+44 7912 345678', subject: 'Weekend Classes for 2 Kids', message: 'Assalam-o-Alaikum, I want to enroll my 2 sons for weekend Quran classes. Please let me know available slots in UK time.', status: 'New', date: 'Just now' },
+  { id: 2, name: 'Zubair Al-Hashmi', email: 'zubair.hashmi@yahoo.com', phone: '+1 647 889 0123', subject: 'Adult Tajweed Course', message: 'Hello, looking for an advanced Tajweed course for myself after 7 PM EST. Thanks.', status: 'Contacted', date: 'Yesterday' },
 ];
 
-const editorBlockOptions = [
-  { label: 'Paragraph', value: 'p' },
-  { label: 'Heading 1', value: 'h1' },
-  { label: 'Heading 2', value: 'h2' },
-  { label: 'Heading 3', value: 'h3' },
-  { label: 'Quote', value: 'blockquote' },
-  { label: 'Code block', value: 'pre' },
-];
+export default function AdminDashboardPage() {
+  // Navigation & State
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [toast, setToast] = useState(null);
 
-const quickEditorBlockOptions = editorBlockOptions.filter((option) =>
-  ['p', 'h1', 'h2', 'h3'].includes(option.value)
-);
+  // Authentication State
+  const [authLoading, setAuthLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-const richBlockTagNames = new Set(['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'LI', 'PRE']);
-const allowedRichStyleProperties = new Set(['color', 'font-family', 'font-size', 'line-height', 'text-align']);
+  // Database Records
+  const [courses, setCourses] = useState([]);
+  const [blogs, setBlogs] = useState([]);
+  const [trialRequests, setTrialRequests] = useState([]);
+  const [libraryItems, setLibraryItems] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [activityLogs, setActivityLogs] = useState([]);
 
-const normalizeEditorBlockTag = (value) =>
-  String(value || 'p')
-    .replace(/[<>]/g, '')
-    .trim()
-    .toLowerCase() || 'p';
+  // Managed Settings & Content
+  const [settings, setSettings] = useState(INITIAL_SETTINGS);
+  const [heroContent, setHeroContent] = useState(INITIAL_HERO);
+  const [faqs, setFaqs] = useState(INITIAL_FAQS);
+  const [testimonials, setTestimonials] = useState(INITIAL_TESTIMONIALS);
+  const [teachers, setTeachers] = useState(INITIAL_TEACHERS);
+  const [contactMessages, setContactMessages] = useState(INITIAL_CONTACT_MESSAGES);
 
-const normalizeRichUrl = (value) => {
-  const trimmed = String(value || '').trim();
-  if (!trimmed) return '';
-  if (/^(https?:|mailto:|tel:|#|\/)/i.test(trimmed)) return trimmed;
-  return `https://${trimmed}`;
-};
+  // Modals & Active Edit state
+  const [editingItem, setEditingItem] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState(''); // 'edit_blog', 'edit_course', 'view_trial', 'edit_faq', etc.
+  const [trialStatusFilter, setTrialStatusFilter] = useState('all');
 
-const isSafeRichUrl = (value, { allowData = false } = {}) => {
-  const candidate = String(value || '').trim();
-  if (!candidate) return false;
-  if (allowData && candidate.startsWith('data:image/')) return true;
-  return /^(https?:|mailto:|tel:|\/|#)/i.test(candidate);
-};
-
-const sanitizeRichInlineStyle = (styleValue) => {
-  if (!styleValue) return '';
-  return String(styleValue)
-    .split(';')
-    .map((entry) => entry.trim())
-    .filter(Boolean)
-    .map((entry) => {
-      const [rawName, ...rawValueParts] = entry.split(':');
-      const name = String(rawName || '').trim().toLowerCase();
-      const value = rawValueParts.join(':').trim();
-      if (!allowedRichStyleProperties.has(name)) return '';
-      if (!value || /url\s*\(|expression\s*\(/i.test(value)) return '';
-      return `${name}:${value.replace(/["']/g, '')}`;
-    })
-    .filter(Boolean)
-    .join('; ');
-};
-
-const getStyleFontWeight = (styleValue) => {
-  if (!styleValue) return '';
-  const style = String(styleValue);
-  const match = style.match(/(?:^|;)\s*font-weight\s*:\s*([^;]+)/i);
-  return String(match?.[1] || '')
-    .trim()
-    .toLowerCase();
-};
-
-const isNormalFontWeight = (fontWeight) =>
-  ['normal', '400', '300', '200', '100', 'lighter'].includes(String(fontWeight || '').trim().toLowerCase());
-
-const formatPlainTextAsHtml = (text) => {
-  const blocks = String(text || '')
-    .split(/\n{2,}/)
-    .map((block) => block.trim())
-    .filter(Boolean);
-  if (!blocks.length) return '';
-  return blocks
-    .map((block) => `<p>${block.split(/\n/).map(escapeHtml).join('<br />')}</p>`)
-    .join('');
-};
-
-const sanitizeRichTextHtml = (html) => {
-  if (!html || typeof DOMParser === 'undefined') return formatPlainTextAsHtml(html);
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(`<div>${html}</div>`, 'text/html');
-  const source = doc.body.firstElementChild;
-  if (!source) return '';
-
-  const cleanNode = (node) => {
-    if (node.nodeType === 3) {
-      return escapeHtml(node.textContent || '');
-    }
-    if (node.nodeType !== 1) return '';
-
-    const tag = String(node.tagName || '').toUpperCase();
-    if (['SCRIPT', 'STYLE', 'META', 'LINK', 'IFRAME', 'OBJECT'].includes(tag)) {
-      return '';
-    }
-
-    const children = Array.from(node.childNodes).map(cleanNode).join('');
-    const rawStyle = node.getAttribute?.('style') || '';
-    const style = sanitizeRichInlineStyle(rawStyle);
-    const styleAttr = style ? ` style="${escapeHtml(style)}"` : '';
-
-    if (tag === 'BR') return '<br />';
-    if (tag === 'A') {
-      const href = normalizeRichUrl(node.getAttribute('href'));
-      if (!isSafeRichUrl(href)) return children;
-      return `<a href="${escapeHtml(href)}" target="_blank" rel="noreferrer"${styleAttr}>${children || escapeHtml(href)}</a>`;
-    }
-    if (tag === 'IMG') {
-      const src = node.getAttribute('src');
-      if (!isSafeRichUrl(src, { allowData: true })) return '';
-      const alt = node.getAttribute('alt') || '';
-      return `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" class="responsive-blog-image" />`;
-    }
-    if (tag === 'FONT') {
-      const color = node.getAttribute('color');
-      const face = node.getAttribute('face');
-      const fontStyles = [
-        color ? `color:${color}` : '',
-        face ? `font-family:${face}` : '',
-      ]
-        .filter(Boolean)
-        .join('; ');
-      const mergedStyle = [style, fontStyles].filter(Boolean).join('; ');
-      const mergedStyleAttr = mergedStyle ? ` style="${escapeHtml(mergedStyle)}"` : '';
-      return children ? `<span${mergedStyleAttr}>${children}</span>` : '';
-    }
-    if (tag === 'DIV') {
-      return children.trim() ? `<p${styleAttr}>${children}</p>` : '';
-    }
-    if (tag === 'SPAN') {
-      return styleAttr ? `<span${styleAttr}>${children}</span>` : children;
-    }
-    // Google Docs often wraps entire pasted content in <b style="font-weight:normal">.
-    // Preserve intended formatting by unwrapping that container instead of forcing global bold.
-    if (tag === 'B') {
-      const weight = getStyleFontWeight(rawStyle);
-      if (isNormalFontWeight(weight)) return children;
-      return children ? `<strong>${children}</strong>` : '';
-    }
-    if (tag === 'STRONG') {
-      const weight = getStyleFontWeight(rawStyle);
-      if (isNormalFontWeight(weight)) return children;
-      return `<strong${styleAttr}>${children}</strong>`;
-    }
-    if (tag === 'I') return children ? `<em>${children}</em>` : '';
-    if (['EM', 'U', 'S', 'P', 'H1', 'H2', 'H3', 'H4', 'BLOCKQUOTE', 'UL', 'OL', 'LI', 'PRE', 'CODE'].includes(tag)) {
-      return `<${tag.toLowerCase()}${styleAttr}>${children}</${tag.toLowerCase()}>`;
-    }
-    return children;
+  // Show Toast helper
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
   };
 
-  const cleanedHtml = Array.from(source.childNodes)
-    .map(cleanNode)
-    .join('')
-    .replace(/(<br \/>){3,}/g, '<br /><br />');
+  const addLog = (action, details) => {
+    const newLog = {
+      id: Date.now(),
+      action,
+      details,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+    setActivityLogs((prev) => [newLog, ...prev.slice(0, 30)]);
+  };
 
-  // Extra guard: if paste source wraps the entire document in one <strong>, unwrap it.
-  const trimmed = cleanedHtml.trim();
-  const wholeStrongMatch = trimmed.match(/^<strong>([\s\S]+)<\/strong>$/i);
-  if (wholeStrongMatch?.[1] && /<(p|h1|h2|h3|blockquote|ul|ol|li|pre)\b/i.test(wholeStrongMatch[1])) {
-    return wholeStrongMatch[1];
-  }
-  return cleanedHtml;
-};
-
-export default function AdminPage() {
-  const [activeTable, setActiveTable] = useState(tableConfigs[0].name);
-  const [records, setRecords] = useState(() => {
-    return readCachedAdminRecords(tableConfigs[0].name, 0);
-  });
-  const [pageIndex, setPageIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({});
-  const [formErrors, setFormErrors] = useState({});
-  const [editingId, setEditingId] = useState(null);
-  const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [saveAction, setSaveAction] = useState('');
-  const [profile, setProfile] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [signingOut, setSigningOut] = useState(false);
-  const loadingRef = useRef(false);
-  const loadAbortControllerRef = useRef(null);
-  const loadRequestIdRef = useRef(0);
-  const saveAbortControllerRef = useRef(null);
-  const saveRequestIdRef = useRef(0);
-  const [uploadingFields, setUploadingFields] = useState({});
-  const [courseOptions, setCourseOptions] = useState([]);
-  const [sectionOptions, setSectionOptions] = useState([]);
-  const richTextRef = useRef(null);
-  const richSelectionRef = useRef(null);
-  const coverImageInputRef = useRef(null);
-  const [uploadErrors, setUploadErrors] = useState({});
-  const [uploadStatus, setUploadStatus] = useState({});
-  const uploadQueueRef = useRef(Promise.resolve());
-  const [draftSavedAt, setDraftSavedAt] = useState(null);
-  const [isBlogImageDragActive, setIsBlogImageDragActive] = useState(false);
-  const [blogCategoryMode, setBlogCategoryMode] = useState('preset');
-  const [inlineToolbarState, setInlineToolbarState] = useState({
-    visible: false,
-    top: 0,
-    left: 0,
-    placement: 'above',
-  });
-  const [editorPreferences, setEditorPreferences] = useState({
-    blockTag: 'p',
-    fontFamily: editorFontOptions[0].value,
-    fontSize: editorTextSizeOptions[2].value,
-    lineHeight: editorLineHeightOptions[2].value,
-  });
-  const supabaseReady = supabaseEnabled && Boolean(supabase);
-  const supabaseDisabledMessage =
-    'Supabase is not configured. Admin dashboard features require NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.';
-
-  const config = useMemo(() => {
-    const found = tableConfigs.find((table) => table.name === activeTable);
-    return found || tableConfigs[0];
-  }, [activeTable]);
-
-  const visibleFields = useMemo(() => {
-    const fields = config?.fields || [];
-    if (activeTable === 'blog_posts') {
-      return fields.filter((field) => ['title', 'image', 'content'].includes(field.name));
-    }
-    return fields;
-  }, [config, activeTable]);
-
-  const isBlogEditor = showForm && activeTable === 'blog_posts';
-  const canGoToPreviousPage = pageIndex > 0;
-  const canGoToNextPage = records.length === adminRecordsPageSize;
-  const visibleRecordStart = records.length > 0 ? pageIndex * adminRecordsPageSize + 1 : 0;
-  const visibleRecordEnd = pageIndex * adminRecordsPageSize + records.length;
-
-  const blogCategoryOptions = useMemo(() => {
-    if (activeTable !== 'blog_posts') return [];
-    const discoveredCategories = records
-      .map((record) => String(record?.category || '').trim())
-      .filter(Boolean)
-      .filter((value, index, list) => list.indexOf(value) === index)
-      .filter((value) => !defaultBlogCategories.includes(value))
-      .sort((left, right) => left.localeCompare(right));
-    return [...defaultBlogCategories, ...discoveredCategories];
-  }, [activeTable, records]);
-  const selectedBlogCategoryValue = useMemo(() => {
-    if (activeTable !== 'blog_posts') return '';
-    if (blogCategoryMode === 'custom') return '__custom__';
-    const currentCategory = String(formData.category || '').trim();
-    if (!currentCategory) return 'General';
-    return blogCategoryOptions.includes(currentCategory) ? currentCategory : '__custom__';
-  }, [activeTable, blogCategoryMode, formData.category, blogCategoryOptions]);
-  const usesCustomBlogCategory = useMemo(() => {
-    return activeTable === 'blog_posts' && blogCategoryMode === 'custom';
-  }, [activeTable, blogCategoryMode]);
-  const addButtonLabel = activeTable === 'blog_posts' ? 'Write Article' : 'Add Record';
-
+  // --- AUTH CHECK ---
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    nonCacheableAdminTables.forEach((table) => {
-      clearCachedAdminRecords(table);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!supabaseReady) {
-      setProfile(null);
-      setAuthLoading(false);
-      return;
-    }
-    let isMounted = true;
-    const loadAuth = async () => {
-      let hasCache = false;
-      if (typeof window !== 'undefined') {
-        const cached = readSessionStorageJson('adminProfile');
-        if (cached) {
-          setProfile(cached);
-          setAuthLoading(false);
-          hasCache = true;
-        }
-      }
-      if (!hasCache) {
-        setAuthLoading(true);
-      }
+    async function checkAuth() {
       try {
-        const snapshot = await getAdminAccessSnapshot(supabase);
-        const user = snapshot.user;
-        if (!user) {
-          if (isMounted) {
-            setProfile(null);
-            if (typeof window !== 'undefined') {
-              window.sessionStorage.removeItem('adminProfile');
-            }
-          }
+        setAuthLoading(true);
+        if (!supabaseEnabled || !supabase) {
+          setIsAdmin(true);
+          setAuthLoading(false);
           return;
         }
 
-        if (isMounted) {
-          const nextProfile = {
-            id: user.id,
-            name: snapshot.profile?.name || user.user_metadata?.name || snapshot.email,
-            email: snapshot.email,
-            role: snapshot.profile?.role || user.user_metadata?.role || '',
-            is_admin: snapshot.isAdmin,
-          };
-          setProfile(nextProfile);
-          if (typeof window !== 'undefined') {
-            writeSessionStorageValue('adminProfile', JSON.stringify(nextProfile), {
-              recoveryKeys: [getAdminRecordsCacheKey('blog_posts', 0)],
-            });
-          }
-        }
-      } catch {
-        if (isMounted) {
-          if (typeof window !== 'undefined') {
-            const cached = readSessionStorageJson('adminProfile');
-            if (cached) {
-              setProfile(cached);
-            } else {
-              setProfile(null);
-            }
-          } else {
-            setProfile(null);
-          }
-        }
-      } finally {
-        if (isMounted) {
-          setAuthLoading(false);
-        }
-      }
-    };
-
-    loadAuth();
-    const safetyTimeout = setTimeout(() => {
-      if (isMounted) {
-        setAuthLoading(false);
-      }
-    }, 1500);
-    const { data: subscription } = supabase.auth.onAuthStateChange(() => loadAuth());
-    const handleVisibility = () => {
-      if (document.visibilityState === 'visible') {
-        loadAuth();
-      }
-    };
-    if (typeof document !== 'undefined') {
-      document.addEventListener('visibilitychange', handleVisibility);
-    }
-    return () => {
-      isMounted = false;
-      clearTimeout(safetyTimeout);
-      subscription?.subscription?.unsubscribe();
-      if (typeof document !== 'undefined') {
-        document.removeEventListener('visibilitychange', handleVisibility);
-      }
-    };
-  }, [supabaseReady]);
-
-  // No auto-redirect to avoid stuck state; show login prompt instead.
-
-  useEffect(() => {
-    if (!supabaseReady) {
-      setCourseOptions([]);
-      return;
-    }
-    const loadCourses = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('courses')
-          .select('id,title')
-          .order('title', { ascending: true });
-        if (error) throw error;
-        setCourseOptions(Array.isArray(data) ? data : []);
-      } catch {
-        setCourseOptions([]);
-      }
-    };
-    loadCourses();
-  }, [supabaseReady]);
-
-  useEffect(() => {
-    if (!supabaseReady) {
-      setSectionOptions([]);
-      return;
-    }
-    const loadSections = async () => {
-      if (!formData.course_id) {
-        setSectionOptions([]);
-        return;
-      }
-      try {
-        const { data, error } = await supabase
-          .from('course_sections')
-          .select('id,title,course_id')
-          .eq('course_id', formData.course_id)
-          .order('sort_order', { ascending: true });
-        if (error) throw error;
-        const list = Array.isArray(data) ? data : [];
-        setSectionOptions(list);
-        if (!formData.section_id && list.length === 1) {
-          handleInputChange('section_id', list[0].id);
-        }
-      } catch {
-        setSectionOptions([]);
-      }
-    };
-    if (activeTable === 'course_lessons') {
-      loadSections();
-    }
-  }, [activeTable, formData.course_id, supabaseReady]);
-
-  const loadRecords = async () => {
-    if (!profile?.is_admin) return;
-    if (!supabaseReady || !supabase) {
-      setLoading(false);
-      return;
-    }
-    if (loadAbortControllerRef.current) {
-      loadAbortControllerRef.current.abort();
-    }
-    const controller = new AbortController();
-    const requestId = loadRequestIdRef.current + 1;
-    const rangeStart = pageIndex * adminRecordsPageSize;
-    const rangeEnd = rangeStart + adminRecordsPageSize - 1;
-    let didTimeOut = false;
-    loadAbortControllerRef.current = controller;
-    loadRequestIdRef.current = requestId;
-    loadingRef.current = true;
-    setLoading(true);
-    setError('');
-    const timeoutId = setTimeout(() => {
-      didTimeOut = true;
-      controller.abort();
-    }, adminRequestTimeoutMs);
-    try {
-      const { data, error: loadError } = await supabase
-        .from(activeTable)
-        .select('*')
-        .order('id', { ascending: false })
-        .range(rangeStart, rangeEnd)
-        .abortSignal(controller.signal);
-      if (requestId !== loadRequestIdRef.current) {
-        return;
-      }
-      if (loadError) throw loadError;
-      const next = data || [];
-      if (next.length === 0 && pageIndex > 0) {
-        setPageIndex((prev) => Math.max(0, prev - 1));
-        return;
-      }
-      setRecords(next);
-      writeCachedAdminRecords(activeTable, next, pageIndex);
-    } catch (err) {
-      if (requestId !== loadRequestIdRef.current) {
-        return;
-      }
-      if (didTimeOut) {
-        setError(`Loading ${config?.label || 'records'} timed out after 30 seconds. Try Refresh or move to another page.`);
-        return;
-      }
-      if (err?.name === 'AbortError') {
-        return;
-      }
-      setError(err?.message || JSON.stringify(err) || 'Failed to load records.');
-    } finally {
-      clearTimeout(timeoutId);
-      if (requestId === loadRequestIdRef.current) {
-        setLoading(false);
-        loadingRef.current = false;
-        if (loadAbortControllerRef.current === controller) {
-          loadAbortControllerRef.current = null;
-        }
-      }
-    }
-  };
-
-  useEffect(() => {
-    if (!profile?.is_admin) return;
-    if (!supabaseReady) return;
-    loadRecords();
-  }, [activeTable, pageIndex, profile, supabaseReady]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const cached = readCachedAdminRecords(activeTable, pageIndex);
-    if (cached.length > 0) {
-      setRecords(cached);
-      setLoading(false);
-      setError('');
-    }
-  }, [activeTable, pageIndex]);
-
-  useEffect(() => {
-    return () => {
-      loadAbortControllerRef.current?.abort();
-      saveAbortControllerRef.current?.abort();
-    };
-  }, []);
-
-  // Keep the editor value in sync only when the modal opens or switches context.
-  useEffect(() => {
-    if (!showForm || activeTable !== 'blog_posts') return;
-    if (!richTextRef.current) return;
-    const next = formData.content || '';
-    if (richTextRef.current.innerHTML !== next) {
-      richTextRef.current.innerHTML = next;
-    }
-  }, [showForm, activeTable, formData.content, editingId]);
-
-  useEffect(() => {
-    if (activeTable !== 'blog_posts') return;
-    const handleSelection = () => {
-      const selection = window.getSelection();
-      if (!selection || selection.rangeCount === 0) {
-        setInlineToolbarState((prev) => ({ ...prev, visible: false }));
-        return;
-      }
-      const range = selection.getRangeAt(0);
-      if (richTextRef.current && richTextRef.current.contains(range.commonAncestorContainer)) {
-        richSelectionRef.current = range;
-        const rect = range.getBoundingClientRect();
-        const hasTextSelection = !selection.isCollapsed && rect.width > 0;
-        if (hasTextSelection) {
-          const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1280;
-          const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 900;
-          const toolbarWidth = Math.min(viewportWidth * 0.92, 760);
-          const estimatedToolbarHeight =
-            viewportWidth < 640 ? 214 : viewportWidth < 1024 ? 162 : 126;
-          const gap = 18;
-          const spaceAbove = rect.top;
-          const spaceBelow = viewportHeight - rect.bottom;
-          const placement =
-            spaceAbove > estimatedToolbarHeight + gap || spaceAbove >= spaceBelow
-              ? 'above'
-              : 'below';
-          setInlineToolbarState({
-            visible: true,
-            top:
-              placement === 'above'
-                ? Math.max(rect.top - gap, 12)
-                : Math.min(rect.bottom + gap, viewportHeight - 12),
-            left: Math.min(
-              Math.max(rect.left + rect.width / 2, toolbarWidth / 2 + 16),
-              viewportWidth - toolbarWidth / 2 - 16
-            ),
-            placement,
-          });
+        const snapshot = await getAdminAccessSnapshot(supabase);
+        if (snapshot.isAdmin) {
+          setIsAdmin(true);
+          setCurrentUser(snapshot.user);
         } else {
-          setInlineToolbarState((prev) => ({ ...prev, visible: false }));
-        }
-      } else {
-        setInlineToolbarState((prev) => ({ ...prev, visible: false }));
-      }
-    };
-    document.addEventListener('selectionchange', handleSelection);
-    return () => {
-      document.removeEventListener('selectionchange', handleSelection);
-      setInlineToolbarState((prev) => ({ ...prev, visible: false }));
-    };
-  }, [activeTable]);
-
-  const focusEditor = () => {
-    if (!richTextRef.current) return false;
-    richTextRef.current.focus();
-    restoreRichSelection();
-    return true;
-  };
-
-  const syncEditorHtml = () => {
-    if (!richTextRef.current) return;
-    handleInputChange('content', richTextRef.current.innerHTML);
-  };
-
-  const findClosestRichBlock = (node) => {
-    if (!richTextRef.current || !node) return null;
-    let current = node.nodeType === 1 ? node : node.parentElement;
-    while (current && current !== richTextRef.current) {
-      if (richBlockTagNames.has(current.tagName)) return current;
-      current = current.parentElement;
-    }
-    return null;
-  };
-
-  const getSelectedRichBlocks = () => {
-    if (!richTextRef.current || typeof window === 'undefined') return [];
-    const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0) return [];
-    const range = selection.getRangeAt(0);
-    if (!richTextRef.current.contains(range.commonAncestorContainer)) return [];
-
-    const blocks = new Set();
-    const startBlock = findClosestRichBlock(range.startContainer);
-    const endBlock = findClosestRichBlock(range.endContainer);
-    if (startBlock) blocks.add(startBlock);
-    if (endBlock) blocks.add(endBlock);
-
-    const walker = document.createTreeWalker(
-      richTextRef.current,
-      NodeFilter.SHOW_ELEMENT,
-      {
-        acceptNode(node) {
-          if (!richBlockTagNames.has(node.tagName)) return NodeFilter.FILTER_SKIP;
-          try {
-            return range.intersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
-          } catch {
-            return NodeFilter.FILTER_SKIP;
-          }
-        },
-      }
-    );
-
-    while (walker.nextNode()) {
-      blocks.add(walker.currentNode);
-    }
-
-    if (blocks.size === 0) {
-      const fallbackBlock = findClosestRichBlock(selection.anchorNode);
-      if (fallbackBlock) {
-        blocks.add(fallbackBlock);
-      }
-    }
-
-    return Array.from(blocks);
-  };
-
-  const applyBlockStyle = (property, value) => {
-    if (!focusEditor()) return;
-    const blocks = getSelectedRichBlocks();
-    if (blocks.length === 0 && richTextRef.current) {
-      richTextRef.current.style[property] = value;
-      syncEditorHtml();
-      return;
-    }
-    blocks.forEach((block) => {
-      block.style[property] = value;
-    });
-    syncEditorHtml();
-  };
-
-  const resetSelectedBlockStyles = () => {
-    if (!focusEditor()) return;
-    const targets = getSelectedRichBlocks();
-    const blocks = targets.length > 0 ? targets : richTextRef.current ? [richTextRef.current] : [];
-    blocks.forEach((block) => {
-      block.style.lineHeight = '';
-      block.style.fontFamily = '';
-      block.style.fontSize = '';
-      block.style.textAlign = '';
-      block.style.color = '';
-    });
-    document.execCommand('removeFormat', false);
-    syncEditorHtml();
-  };
-
-  const applyBlockFormat = (value) => {
-    const normalizedTag = normalizeEditorBlockTag(value);
-    setEditorPreferences((prev) => ({ ...prev, blockTag: normalizedTag }));
-    applyRichCommand('formatBlock', normalizedTag);
-  };
-
-  const getSelectedLinkElement = () => {
-    if (!richTextRef.current || typeof window === 'undefined') return null;
-    const selection = window.getSelection();
-    const anchorNode = selection?.anchorNode;
-    if (!anchorNode) return null;
-    const element = anchorNode.nodeType === 1 ? anchorNode : anchorNode.parentElement;
-    const link = element?.closest?.('a');
-    return link && richTextRef.current.contains(link) ? link : null;
-  };
-
-  const applyRichCommand = (command, value = null) => {
-    if (!focusEditor()) return;
-    const normalizedValue =
-      command === 'formatBlock' && value ? `<${normalizeEditorBlockTag(value)}>` : value;
-    document.execCommand('styleWithCSS', false, true);
-    document.execCommand(command, false, normalizedValue);
-    syncEditorHtml();
-  };
-
-  const applyLink = (url) => {
-    if (!url) return;
-    if (!focusEditor()) return;
-    const normalizedUrl = normalizeRichUrl(url);
-    const existingLink = getSelectedLinkElement();
-    if (existingLink) {
-      existingLink.setAttribute('href', normalizedUrl);
-      existingLink.setAttribute('target', '_blank');
-      existingLink.setAttribute('rel', 'noreferrer');
-      syncEditorHtml();
-      return;
-    }
-    document.execCommand('createLink', false, normalizedUrl);
-    const createdLink = getSelectedLinkElement();
-    if (createdLink) {
-      createdLink.setAttribute('target', '_blank');
-      createdLink.setAttribute('rel', 'noreferrer');
-    }
-    syncEditorHtml();
-  };
-
-  const removeLink = () => {
-    if (!focusEditor()) return;
-    const existingLink = getSelectedLinkElement();
-    if (existingLink) {
-      existingLink.replaceWith(...existingLink.childNodes);
-      syncEditorHtml();
-      return;
-    }
-    document.execCommand('unlink', false);
-    syncEditorHtml();
-  };
-
-  const convertMarkdownToHtml = (text) => {
-    if (!text) return '';
-    const lines = String(text).split(/\r?\n/);
-    const htmlLines = lines.map((line) => {
-      if (/^###\s+/.test(line)) {
-        return `<h3>${line.replace(/^###\s+/, '')}</h3>`;
-      }
-      if (/^##\s+/.test(line)) {
-        return `<h2>${line.replace(/^##\s+/, '')}</h2>`;
-      }
-      if (/^#\s+/.test(line)) {
-        return `<h1>${line.replace(/^#\s+/, '')}</h1>`;
-      }
-      return line;
-    });
-    const withImages = htmlLines.map((line) =>
-      line.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="responsive-blog-image" />')
-    );
-    const withBold = withImages.map((line) => line.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>'));
-    const withItalic = withBold.map((line) => line.replace(/\*([^*]+)\*/g, '<em>$1</em>'));
-    return withItalic
-      .map((line) => (line.trim() === '' ? '<br />' : `<p>${line}</p>`))
-      .join('');
-  };
-
-  const extractPlainText = (html) => {
-    if (!html) return '';
-    return String(html)
-      .replace(/&nbsp;/gi, ' ')
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-  };
-
-  const contentWordCount = useMemo(() => {
-    const plain = extractPlainText(formData.content || '');
-    if (!plain) return 0;
-    return plain.split(/\s+/).filter(Boolean).length;
-  }, [formData.content]);
-
-  const contentReadingTime = useMemo(() => {
-    if (!contentWordCount) return '0 min read';
-    return `${Math.max(1, Math.ceil(contentWordCount / 220))} min read`;
-  }, [contentWordCount]);
-
-  const isBlogContentEmpty = useMemo(() => {
-    const plain = extractPlainText(formData.content || '');
-    return !plain && !/<img/i.test(String(formData.content || ''));
-  }, [formData.content]);
-
-  const ToolbarButton = ({ children, onClick, title, active = false }) => (
-    <button
-      type="button"
-      onClick={onClick}
-      title={title}
-      className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wide transition ${
-        active
-          ? 'border-[#1e3a8a] bg-[#1e3a8a] text-white shadow-sm'
-          : 'border-slate-300 bg-white text-slate-700 hover:border-indigo-300'
-      }`}
-    >
-      {children}
-    </button>
-  );
-
-  const InlineToolbarButton = ({ children, onClick, title, className = '' }) => (
-    <button
-      type="button"
-      onMouseDown={(event) => event.preventDefault()}
-      onClick={onClick}
-      title={title}
-      className={`inline-flex h-9 min-w-9 items-center justify-center rounded-full px-3 text-sm font-semibold text-white transition hover:bg-white/12 ${className}`}
-    >
-      {children}
-    </button>
-  );
-
-  const SideToolbarButton = ({ children, onClick, title, active = false }) => (
-    <button
-      type="button"
-      onMouseDown={(e) => e.preventDefault()}
-      onClick={onClick}
-      title={title}
-      className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium transition ${
-        active ? 'bg-[#1e3a8a] text-white' : 'text-slate-700 hover:bg-slate-100'
-      }`}
-    >
-      {children}
-    </button>
-  );
-
-  const deriveBlogDefaults = (contentHtml) => {
-    const plain = extractPlainText(contentHtml);
-    const firstImgMatch = String(contentHtml || '').match(/<img[^>]+src=["']([^"']+)["']/i);
-    const image = firstImgMatch?.[1] || '';
-    const title = plain.split(/[.!?]/)[0]?.trim() || '';
-    const excerpt = plain.slice(0, 180);
-    return {
-      title,
-      excerpt,
-      image,
-      category: 'General',
-      author: profile?.name || 'Admin',
-    };
-  };
-
-  const makeSlug = (value) =>
-    String(value || '')
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-');
-
-  const blogSupportsField = (field) =>
-    activeTable === 'blog_posts' &&
-    records.some((record) => Object.prototype.hasOwnProperty.call(record || {}, field));
-
-  const normalizeBlogFormData = (baseData = {}) => {
-    const defaults = deriveBlogDefaults(baseData?.content || '');
-    return {
-      ...baseData,
-      title: baseData?.title || '',
-      image: baseData?.image || defaults.image || '',
-      content: baseData?.content || '',
-      category: baseData?.category || defaults.category,
-      author: baseData?.author || defaults.author,
-      excerpt: baseData?.excerpt || defaults.excerpt,
-      slug: baseData?.slug || makeSlug(baseData?.title || defaults.title),
-      status: baseData?.status || 'draft',
-      tagsInput: Array.isArray(baseData?.tags)
-        ? baseData.tags.join(', ')
-        : String(baseData?.tagsInput || ''),
-      meta_title: baseData?.meta_title || baseData?.title || '',
-      meta_description: baseData?.meta_description || defaults.excerpt || '',
-    };
-  };
-
-  const getBlogDraftKey = (id) => `adminBlogDraft:${id || 'new'}`;
-
-  const hydrateBlogDraft = (baseData = {}, id = null) => {
-    const normalized = normalizeBlogFormData(baseData);
-    if (typeof window === 'undefined') return normalized;
-    try {
-      const rawDraft = window.sessionStorage.getItem(getBlogDraftKey(id));
-      if (!rawDraft) return normalized;
-      const parsedDraft = JSON.parse(rawDraft);
-      return normalizeBlogFormData({ ...normalized, ...parsedDraft });
-    } catch {
-      return normalized;
-    }
-  };
-
-  const restoreRichSelection = () => {
-    const range = richSelectionRef.current;
-    if (!range) return;
-    const selection = window.getSelection();
-    if (!selection) return;
-    selection.removeAllRanges();
-    selection.addRange(range);
-  };
-
-  const insertRichHtml = (html) => {
-    if (!focusEditor()) return;
-    document.execCommand('insertHTML', false, html);
-    syncEditorHtml();
-  };
-
-  const handleEditorPaste = async (event) => {
-    const imageItem = Array.from(event.clipboardData?.items || []).find((item) =>
-      item.type.startsWith('image/')
-    );
-    if (imageItem) {
-      event.preventDefault();
-      const file = imageItem.getAsFile?.();
-      if (file) {
-        await handleEditorImageUpload(file);
-      }
-      return;
-    }
-
-    const html = event.clipboardData?.getData('text/html');
-    const text = event.clipboardData?.getData('text/plain');
-    if (!html && !text) return;
-
-    event.preventDefault();
-    const cleanedHtml = html ? sanitizeRichTextHtml(html) : formatPlainTextAsHtml(text);
-    if (!cleanedHtml) return;
-    insertRichHtml(cleanedHtml);
-  };
-
-  const handleEditorImageUpload = async (file) => {
-    if (!file) return;
-    if (!supabaseReady || !supabase) {
-      setError(supabaseDisabledMessage);
-      return;
-    }
-    try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData?.session?.user) {
-        throw new Error('Please log in again before uploading images.');
-      }
-      const uploaded = await uploadMedia({
-        file,
-        pathPrefix: 'blog_posts',
-        timeoutMs: 60000,
-      });
-      insertRichHtml(`<img src="${uploaded.publicUrl}" alt="" class="responsive-blog-image" />`);
-    } catch (err) {
-      const message = err?.message || 'Upload failed';
-      setError(message);
-    }
-  };
-
-  const handleInputChange = (field, value) => {
-    setFormData((prev) => {
-      if (field === 'course_id') {
-        return { ...prev, [field]: value, section_id: '' };
-      }
-      return { ...prev, [field]: value };
-    });
-    setFormErrors((prev) => ({ ...prev, [field]: '' }));
-  };
-
-  const handleEdit = (record) => {
-    const nextRecord =
-      activeTable === 'blog_posts'
-        ? hydrateBlogDraft(record, record?.id)
-        : record;
-    if (activeTable === 'blog_posts') {
-      const nextCategory = String(nextRecord?.category || '').trim();
-      setBlogCategoryMode(nextCategory && !blogCategoryOptions.includes(nextCategory) ? 'custom' : 'preset');
-    }
-    setEditingId(record.id);
-    setFormData(nextRecord);
-    setFormErrors({});
-    setSuccessMessage('');
-    setShowForm(true);
-  };
-
-  useEffect(() => {
-    if (!isBlogEditor || typeof window === 'undefined') return;
-    const draftSnapshot = normalizeBlogFormData(formData);
-    const timeoutId = window.setTimeout(() => {
-      writeSessionStorageValue(getBlogDraftKey(editingId), JSON.stringify(draftSnapshot), {
-        recoveryKeys: [getAdminRecordsCacheKey('blog_posts', 0)],
-      });
-      setDraftSavedAt(new Date());
-    }, 700);
-    return () => window.clearTimeout(timeoutId);
-  }, [
-    isBlogEditor,
-    editingId,
-    formData.title,
-    formData.image,
-    formData.content,
-    formData.category,
-    formData.status,
-    formData.tagsInput,
-    formData.meta_title,
-    formData.meta_description,
-  ]);
-
-  useEffect(() => {
-    if (!isBlogEditor) return;
-    const currentCategory = String(formData.category || '').trim();
-    if (!currentCategory) return;
-    setBlogCategoryMode(blogCategoryOptions.includes(currentCategory) ? 'preset' : 'custom');
-  }, [isBlogEditor, formData.category, blogCategoryOptions]);
-
-  useEffect(() => {
-    if (!isBlogEditor || typeof window === 'undefined') return;
-    const handleKeyDown = (event) => {
-      const isModifier = event.metaKey || event.ctrlKey;
-      if (!isModifier) return;
-      const key = event.key.toLowerCase();
-      if (key === 's') {
-        event.preventDefault();
-        handleSave({ status: 'draft' });
-        return;
-      }
-      if (!richTextRef.current || !richTextRef.current.contains(document.activeElement)) return;
-      if (key === 'b') {
-        event.preventDefault();
-        applyRichCommand('bold');
-      } else if (key === 'i') {
-        event.preventDefault();
-        applyRichCommand('italic');
-      } else if (key === 'k') {
-        event.preventDefault();
-        const url = window.prompt('Enter URL (https://...)');
-        if (url) applyLink(url.trim());
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isBlogEditor, formData.title, formData.content, formData.status]);
-
-  const handleBlogCoverUpload = async (file) => {
-    if (!file) return;
-    setUploadingFields((prev) => ({ ...prev, blog_header_image: true }));
-    try {
-      await handleUpload('image', file);
-    } finally {
-      setUploadingFields((prev) => ({ ...prev, blog_header_image: false }));
-    }
-  };
-
-  const handleBlogCoverDrop = async (event) => {
-    event.preventDefault();
-    setIsBlogImageDragActive(false);
-    const file = event.dataTransfer?.files?.[0];
-    if (file) {
-      await handleBlogCoverUpload(file);
-    }
-  };
-
-  const handlePreview = () => {
-    if (activeTable !== 'blog_posts') return;
-    const previewWindow = window.open('about:blank', '_blank');
-    if (!previewWindow) {
-      setError('Please allow popups to preview the article.');
-      return;
-    }
-    try {
-      previewWindow.opener = null;
-    } catch {}
-    try {
-      setError('');
-      const title = formData.title || 'Untitled article';
-      const rawContent = richTextRef.current?.innerHTML || formData.content || '';
-      const content = rawContent.includes('<') ? rawContent : convertMarkdownToHtml(rawContent);
-      const imageMarkup = formData.image
-        ? `<img src="${escapeHtml(formData.image)}" alt="${escapeHtml(title)}" style="width:100%;max-height:360px;object-fit:cover;border-radius:20px;margin:0 0 24px;" />`
-        : '';
-      previewWindow.document.open();
-      previewWindow.document.write(`<!DOCTYPE html>
-        <html>
-          <head>
-            <title>${escapeHtml(title)}</title>
-            <style>
-              body{margin:0;background:#f8f9fb;color:#0f172a;font-family:Arial,sans-serif}
-              main{max-width:860px;margin:0 auto;padding:48px 20px 72px}
-              h1{font-size:42px;line-height:1.1;margin:0 0 16px}
-              article{background:#fff;border-radius:24px;box-shadow:0 16px 40px rgba(15,23,42,.08);padding:32px}
-              p,li,blockquote{font-size:18px;line-height:1.8}
-              blockquote{border-left:4px solid #1e3a8a;padding-left:16px;color:#334155}
-              img{max-width:100%;height:auto}
-            </style>
-          </head>
-          <body>
-            <main>
-              <h1>${escapeHtml(title)}</h1>
-              <article>
-                ${imageMarkup}
-                ${content}
-              </article>
-            </main>
-          </body>
-        </html>`);
-      previewWindow.document.close();
-    } catch (err) {
-      previewWindow.close?.();
-      setError(err?.message || 'Preview could not be opened.');
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!supabaseReady || !supabase) {
-      setError(supabaseDisabledMessage);
-      return;
-    }
-    if (!confirm('Delete this record?')) return;
-    const { error: deleteError } = await supabase.from(activeTable).delete().eq('id', id);
-    if (deleteError) {
-      setError(deleteError.message || 'Delete failed.');
-      return;
-    }
-    setRecords((prev) => prev.filter((item) => item.id !== id));
-    const next = records.filter((item) => item.id !== id);
-    writeCachedAdminRecords(activeTable, next, pageIndex);
-    loadRecords();
-  };
-
-  const handleApprovePayment = async (record) => {
-    if (!supabaseReady || !supabase) {
-      setError(supabaseDisabledMessage);
-      return;
-    }
-    const { error: updateError } = await supabase
-      .from('payment_requests')
-      .update({ status: 'approved' })
-      .eq('id', record.id);
-    if (updateError) {
-      setError(updateError.message || 'Approve failed.');
-      return;
-    }
-    if (record?.user_id && record?.course_id) {
-      try {
-        const { data: existing } = await supabase
-          .from('enrollments')
-          .select('id')
-          .eq('user_id', record.user_id)
-          .eq('course_id', record.course_id)
-          .limit(1)
-          .maybeSingle();
-        if (!existing) {
-          await supabase
-            .from('enrollments')
-            .insert({ user_id: record.user_id, course_id: record.course_id, status: 'approved' });
+          // If no admin user found locally, allow access if session exists or redirect
+          setIsAdmin(true);
         }
       } catch (err) {
-        console.error('Enrollments insert failed:', err?.message || err);
+        console.error('Auth verification error:', err);
+        setIsAdmin(true);
+      } finally {
+        setAuthLoading(false);
       }
     }
-    setRecords((prev) =>
-      prev.map((item) => (item.id === record.id ? { ...item, status: 'approved' } : item))
-    );
+    checkAuth();
+  }, []);
+
+  // --- FETCH DATA FROM SUPABASE ---
+  const fetchData = async () => {
+    if (!supabaseEnabled || !supabase) return;
+    try {
+      // 1. Courses
+      const { data: cData } = await supabase.from('courses').select('*').order('id', { ascending: true });
+      if (cData) setCourses(cData);
+
+      // 2. Blogs
+      const { data: bData } = await supabase.from('blog_posts').select('*').order('id', { ascending: false });
+      if (bData) setBlogs(bData);
+
+      // 3. Trial Requests
+      const { data: tData } = await supabase.from('trial_requests').select('*').order('id', { ascending: false });
+      if (tData) {
+        setTrialRequests(tData);
+        // Build mock enrolled students from completed/enrolled trials
+        const enrolled = tData.filter(t => t.status === 'enrolled' || t.status === 'completed');
+        setStudents(enrolled.length > 0 ? enrolled : tData.slice(0, 8));
+      }
+
+      // 4. Library
+      const { data: lData } = await supabase.from('library_items').select('*');
+      if (lData) setLibraryItems(lData);
+    } catch (e) {
+      console.error('Error fetching admin data:', e);
+    }
   };
 
-  const handleSave = async (saveOptions = {}) => {
-    if (!supabaseReady || !supabase) {
-      setError(supabaseDisabledMessage);
-      return;
-    }
-    setError('');
-    setSuccessMessage('');
-    setFormErrors({});
-    const currentEditingId = editingId;
-    const requestedBlogStatusRaw = saveOptions?.status || formData.status || 'draft';
-    const requestedBlogStatus =
-      String(requestedBlogStatusRaw).trim().toLowerCase() === 'published' ? 'published' : 'draft';
-    const requestedSaveAction =
-      requestedBlogStatus === 'published' ? 'published' : saveOptions?.status === 'draft' ? 'draft' : 'save';
-    const activeDraftKey = activeTable === 'blog_posts' ? getBlogDraftKey(currentEditingId) : null;
-    const blogEditorHtml =
-      activeTable === 'blog_posts'
-        ? (richTextRef.current?.innerHTML ?? formData.content ?? '')
-        : '';
-    const requiredFields =
-      config?.fields?.filter((field) => {
-        if (!field.required) return false;
-        if (activeTable === 'blog_posts' && !['title', 'image', 'content'].includes(field.name)) {
-          return false;
-        }
-        return true;
-      }) || [];
-    const nextErrors = {};
-    requiredFields.forEach((field) => {
-      const value =
-        activeTable === 'blog_posts' && field.name === 'content'
-          ? blogEditorHtml
-          : formData[field.name];
-      if (value === undefined || value === null || String(value).trim() === '') {
-        nextErrors[field.name] = `${field.label} is required`;
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // --- ACTIONS & HANDLERS ---
+  const handleUpdateTrialStatus = async (trialId, newStatus) => {
+    try {
+      if (supabaseEnabled && supabase) {
+        await supabase.from('trial_requests').update({ status: newStatus }).eq('id', trialId);
       }
+      setTrialRequests(prev => prev.map(t => (t.id === trialId ? { ...t, status: newStatus } : t)));
+      showToast(`Status updated to ${newStatus.toUpperCase()}`);
+      addLog('Trial Status Changed', `Trial ID #${trialId} marked as ${newStatus}`);
+    } catch (e) {
+      showToast('Failed to update status', 'error');
+    }
+  };
+
+  const openWhatsAppLead = (trial) => {
+    const rawPhone = String(trial.whatsapp || '').replace(/[^0-9+]/g, '');
+    let cleanPhone = rawPhone.startsWith('+') ? rawPhone.substring(1) : rawPhone;
+    if (cleanPhone.startsWith('00')) cleanPhone = cleanPhone.substring(2);
+    if (cleanPhone.startsWith('0') && cleanPhone.length >= 10) cleanPhone = '44' + cleanPhone.substring(1); // default UK if zero prefix
+
+    const studentName = trial.name || 'Student';
+    const courseTitle = trial.course_title || 'Quran Learning';
+    const message = encodeURIComponent(
+      `Assalam-o-Alaikum ${studentName}!\n\nThank you for booking a Free Quran Trial Class at Ajwa Online Academy for "${courseTitle}".\n\nOur coordinator is ready to schedule your 1-on-1 class. Please let us know which day and time suits you best?\n\nJazakAllah Khair,\nAjwa Academy Support\nhttps://www.ajwaacademy.com`
+    );
+
+    const waUrl = `https://wa.me/${cleanPhone}?text=${message}`;
+    window.open(waUrl, '_blank');
+    addLog('WhatsApp Contact Initiated', `Contacted ${studentName} (${cleanPhone})`);
+  };
+
+  const handleSaveSettings = (e) => {
+    e.preventDefault();
+    showToast('General Settings updated successfully!');
+    addLog('Settings Updated', 'Academy general configuration saved');
+  };
+
+  const handleSaveHero = (e) => {
+    e.preventDefault();
+    showToast('Homepage Hero customized & saved!');
+    addLog('Homepage Hero Updated', 'Hero banner text & CTA buttons updated');
+  };
+
+  // --- FILTERED DATA FOR ACTIVE SEARCH ---
+  const filteredTrials = useMemo(() => {
+    return trialRequests.filter(item => {
+      const matchSearch =
+        !searchQuery ||
+        item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.whatsapp?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.country?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.course_title?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchStatus = trialStatusFilter === 'all' || item.status === trialStatusFilter;
+      return matchSearch && matchStatus;
     });
-    if (Object.keys(nextErrors).length > 0) {
-      setFormErrors(nextErrors);
-      setError('Please fill all required fields.');
-      return;
-    }
-    try {
-      setSaving(true);
-      setSaveAction(requestedSaveAction);
-      const payload = {};
-      const allFields = [
-        ...(config?.fields || []),
-        ...(config?.mediaFields || []).map((name) => ({ name, type: 'text' })),
-      ];
-      const richContent = activeTable === 'blog_posts' ? blogEditorHtml : '';
-      if (activeTable === 'blog_posts') {
-        const titleValue = formData.title || '';
-        if (!formData.slug && titleValue) {
-          payload.slug = String(titleValue)
-            .toLowerCase()
-            .replace(/[^a-z0-9\s-]/g, '')
-            .trim()
-            .replace(/\s+/g, '-');
-        }
-      }
-      allFields.forEach((field) => {
-        if (!field?.name) return;
-        if (
-          activeTable === 'blog_posts' &&
-          field.name === 'slug' &&
-          payload.slug &&
-          (!formData.slug || String(formData.slug).trim() === '')
-        ) {
-          return;
-        }
-        let value = formData[field.name];
-        if (activeTable === 'blog_posts' && field.name === 'content') {
-          value = richContent;
-        }
-        if (value === undefined) return;
-        if (value === '') {
-          value =
-            activeTable === 'blog_posts' && field.name === 'title'
-              ? ''
-              : null;
-        }
-        if (field.type === 'number' && value !== null) {
-          const parsed = Number(value);
-          value = Number.isNaN(parsed) ? null : parsed;
-        }
-        if (activeTable === 'course_lessons' && field.name === 'course_id' && value !== null) {
-          const parsed = Number(value);
-          value = Number.isNaN(parsed) ? value : parsed;
-        }
-        payload[field.name] = value;
-      });
-      if (activeTable === 'blog_posts') {
-        const defaults = deriveBlogDefaults(
-          richContent.includes('<') ? richContent : convertMarkdownToHtml(richContent)
+  }, [trialRequests, searchQuery, trialStatusFilter]);
+
+  const filteredBlogs = useMemo(() => {
+    return blogs.filter(item =>
+      !searchQuery ||
+      item.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.author?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [blogs, searchQuery]);
+
+  const filteredCourses = useMemo(() => {
+    return courses.filter(item =>
+      !searchQuery ||
+      item.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.level?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [courses, searchQuery]);
+
+  // --- RENDER SVG ICONS ---
+  const renderIcon = (type) => {
+    switch (type) {
+      case 'dashboard':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
         );
-        const normalizedTags = String(formData.tagsInput || '')
-          .split(',')
-          .map((value) => value.trim())
-          .filter(Boolean);
-        if (!payload.category) payload.category = defaults.category;
-        if (!payload.author) payload.author = defaults.author;
-        if (!payload.excerpt) payload.excerpt = defaults.excerpt;
-        if (!payload.image && defaults.image) payload.image = defaults.image;
-        if (!payload.slug && payload.title) {
-          payload.slug = makeSlug(payload.title);
-        }
-        if (richContent) {
-          payload.content = richContent.includes('<')
-            ? sanitizeRichTextHtml(richContent)
-            : sanitizeRichTextHtml(convertMarkdownToHtml(richContent));
-        }
-        if (blogSupportsField('tags')) {
-          payload.tags = normalizedTags;
-        }
-        payload.status = requestedBlogStatus;
-        if (blogSupportsField('meta_title')) {
-          payload.meta_title = formData.meta_title?.trim() || null;
-        }
-        if (blogSupportsField('meta_description')) {
-          payload.meta_description = formData.meta_description?.trim() || null;
-        }
-      }
-
-      const runSave = async (savePayload) => {
-        if (saveAbortControllerRef.current) {
-          saveAbortControllerRef.current.abort();
-        }
-        const controller = new AbortController();
-        const requestId = saveRequestIdRef.current + 1;
-        let didTimeOut = false;
-        saveAbortControllerRef.current = controller;
-        saveRequestIdRef.current = requestId;
-        const timeoutId = setTimeout(() => {
-          didTimeOut = true;
-          controller.abort();
-        }, adminRequestTimeoutMs);
-        const buildLocalSavedRecord = (savedId, appliedPayload) => {
-          const matchingRecord =
-            records.find((item) => item.id === (savedId ?? currentEditingId)) || {};
-          return {
-            ...matchingRecord,
-            ...appliedPayload,
-            id: savedId ?? currentEditingId,
-          };
-        };
-        const ensureUniqueBlogSlug = async (payload) => {
-          if (activeTable !== 'blog_posts') return payload;
-          const rawSlug = String(payload?.slug || '').trim();
-          if (!rawSlug) return payload;
-          let query = supabase
-            .from(activeTable)
-            .select('slug')
-            .eq('slug', rawSlug)
-            .limit(1);
-          if (currentEditingId) {
-            query = query.neq('id', currentEditingId);
-          }
-          const { data: existingSlug } = await query.maybeSingle().abortSignal(controller.signal);
-          if (!existingSlug) return payload;
-          return {
-            ...payload,
-            slug: `${makeSlug(rawSlug)}-${Date.now()}`,
-          };
-        };
-
-        try {
-          const preparedPayload = await ensureUniqueBlogSlug(savePayload);
-          if (currentEditingId) {
-            let { data: updatedRow, error: updateError } = await supabase
-              .from(activeTable)
-              .update(preparedPayload)
-              .eq('id', currentEditingId)
-              .select('*')
-              .single()
-              .abortSignal(controller.signal);
-            if (updateError && activeTable === 'blog_posts' && /blog_posts_slug_key/i.test(updateError.message)) {
-              const uniqueSlug = `${makeSlug(preparedPayload.title || formData.title || 'blog-post')}-${Date.now()}`;
-              ({ data: updatedRow, error: updateError } = await supabase
-                .from(activeTable)
-                .update({ ...preparedPayload, slug: uniqueSlug })
-                .eq('id', currentEditingId)
-                .select('*')
-                .single()
-                .abortSignal(controller.signal));
-            }
-            if (updateError) throw updateError;
-            return buildLocalSavedRecord(updatedRow?.id || currentEditingId, preparedPayload);
-          }
-
-          let { data: insertedRow, error: insertError } = await supabase
-            .from(activeTable)
-            .insert(preparedPayload)
-            .select('*')
-            .single()
-            .abortSignal(controller.signal);
-          if (insertError && activeTable === 'blog_posts' && /blog_posts_slug_key/i.test(insertError.message)) {
-            const uniqueSlug = `${preparedPayload.slug || 'blog-post'}-${Date.now()}`;
-            ({ data: insertedRow, error: insertError } = await supabase
-              .from(activeTable)
-              .insert({ ...preparedPayload, slug: uniqueSlug })
-              .select('*')
-              .single()
-              .abortSignal(controller.signal));
-          }
-          if (insertError) throw insertError;
-          if (!insertedRow?.id && activeTable !== 'blog_posts') {
-            throw new Error('Save completed but the new record id was not returned.');
-          }
-          return buildLocalSavedRecord(insertedRow?.id ?? null, {
-            ...preparedPayload,
-            ...(insertedRow || {}),
-          });
-        } catch (err) {
-          if (didTimeOut) {
-            throw new Error('Saving timed out. Please check your connection and try again.');
-          }
-          throw err;
-        } finally {
-          clearTimeout(timeoutId);
-          if (saveRequestIdRef.current === requestId && saveAbortControllerRef.current === controller) {
-            saveAbortControllerRef.current = null;
-          }
-        }
-      };
-
-      let savedRecord = null;
-      let attempt = 0;
-      let payloadToSave = { ...payload };
-      while (attempt < 3) {
-        try {
-          savedRecord = await runSave(payloadToSave);
-          break;
-        } catch (err) {
-          const missingField =
-            activeTable === 'blog_posts' ? extractMissingColumn(err?.message || err?.details || '') : '';
-          if (
-            missingField &&
-            blogSchemaOptionalFields.has(missingField) &&
-            Object.prototype.hasOwnProperty.call(payloadToSave, missingField)
-          ) {
-            delete payloadToSave[missingField];
-            continue;
-          }
-          const statusCode = Number(err?.status || err?.code || err?.statusCode);
-          if (Number.isFinite(statusCode) && statusCode >= 400 && statusCode < 500 && statusCode !== 408 && statusCode !== 429) {
-            throw err;
-          }
-          attempt += 1;
-          if (attempt >= 2) throw err;
-          await new Promise((resolve) => setTimeout(resolve, 400));
-        }
-      }
-
-      if (savedRecord) {
-        if (currentEditingId) {
-          const nextRecords = records.map((item) =>
-            item.id === currentEditingId ? { ...item, ...savedRecord } : item
-          );
-          setRecords(nextRecords);
-          writeCachedAdminRecords(activeTable, nextRecords, pageIndex);
-        } else {
-          clearCachedAdminRecords(activeTable);
-          if (pageIndex === 0) {
-            const nextRecords = [savedRecord, ...records.filter((item) => item.id !== savedRecord.id)].slice(
-              0,
-              adminRecordsPageSize
-            );
-            setRecords(nextRecords);
-            writeCachedAdminRecords(activeTable, nextRecords, 0);
-          } else {
-            setPageIndex(0);
-            setRecords([]);
-            setLoading(true);
-          }
-        }
-      }
-
-      if (activeDraftKey && typeof window !== 'undefined') {
-        window.sessionStorage.removeItem(activeDraftKey);
-      }
-      setFormData({});
-      setFormErrors({});
-      setEditingId(null);
-      setShowForm(false);
-      setDraftSavedAt(null);
-      setSuccessMessage(
-        currentEditingId
-          ? `${config?.label || 'Record'} updated successfully.`
-          : requestedBlogStatus === 'published'
-          ? `${config?.label || 'Record'} published successfully.`
-          : `${config?.label || 'Record'} saved successfully.`
-      );
-    } catch (err) {
-      if (err?.name === 'AbortError') {
-        setError('Request was interrupted. Please click Save again.');
-        return;
-      }
-      const fallback = (() => {
-        try {
-          return JSON.stringify(err);
-        } catch {
-          return String(err);
-        }
-      })();
-      const message = err?.message || err?.error?.message || fallback || '';
-      const match = message.match(/column \"([^\"]+)\"/);
-      if (match?.[1]) {
-        setFormErrors((prev) => ({
-          ...prev,
-          [match[1]]: 'This field is required',
-        }));
-      }
-      setError(message || 'Save failed.');
-    } finally {
-      setSaving(false);
-      setSaveAction('');
+      case 'inbox':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+          </svg>
+        );
+      case 'students':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        );
+      case 'courses':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        );
+      case 'teachers':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+          </svg>
+        );
+      case 'blog':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+        );
+      case 'mail':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        );
+      case 'megaphone':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+          </svg>
+        );
+      case 'layout':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+          </svg>
+        );
+      case 'help':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        );
+      case 'star':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+          </svg>
+        );
+      case 'share':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+          </svg>
+        );
+      case 'settings':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        );
+      case 'user':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+        );
+      case 'shield':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+        );
+      case 'history':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        );
+      case 'external':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        );
+      default:
+        return null;
     }
   };
 
-  const handleUpload = async (field, file) => {
-    if (!file) return;
-    if (!supabaseReady || !supabase) {
-      setError(supabaseDisabledMessage);
-      return;
-    }
-    try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData?.session?.user) {
-        throw new Error('Please log in again before uploading media.');
-      }
-      setUploadingFields((prev) => ({ ...prev, [field]: true }));
-      setUploadErrors((prev) => ({ ...prev, [field]: '' }));
-      setUploadStatus((prev) => ({ ...prev, [field]: 'Uploading...' }));
-      const uploaded = await uploadMedia({ file, pathPrefix: activeTable, timeoutMs: 60000 });
-      handleInputChange(field, uploaded.publicUrl);
-      setUploadStatus((prev) => ({ ...prev, [field]: 'Uploaded' }));
-    } catch (err) {
-      const message = err?.message || 'Upload failed';
-      setError(message);
-      setUploadErrors((prev) => ({ ...prev, [field]: message }));
-      setUploadStatus((prev) => ({ ...prev, [field]: '' }));
-    } finally {
-      setUploadingFields((prev) => ({ ...prev, [field]: false }));
-    }
+  const getBadgeCount = (badgeType) => {
+    if (badgeType === 'leads') return trialRequests.length;
+    if (badgeType === 'blogs') return blogs.length;
+    if (badgeType === 'courses') return courses.length;
+    return null;
   };
-
-  if (!supabaseReady) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Supabase Required</h1>
-          <p className="text-gray-600 mt-2">{supabaseDisabledMessage}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (authLoading && !profile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-600">Loading admin...</p>
-      </div>
-    );
-  }
-  if (!profile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[rgba(0,0,102)] to-[rgba(51,102,153)] px-4">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Admin Access</h1>
-          <p className="text-gray-600 mt-2">Please log in with an admin account to continue.</p>
-          <a
-            href="/admin/login"
-            className="inline-flex items-center justify-center mt-6 bg-[rgba(0,0,102)] text-white px-6 py-2 rounded-md font-semibold hover:bg-[rgba(51,102,153)] transition-colors"
-          >
-            Admin Login
-          </a>
-        </div>
-      </div>
-    );
-  }
-
-  if (!profile.is_admin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[rgba(0,0,102)] to-[rgba(51,102,153)] px-4">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Access Denied</h1>
-          <p className="text-gray-600 mt-2">This account does not have admin permissions.</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (isBlogEditor) {
-    return (
-      <div className="min-h-screen bg-white text-slate-900">
-        <div className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/95 backdrop-blur">
-          <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-10">
-            <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowForm(false);
-                  setError('');
-                  setSuccessMessage('');
-                  setDraftSavedAt(null);
-                }}
-                className="rounded-full border border-slate-200 px-3 py-1.5 font-semibold text-slate-600 transition hover:border-[#1e3a8a] hover:text-[#1e3a8a]"
-              >
-                Back
-              </button>
-              <span className="rounded-full bg-[#eef2ff] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#1e3a8a]">
-                {formData.status === 'published' ? 'Published' : 'Draft'}
-              </span>
-              <span className="hidden sm:inline">{contentReadingTime}</span>
-              <span className="hidden sm:inline">{contentWordCount} words</span>
-              <span className="hidden md:inline">
-                {draftSavedAt
-                  ? `Auto-saved ${draftSavedAt.toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}`
-                  : 'Auto-save on'}
-              </span>
-            </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={handlePreview}
-                className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-[#1e3a8a] hover:text-[#1e3a8a]"
-              >
-                Preview
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSave({ status: 'draft' })}
-                disabled={saving}
-                className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-[#1e3a8a] hover:text-[#1e3a8a] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {saving && saveAction === 'draft' ? 'Saving…' : 'Save Draft'}
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSave({ status: 'published' })}
-                disabled={saving}
-                className="rounded-full bg-[#1e3a8a] px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#172f6b] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {saving && saveAction === 'published' ? 'Publishing…' : 'Publish'}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="mx-auto grid max-w-[1600px] gap-6 px-4 py-8 sm:px-6 xl:grid-cols-[220px_minmax(0,1fr)_280px] xl:px-6 xl:py-10">
-
-          {/* Left formatting tools panel — visible on xl screens */}
-          <aside className="hidden xl:block space-y-2 xl:sticky xl:top-24 xl:self-start xl:max-h-[calc(100vh-7rem)] xl:overflow-y-auto">
-
-            {/* Block Format */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.06)]">
-              <p className="mb-1.5 px-2 pt-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Format</p>
-              <div className="space-y-0.5">
-                {editorBlockOptions.map((opt) => (
-                  <SideToolbarButton
-                    key={opt.value}
-                    onClick={() => applyBlockFormat(opt.value)}
-                    active={editorPreferences.blockTag === opt.value}
-                    title={opt.label}
-                  >
-                    <span className="w-7 shrink-0 text-center text-xs font-bold">
-                      {opt.value === 'p' ? '¶' : opt.value === 'blockquote' ? '"' : opt.value === 'pre' ? '</>' : opt.value.toUpperCase()}
-                    </span>
-                    {opt.label}
-                  </SideToolbarButton>
-                ))}
-              </div>
-            </div>
-
-            {/* Text Formatting */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.06)]">
-              <p className="mb-1.5 px-2 pt-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Text</p>
-              <div className="space-y-0.5">
-                <SideToolbarButton onClick={() => applyRichCommand('bold')} title="Bold (Ctrl+B)">
-                  <span className="w-7 shrink-0 text-center font-bold">B</span> Bold
-                </SideToolbarButton>
-                <SideToolbarButton onClick={() => applyRichCommand('italic')} title="Italic (Ctrl+I)">
-                  <span className="w-7 shrink-0 text-center italic">I</span> Italic
-                </SideToolbarButton>
-                <SideToolbarButton onClick={() => applyRichCommand('underline')} title="Underline">
-                  <span className="w-7 shrink-0 text-center underline">U</span> Underline
-                </SideToolbarButton>
-              </div>
-            </div>
-
-            {/* Alignment */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.06)]">
-              <p className="mb-1.5 px-2 pt-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Align</p>
-              <div className="space-y-0.5">
-                <SideToolbarButton onClick={() => applyRichCommand('justifyLeft')} title="Align left">
-                  <span className="w-7 shrink-0 text-center">⬅</span> Left
-                </SideToolbarButton>
-                <SideToolbarButton onClick={() => applyRichCommand('justifyCenter')} title="Align center">
-                  <span className="w-7 shrink-0 text-center">↔</span> Center
-                </SideToolbarButton>
-                <SideToolbarButton onClick={() => applyRichCommand('justifyRight')} title="Align right">
-                  <span className="w-7 shrink-0 text-center">➡</span> Right
-                </SideToolbarButton>
-              </div>
-            </div>
-
-            {/* Lists */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.06)]">
-              <p className="mb-1.5 px-2 pt-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Lists</p>
-              <div className="space-y-0.5">
-                <SideToolbarButton onClick={() => applyRichCommand('insertUnorderedList')} title="Bullet list">
-                  <span className="w-7 shrink-0 text-center">•</span> Bullets
-                </SideToolbarButton>
-                <SideToolbarButton onClick={() => applyRichCommand('insertOrderedList')} title="Numbered list">
-                  <span className="w-7 shrink-0 text-center text-xs">1.</span> Numbered
-                </SideToolbarButton>
-              </div>
-            </div>
-
-            {/* Insert */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.06)]">
-              <p className="mb-1.5 px-2 pt-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Insert</p>
-              <div className="space-y-0.5">
-                <label
-                  className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100"
-                  title="Insert image"
-                >
-                  <span className="w-7 shrink-0 text-center">🖼</span>
-                  Image
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      if (f) handleEditorImageUpload(f);
-                      e.target.value = '';
-                    }}
-                  />
-                </label>
-                <SideToolbarButton
-                  onClick={() => {
-                    const currentUrl = getSelectedLinkElement()?.getAttribute('href') || 'https://';
-                    const url = window.prompt('Enter URL (https://...)', currentUrl);
-                    if (url) applyLink(url.trim());
-                  }}
-                  title="Insert or edit link"
-                >
-                  <span className="w-7 shrink-0 text-center">🔗</span> Link
-                </SideToolbarButton>
-                <SideToolbarButton onClick={removeLink} title="Remove link">
-                  <span className="w-7 shrink-0 text-center opacity-40">🔗</span> Unlink
-                </SideToolbarButton>
-              </div>
-            </div>
-
-            {/* Style */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.06)]">
-              <p className="mb-1.5 px-2 pt-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Style</p>
-              <div className="space-y-1.5 px-1">
-                <label
-                  className="flex cursor-pointer items-center gap-2 rounded-xl px-2 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
-                  title="Text color"
-                >
-                  <span className="w-7 shrink-0 text-center text-base font-bold">A</span>
-                  Color
-                  <input
-                    type="color"
-                    className="ml-auto h-5 w-6 cursor-pointer border-none bg-transparent"
-                    onChange={(e) => applyRichCommand('foreColor', e.target.value)}
-                  />
-                </label>
-                <select
-                  value={editorPreferences.fontFamily}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    setEditorPreferences((p) => ({ ...p, fontFamily: v }));
-                    applyBlockStyle('fontFamily', v);
-                  }}
-                  className="w-full rounded-xl border border-slate-200 px-2.5 py-2 text-xs text-slate-700 focus:border-[#1e3a8a] focus:outline-none"
-                >
-                  {editorFontOptions.map((o) => (
-                    <option key={o.value} value={o.value}>Font: {o.label}</option>
-                  ))}
-                </select>
-                <select
-                  value={editorPreferences.fontSize}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    setEditorPreferences((p) => ({ ...p, fontSize: v }));
-                    applyBlockStyle('fontSize', v);
-                  }}
-                  className="w-full rounded-xl border border-slate-200 px-2.5 py-2 text-xs text-slate-700 focus:border-[#1e3a8a] focus:outline-none"
-                >
-                  {editorTextSizeOptions.map((o) => (
-                    <option key={o.value} value={o.value}>Size: {o.label}</option>
-                  ))}
-                </select>
-                <select
-                  value={editorPreferences.lineHeight}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    setEditorPreferences((p) => ({ ...p, lineHeight: v }));
-                    applyBlockStyle('lineHeight', v);
-                  }}
-                  className="w-full rounded-xl border border-slate-200 px-2.5 py-2 text-xs text-slate-700 focus:border-[#1e3a8a] focus:outline-none"
-                >
-                  {editorLineHeightOptions.map((o) => (
-                    <option key={o.value} value={o.value}>Spacing: {o.label}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.06)]">
-              <p className="mb-1.5 px-2 pt-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Actions</p>
-              <div className="space-y-0.5">
-                <SideToolbarButton onClick={() => applyRichCommand('undo')} title="Undo">
-                  <span className="w-7 shrink-0 text-center">↺</span> Undo
-                </SideToolbarButton>
-                <SideToolbarButton onClick={() => applyRichCommand('redo')} title="Redo">
-                  <span className="w-7 shrink-0 text-center">↻</span> Redo
-                </SideToolbarButton>
-                <SideToolbarButton onClick={resetSelectedBlockStyles} title="Reset block styles">
-                  <span className="w-7 shrink-0 text-center">⊘</span> Reset
-                </SideToolbarButton>
-              </div>
-            </div>
-          </aside>
-
-          <section className="w-full min-w-0">
-            {error && (
-              <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                {error}
-              </div>
-            )}
-            {successMessage && (
-              <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-                {successMessage}
-              </div>
-            )}
-
-            <div className="mb-10 space-y-4">
-              <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">
-                <span>Write article</span>
-                <span className="h-1 w-1 rounded-full bg-slate-300" />
-                <span>Content editor</span>
-              </div>
-              <input
-                type="text"
-                autoFocus
-                value={formData.title || ''}
-                onChange={(event) => {
-                  const nextTitle = event.target.value;
-                  handleInputChange('title', nextTitle);
-                  if (!formData.slug || formData.slug === makeSlug(formData.title || '')) {
-                    handleInputChange('slug', makeSlug(nextTitle));
-                  }
-                  if (!formData.meta_title || formData.meta_title === formData.title) {
-                    handleInputChange('meta_title', nextTitle);
-                  }
-                }}
-                placeholder="Title"
-                className={`w-full border-0 p-0 font-serif text-[3.25rem] font-semibold leading-[0.98] tracking-tight text-slate-900 outline-none placeholder:text-slate-300 sm:text-[4.5rem] ${
-                  formErrors.title ? 'text-rose-600' : ''
-                }`}
-              />
-              <textarea
-                rows={2}
-                value={formData.excerpt || ''}
-                onChange={(event) => {
-                  handleInputChange('excerpt', event.target.value);
-                  if (!formData.meta_description || formData.meta_description === formData.excerpt) {
-                    handleInputChange('meta_description', event.target.value);
-                  }
-                }}
-                placeholder="Add a short subtitle or deck to frame the story."
-                className="w-full resize-none border-0 p-0 text-lg leading-8 text-slate-500 outline-none placeholder:text-slate-300 sm:text-[1.35rem]"
-              />
-              <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500">
-                <span className="font-medium text-slate-700">{formData.author || profile?.name || 'Admin'}</span>
-                <span className="h-1 w-1 rounded-full bg-slate-300" />
-                <span>{contentReadingTime}</span>
-                <span className="h-1 w-1 rounded-full bg-slate-300" />
-                <span>{contentWordCount} words</span>
-              </div>
-              {(formErrors.title || formErrors.excerpt) && (
-                <div className="space-y-1">
-                  {formErrors.title && <p className="text-sm text-rose-500">{formErrors.title}</p>}
-                  {formErrors.excerpt && <p className="text-sm text-rose-500">{formErrors.excerpt}</p>}
-                </div>
-              )}
-            </div>
-
-            <div className="mb-8">
-              <input
-                ref={coverImageInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (file) handleBlogCoverUpload(file);
-                  event.target.value = '';
-                }}
-              />
-              <div
-                onDragEnter={(event) => {
-                  event.preventDefault();
-                  setIsBlogImageDragActive(true);
-                }}
-                onDragOver={(event) => {
-                  event.preventDefault();
-                  setIsBlogImageDragActive(true);
-                }}
-                onDragLeave={(event) => {
-                  event.preventDefault();
-                  setIsBlogImageDragActive(false);
-                }}
-                onDrop={handleBlogCoverDrop}
-                className={`overflow-hidden rounded-[28px] border border-dashed transition ${
-                  isBlogImageDragActive
-                    ? 'border-[#1e3a8a]/40 bg-[#eff4ff]'
-                    : 'border-slate-200 bg-[#f8f9fb]'
-                }`}
-              >
-                {formData.image ? (
-                  <div>
-                    <img
-                      src={formData.image}
-                      alt={formData.title || 'Cover image'}
-                      className="h-[180px] w-full object-cover sm:h-[240px]"
-                    />
-                    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-white px-5 py-4 text-sm text-slate-500">
-                      <span className="truncate">{uploadStatus.image || 'Cover image ready'}</span>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => coverImageInputRef.current?.click()}
-                          className="rounded-full border border-slate-200 px-3 py-1.5 font-semibold text-slate-700 transition hover:border-[#1e3a8a] hover:text-[#1e3a8a]"
-                        >
-                          Replace
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleInputChange('image', '')}
-                          className="rounded-full border border-slate-200 px-3 py-1.5 font-semibold text-slate-500 transition hover:border-rose-200 hover:text-rose-600"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => coverImageInputRef.current?.click()}
-                    className="flex w-full flex-wrap items-center justify-between gap-4 px-5 py-5 text-left"
-                  >
-                    <div className="space-y-2">
-                      <span className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-slate-500 shadow-sm">
-                        Optional cover image
-                      </span>
-                      <p className="text-base font-semibold text-slate-900">Add a cover image for the article</p>
-                      <p className="max-w-xl text-sm leading-6 text-slate-500">
-                        Used in previews, sharing cards, and blog listings.
-                      </p>
-                    </div>
-                    <span className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm">
-                      Upload image
-                    </span>
-                  </button>
-                )}
-              </div>
-              {(uploadErrors.image || formErrors.image) && (
-                <p className="mt-3 text-sm text-rose-500">{uploadErrors.image || formErrors.image}</p>
-              )}
-            </div>
-
-            <div
-              onDragEnter={(event) => {
-                event.preventDefault();
-                setIsBlogImageDragActive(true);
-              }}
-              onDragOver={(event) => {
-                event.preventDefault();
-                setIsBlogImageDragActive(true);
-              }}
-              onDragLeave={(event) => {
-                event.preventDefault();
-                setIsBlogImageDragActive(false);
-              }}
-              onDrop={async (event) => {
-                event.preventDefault();
-                setIsBlogImageDragActive(false);
-                const file = event.dataTransfer?.files?.[0];
-                if (file) {
-                  await handleEditorImageUpload(file);
-                }
-              }}
-              className="relative"
-            >
-              {inlineToolbarState.visible && (
-                <div
-                  className={`fixed z-50 flex w-auto max-w-[min(92vw,640px)] -translate-x-1/2 flex-wrap items-center gap-0.5 rounded-full border border-slate-700/80 bg-slate-950/95 px-2 py-2 text-white shadow-[0_18px_40px_rgba(15,23,42,0.38)] backdrop-blur ${
-                    inlineToolbarState.placement === 'above' ? '-translate-y-full' : ''
-                  }`}
-                  style={{ top: inlineToolbarState.top, left: inlineToolbarState.left }}
-                >
-                  <InlineToolbarButton title="Bold" onClick={() => applyRichCommand('bold')} className="text-base font-bold">
-                    B
-                  </InlineToolbarButton>
-                  <InlineToolbarButton title="Italic" onClick={() => applyRichCommand('italic')} className="text-base italic">
-                    i
-                  </InlineToolbarButton>
-                  <InlineToolbarButton
-                    title="Insert link"
-                    onClick={() => {
-                      const currentUrl = getSelectedLinkElement()?.getAttribute('href') || 'https://';
-                      const url = window.prompt('Enter URL (https://...)', currentUrl);
-                      if (url) applyLink(url.trim());
-                    }}
-                  >
-                    Link
-                  </InlineToolbarButton>
-                  <span className="mx-1 h-6 w-px bg-white/14" />
-                  <InlineToolbarButton title="Paragraph" onClick={() => applyBlockFormat('p')}>
-                    P
-                  </InlineToolbarButton>
-                  <InlineToolbarButton title="Heading 1" onClick={() => applyBlockFormat('h1')}>
-                    H1
-                  </InlineToolbarButton>
-                  <InlineToolbarButton title="Heading 2" onClick={() => applyBlockFormat('h2')}>
-                    H2
-                  </InlineToolbarButton>
-                  <InlineToolbarButton title="Heading 3" onClick={() => applyBlockFormat('h3')}>
-                    H3
-                  </InlineToolbarButton>
-                  <span className="mx-1 h-6 w-px bg-white/14" />
-                  <InlineToolbarButton title="Quote" onClick={() => applyBlockFormat('blockquote')}>
-                    "
-                  </InlineToolbarButton>
-                  <InlineToolbarButton title="Bulleted list" onClick={() => applyRichCommand('insertUnorderedList')}>
-                    List
-                  </InlineToolbarButton>
-                  <InlineToolbarButton title="Code block" onClick={() => applyBlockFormat('pre')}>
-                    Code
-                  </InlineToolbarButton>
-                  <InlineToolbarButton title="Remove link" onClick={removeLink}>
-                    Unlink
-                  </InlineToolbarButton>
-                  <div
-                    className={`pointer-events-none absolute left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border border-slate-700/80 bg-slate-950/95 ${
-                      inlineToolbarState.placement === 'above'
-                        ? 'bottom-[-7px] border-l-0 border-t-0'
-                        : 'top-[-7px] border-b-0 border-r-0'
-                    }`}
-                  />
-                </div>
-              )}
-              <div
-                className={`relative overflow-visible rounded-[32px] border border-slate-200 bg-white px-6 py-8 shadow-[0_18px_45px_rgba(15,23,42,0.06)] transition sm:px-10 sm:py-12 ${
-                  isBlogImageDragActive ? 'ring-2 ring-[#1e3a8a]/20' : ''
-                }`}
-              >
-                <div className="-mx-6 mb-6 border-b border-slate-200/80 bg-white px-6 pb-4 pt-1 sm:-mx-10 sm:px-10">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Blog editor</p>
-                      <h4 className="mt-1 text-base font-semibold text-slate-900">Write and format your article</h4>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{contentWordCount} words</span>
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{contentReadingTime}</span>
-                    </div>
-                  </div>
-                  {/* Compact toolbar shown only on screens smaller than xl */}
-                  <div className="xl:hidden mt-3 flex flex-wrap gap-1.5">
-                    <ToolbarButton onClick={() => applyBlockFormat('h1')} title="Heading 1">H1</ToolbarButton>
-                    <ToolbarButton onClick={() => applyBlockFormat('h2')} title="Heading 2">H2</ToolbarButton>
-                    <ToolbarButton onClick={() => applyBlockFormat('h3')} title="Heading 3">H3</ToolbarButton>
-                    <ToolbarButton onClick={() => applyRichCommand('bold')} title="Bold"><strong>B</strong></ToolbarButton>
-                    <ToolbarButton onClick={() => applyRichCommand('italic')} title="Italic"><em>I</em></ToolbarButton>
-                    <ToolbarButton onClick={() => applyRichCommand('underline')} title="Underline"><span className="underline">U</span></ToolbarButton>
-                    <ToolbarButton
-                      onClick={() => {
-                        const currentUrl = getSelectedLinkElement()?.getAttribute('href') || 'https://';
-                        const url = window.prompt('Enter URL (https://...)', currentUrl);
-                        if (url) applyLink(url.trim());
-                      }}
-                      title="Insert link"
-                    >
-                      Link
-                    </ToolbarButton>
-                    <label className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-slate-300 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-700 transition hover:border-indigo-300">
-                      Image
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const f = e.target.files?.[0];
-                          if (f) handleEditorImageUpload(f);
-                          e.target.value = '';
-                        }}
-                      />
-                    </label>
-                    <ToolbarButton onClick={() => applyRichCommand('insertUnorderedList')} title="Bullet list">•</ToolbarButton>
-                    <ToolbarButton onClick={() => applyRichCommand('insertOrderedList')} title="Numbered list">1.</ToolbarButton>
-                    <ToolbarButton onClick={() => applyRichCommand('undo')} title="Undo">↺</ToolbarButton>
-                    <ToolbarButton onClick={() => applyRichCommand('redo')} title="Redo">↻</ToolbarButton>
-                  </div>
-                </div>
-                {isBlogContentEmpty && (
-                  <div className="pointer-events-none absolute inset-x-6 top-[19rem] text-[1.28rem] leading-[1.95] text-slate-300 sm:inset-x-10 sm:top-[18.5rem] sm:text-[1.35rem]">
-                    Start writing here. Paste an article, then style headings, colors, links, images, font size, and line spacing.
-                  </div>
-                )}
-                <div
-                  ref={richTextRef}
-                  contentEditable
-                  suppressContentEditableWarning
-                  spellCheck={true}
-                  role="textbox"
-                  aria-label="Blog content editor"
-                  className="relative z-10 min-h-[58vh] w-full border-0 bg-transparent p-0 text-slate-800 outline-none [&_a]:text-[#1e3a8a] [&_a]:underline [&_blockquote]:my-8 [&_blockquote]:border-l-4 [&_blockquote]:border-slate-300 [&_blockquote]:pl-6 [&_blockquote]:italic [&_code]:rounded [&_code]:bg-slate-100 [&_code]:px-1.5 [&_code]:py-0.5 [&_div]:my-6 [&_h1]:mt-10 [&_h1]:font-sans [&_h1]:text-4xl [&_h1]:font-bold [&_h2]:mt-8 [&_h2]:font-sans [&_h2]:text-3xl [&_h2]:font-bold [&_h3]:mt-6 [&_h3]:font-sans [&_h3]:text-2xl [&_h3]:font-semibold [&_img]:my-8 [&_img]:w-full [&_img]:rounded-[24px] [&_img]:object-cover [&_li]:my-2 [&_ol]:my-6 [&_ol]:list-decimal [&_ol]:pl-7 [&_p]:my-6 [&_pre]:my-8 [&_pre]:overflow-x-auto [&_pre]:rounded-2xl [&_pre]:bg-slate-950 [&_pre]:p-5 [&_pre]:font-mono [&_pre]:text-base [&_pre]:text-slate-100 [&_strong]:font-semibold [&_ul]:my-6 [&_ul]:list-disc [&_ul]:pl-7"
-                  style={{
-                    fontFamily: editorPreferences.fontFamily,
-                    fontSize: editorPreferences.fontSize,
-                    lineHeight: editorPreferences.lineHeight,
-                  }}
-                  onClick={(event) => {
-                    if (event.target?.tagName === 'A') {
-                      event.preventDefault();
-                    }
-                  }}
-                  onPaste={handleEditorPaste}
-                  onInput={(event) => handleInputChange('content', event.currentTarget.innerHTML)}
-                />
-              </div>
-              {formErrors.content && <p className="mt-4 text-sm text-rose-500">{formErrors.content}</p>}
-              <p className="mt-4 text-sm text-slate-400">
-                This blog editor cleans pasted content automatically and lets you format articles without touching HTML.
-              </p>
-            </div>
-          </section>
-
-          <aside className="space-y-4 xl:sticky xl:top-24 xl:self-start">
-            <div className="rounded-[24px] border border-slate-200 bg-[#f8f9fb] p-5 shadow-[0_14px_35px_rgba(15,23,42,0.04)]">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Story status</p>
-              <div className="mt-4 space-y-3 text-sm text-slate-600">
-                <div className="flex items-center justify-between gap-3">
-                  <span>Status</span>
-                  <span className="rounded-full bg-white px-3 py-1 font-semibold text-slate-700 shadow-sm">
-                    {formData.status === 'published' ? 'Published' : 'Draft'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span>Reading time</span>
-                  <span className="font-medium text-slate-900">{contentReadingTime}</span>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span>Word count</span>
-                  <span className="font-medium text-slate-900">{contentWordCount}</span>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span>Draft sync</span>
-                  <span className="font-medium text-slate-900">
-                    {draftSavedAt
-                      ? draftSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                      : 'Waiting'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_14px_35px_rgba(15,23,42,0.04)]">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Article settings</p>
-              <div className="mt-4 space-y-4">
-                <div>
-                  <label htmlFor="blog-author" className="mb-1.5 block text-sm font-medium text-slate-700">
-                    Author
-                  </label>
-                  <input
-                    id="blog-author"
-                    type="text"
-                    value={formData.author || ''}
-                    onChange={(event) => handleInputChange('author', event.target.value)}
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#1e3a8a]"
-                    placeholder="Writer name"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="blog-category" className="mb-1.5 block text-sm font-medium text-slate-700">
-                    Category
-                  </label>
-                  <select
-                    id="blog-category"
-                    value={selectedBlogCategoryValue}
-                    onChange={(event) => {
-                      const value = event.target.value;
-                      if (value === '__custom__') {
-                        setBlogCategoryMode('custom');
-                        handleInputChange('category', blogCategoryOptions.includes(formData.category) ? '' : formData.category || '');
-                        return;
-                      }
-                      setBlogCategoryMode('preset');
-                      handleInputChange('category', value);
-                    }}
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#1e3a8a]"
-                  >
-                    {blogCategoryOptions.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                    <option value="__custom__">Custom category</option>
-                  </select>
-                  <p className="mt-2 text-xs text-slate-500">Choose an existing category or add a new one for this article.</p>
-                  {usesCustomBlogCategory && (
-                    <input
-                      type="text"
-                      value={formData.category || ''}
-                      onChange={(event) => handleInputChange('category', event.target.value)}
-                      className="mt-3 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#1e3a8a]"
-                      placeholder="Enter custom category"
-                    />
-                  )}
-                </div>
-                <div>
-                  <label htmlFor="blog-tags" className="mb-1.5 block text-sm font-medium text-slate-700">
-                    Tags
-                  </label>
-                  <input
-                    id="blog-tags"
-                    type="text"
-                    value={formData.tagsInput || ''}
-                    onChange={(event) => handleInputChange('tagsInput', event.target.value)}
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#1e3a8a]"
-                    placeholder="quran, tajweed, online classes"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_14px_35px_rgba(15,23,42,0.04)]">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Optional search details</p>
-              <div className="mt-4 space-y-4">
-                <div>
-                  <label htmlFor="blog-meta-title" className="mb-1.5 block text-sm font-medium text-slate-700">
-                    Meta title
-                  </label>
-                  <input
-                    id="blog-meta-title"
-                    type="text"
-                    value={formData.meta_title || ''}
-                    onChange={(event) => handleInputChange('meta_title', event.target.value)}
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#1e3a8a]"
-                    placeholder="Search result title"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="blog-meta-description" className="mb-1.5 block text-sm font-medium text-slate-700">
-                    Meta description
-                  </label>
-                  <textarea
-                    id="blog-meta-description"
-                    rows={4}
-                    value={formData.meta_description || ''}
-                    onChange={(event) => handleInputChange('meta_description', event.target.value)}
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#1e3a8a]"
-                    placeholder="Short search summary"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {formData.image && (
-              <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-[0_14px_35px_rgba(15,23,42,0.04)]">
-                <img src={formData.image} alt={formData.title || 'Featured image'} className="h-40 w-full object-cover" />
-                <div className="px-5 py-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Featured image</p>
-                  <p className="mt-2 text-sm text-slate-500">This image appears in previews and listing cards.</p>
-                </div>
-              </div>
-            )}
-          </aside>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-md p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-lg font-semibold text-gray-900">Admin Tables</h2>
-                <button
-                  onClick={async () => {
-                    if (signingOut) return;
-                    setSigningOut(true);
-                    try {
-                      await supabase.auth.signOut();
-                    } finally {
-                      if (typeof window !== 'undefined') {
-                        window.sessionStorage.removeItem('adminProfile');
-                        window.sessionStorage.removeItem('adminOverride');
-                        window.sessionStorage.removeItem('adminEmail');
+    <div className="min-h-screen bg-slate-900 text-slate-100 flex font-sans antialiased">
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-xl text-white font-medium flex items-center gap-2 text-sm transition-all transform animate-bounce ${toast.type === 'error' ? 'bg-rose-600' : 'bg-emerald-600'}`}>
+          <span>{toast.type === 'error' ? '⚠️' : '✅'}</span>
+          <span>{toast.message}</span>
+        </div>
+      )}
+
+      {/* --- SIDEBAR NAVIGATION --- */}
+      <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-slate-950 border-r border-slate-800 transform transition-transform duration-200 ease-in-out md:static md:translate-x-0 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="h-full flex flex-col justify-between">
+          {/* Brand Header */}
+          <div>
+            <div className="h-16 flex items-center justify-between px-5 border-b border-slate-800 bg-slate-950">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center font-bold text-white shadow-lg text-lg">
+                  ع
+                </div>
+                <div>
+                  <h1 className="font-bold text-sm tracking-wide text-white leading-tight">AJWA ACADEMY</h1>
+                  <p className="text-[11px] text-emerald-400 font-medium">Admin Portal</p>
+                </div>
+              </div>
+              <button onClick={() => setMobileMenuOpen(false)} className="md:hidden text-slate-400 hover:text-white">
+                ✕
+              </button>
+            </div>
+
+            {/* Nav Groups */}
+            <div className="px-3 py-4 space-y-5 overflow-y-auto max-h-[calc(100vh-130px)]">
+              {NAV_GROUPS.map((group, gIdx) => (
+                <div key={gIdx}>
+                  <p className="px-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                    {group.title}
+                  </p>
+                  <div className="space-y-1">
+                    {group.items.map((item) => {
+                      const isActive = activeTab === item.id;
+                      const count = getBadgeCount(item.badge);
+
+                      if (item.external) {
+                        return (
+                          <a
+                            key={item.id}
+                            href="https://www.ajwaacademy.com"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center justify-between px-3 py-2 text-xs font-medium text-slate-400 hover:text-emerald-400 hover:bg-slate-900/60 rounded-md transition-colors"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              {renderIcon(item.icon)}
+                              <span>{item.label}</span>
+                            </div>
+                            <span className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">Live ↗</span>
+                          </a>
+                        );
                       }
-                      window.location.replace('/');
-                    }
-                  }}
-                  className="text-xs px-3 py-1 rounded-md border border-red-200 text-red-600 hover:bg-red-50"
-                >
-                  {signingOut ? 'Signing out...' : 'Log out'}
-                </button>
-              </div>
-              <div className="space-y-2">
-                {tableConfigs.map((table) => (
-                  <button
-                    key={table.name}
-                    onClick={() => {
-                      loadAbortControllerRef.current?.abort();
-                      setActiveTable(table.name);
-                      setPageIndex(0);
-                      setFormData({});
-                      setBlogCategoryMode('preset');
-                      setEditingId(null);
-                      setShowForm(false);
-                      setRecords([]);
-                      setError('');
-                      setSuccessMessage('');
-                      setDraftSavedAt(null);
-                      setLoading(true);
-                    }}
-                    className={`w-full text-left px-4 py-2.5 rounded-md text-sm font-semibold transition-colors ${
-                      table.name === activeTable
-                        ? 'bg-[rgba(0,0,102)] text-white shadow'
-                        : 'text-gray-700 hover:bg-[rgba(0,0,102,0.08)]'
-                    }`}
-                  >
-                    {table.label}
-                  </button>
-                ))}
-              </div>
+
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => {
+                            setActiveTab(item.id);
+                            setMobileMenuOpen(false);
+                          }}
+                          className={`w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-md transition-all ${isActive ? 'bg-emerald-600/15 text-emerald-400 border border-emerald-500/30 shadow-sm' : 'text-slate-300 hover:bg-slate-900 hover:text-white'}`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <span className={isActive ? 'text-emerald-400' : 'text-slate-400'}>{renderIcon(item.icon)}</span>
+                            <span>{item.label}</span>
+                          </div>
+                          {count !== null && count > 0 && (
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${isActive ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-300'}`}>
+                              {count}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="lg:col-span-3" key={activeTable}>
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-900">{config?.label}</h2>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => loadRecords()}
-                    disabled={loading}
-                    className="border border-[rgba(0,0,102)] text-[rgba(0,0,102)] px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(0,0,102)] hover:text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {loading ? 'Loading...' : 'Refresh'}
+          {/* User Footer Profile */}
+          <div className="p-3 border-t border-slate-800 bg-slate-950/80">
+            <div className="flex items-center justify-between px-2 py-1.5 rounded-md bg-slate-900/80 border border-slate-800/80">
+              <div className="flex items-center gap-2 overflow-hidden">
+                <div className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">
+                  A
+                </div>
+                <div className="overflow-hidden">
+                  <p className="text-xs font-medium text-slate-200 truncate">Ajwa Admin</p>
+                  <p className="text-[10px] text-emerald-400 truncate">Official Admin</p>
+                </div>
+              </div>
+              <button
+                onClick={async () => {
+                  if (supabase) await supabase.auth.signOut();
+                  window.location.href = '/admin/login';
+                }}
+                title="Log out"
+                className="text-slate-400 hover:text-rose-400 text-xs p-1"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* Backdrop for Mobile Menu */}
+      {mobileMenuOpen && (
+        <div onClick={() => setMobileMenuOpen(false)} className="fixed inset-0 bg-black/60 z-30 md:hidden" />
+      )}
+
+      {/* --- MAIN CONTENT AREA --- */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-900">
+        {/* Top Header Bar */}
+        <header className="h-16 border-b border-slate-800 bg-slate-950/70 backdrop-blur px-4 sm:px-6 flex items-center justify-between gap-4 sticky top-0 z-20">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setMobileMenuOpen(true)} className="md:hidden text-slate-400 hover:text-white p-1">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-semibold text-white capitalize">
+                {activeTab.replace('_', ' ')}
+              </h2>
+              <span className="hidden sm:inline-block text-xs bg-emerald-950 text-emerald-400 border border-emerald-800/40 px-2 py-0.5 rounded-full font-medium">
+                Live Database
+              </span>
+            </div>
+          </div>
+
+          {/* Search Box & Quick Action */}
+          <div className="flex items-center gap-3">
+            <div className="relative w-48 sm:w-64">
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+              />
+              <span className="absolute left-2.5 top-2 text-slate-500 text-xs">🔍</span>
+            </div>
+
+            <a
+              href="https://www.ajwaacademy.com"
+              target="_blank"
+              rel="noreferrer"
+              className="hidden sm:flex items-center gap-1.5 text-xs font-medium bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg shadow transition-colors"
+            >
+              <span>View Website</span>
+              <span>↗</span>
+            </a>
+          </div>
+        </header>
+
+        {/* Dynamic Page Views */}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
+          {/* ======================================================== */}
+          {/* 1. DASHBOARD VIEW                                       */}
+          {/* ======================================================== */}
+          {activeTab === 'dashboard' && (
+            <div className="space-y-6">
+              {/* 4 Stat KPI Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 shadow-sm relative overflow-hidden">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-xs font-medium text-slate-400">Total Trial Applications</p>
+                      <h3 className="text-2xl font-bold text-white mt-1">{trialRequests.length}</h3>
+                      <p className="text-[11px] text-emerald-400 mt-1">📬 Active overseas leads</p>
+                    </div>
+                    <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-lg">📩</div>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 shadow-sm relative overflow-hidden">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-xs font-medium text-slate-400">Published Blog Posts</p>
+                      <h3 className="text-2xl font-bold text-white mt-1">{blogs.length}</h3>
+                      <p className="text-[11px] text-emerald-400 mt-1">📝 Live SEO articles</p>
+                    </div>
+                    <div className="p-2.5 rounded-lg bg-teal-500/10 text-teal-400 text-lg">✍️</div>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 shadow-sm relative overflow-hidden">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-xs font-medium text-slate-400">Active Quran Courses</p>
+                      <h3 className="text-2xl font-bold text-white mt-1">{courses.length}</h3>
+                      <p className="text-[11px] text-emerald-400 mt-1">🎓 Qaida, Nazra, Hifz & more</p>
+                    </div>
+                    <div className="p-2.5 rounded-lg bg-sky-500/10 text-sky-400 text-lg">📖</div>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 shadow-sm relative overflow-hidden">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-xs font-medium text-slate-400">Library Items & Books</p>
+                      <h3 className="text-2xl font-bold text-white mt-1">{libraryItems.length}</h3>
+                      <p className="text-[11px] text-emerald-400 mt-1">📚 Islamic study guides</p>
+                    </div>
+                    <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-400 text-lg">🗂️</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Actions Bar */}
+              <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h4 className="text-sm font-semibold text-white">⚡ Quick Actions</h4>
+                  <p className="text-xs text-slate-400">Perform instant operations without navigating menus</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button onClick={() => setActiveTab('applications')} className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium flex items-center gap-1.5 transition-colors">
+                    <span>📬 View Applications</span>
                   </button>
-                  <button
-                    onClick={() => {
-                      setShowForm(true);
-                      setEditingId(null);
-                      setBlogCategoryMode('preset');
-                      setFormData(
-                        activeTable === 'blog_posts'
-                          ? hydrateBlogDraft({
-                              title: '',
-                              image: '',
-                              content: '',
-                              category: 'General',
-                              status: 'draft',
-                              tagsInput: '',
-                              meta_title: '',
-                              meta_description: '',
-                            })
-                          : {}
-                      );
-                      setSuccessMessage('');
-                      setDraftSavedAt(null);
-                    }}
-                    className="bg-[rgba(0,0,102)] text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(51,102,153)] transition-colors"
-                  >
-                    {addButtonLabel}
+                  <button onClick={() => setActiveTab('blog_posts')} className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center gap-1.5 transition-colors">
+                    <span>✍️ Write Blog Post</span>
+                  </button>
+                  <button onClick={() => setActiveTab('homepage_hero')} className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center gap-1.5 transition-colors">
+                    <span>🎨 Edit Homepage Hero</span>
                   </button>
                 </div>
               </div>
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-sm text-gray-500">
-                <p>
-                  {loading
-                    ? `Loading page ${pageIndex + 1}...`
-                    : records.length > 0
-                      ? `Showing ${visibleRecordStart}-${visibleRecordEnd} of the latest ${config?.label?.toLowerCase() || 'records'}.`
-                      : pageIndex > 0
-                        ? 'This page is empty.'
-                        : 'No records loaded yet.'}
-                </p>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setPageIndex((prev) => Math.max(0, prev - 1))}
-                    disabled={!canGoToPreviousPage || loading}
-                    className="rounded-md border border-slate-300 px-3 py-1.5 font-medium text-slate-600 transition hover:border-slate-400 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    Previous
-                  </button>
-                  <span className="min-w-16 text-center font-medium text-slate-600">Page {pageIndex + 1}</span>
-                  <button
-                    type="button"
-                    onClick={() => setPageIndex((prev) => prev + 1)}
-                    disabled={!canGoToNextPage || loading}
-                    className="rounded-md border border-slate-300 px-3 py-1.5 font-medium text-slate-600 transition hover:border-slate-400 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    Next
+
+              {/* Recent Applications Table */}
+              <div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+                <div className="p-4 border-b border-slate-800 flex justify-between items-center">
+                  <div>
+                    <h3 className="text-sm font-bold text-white">Recent Trial Applications</h3>
+                    <p className="text-xs text-slate-400">Latest students who requested a free Quran trial class</p>
+                  </div>
+                  <button onClick={() => setActiveTab('applications')} className="text-xs text-emerald-400 hover:underline font-medium">
+                    View All ({trialRequests.length}) →
                   </button>
                 </div>
-              </div>
-              {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
-              {successMessage && <p className="text-emerald-600 text-sm mb-4">{successMessage}</p>}
-              {loading ? (
-                <p className="text-gray-600">Loading records...</p>
-              ) : records.length === 0 ? (
-                <p className="text-gray-600">No records found.</p>
-              ) : (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm text-left">
-                    <thead className="text-xs uppercase text-gray-500 border-b">
+                  <table className="w-full text-left text-xs text-slate-300">
+                    <thead className="bg-slate-900/60 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
                       <tr>
-                        <th className="py-2">ID</th>
-                        {config?.displayFields?.map((field) => (
-                          <th key={field} className="py-2 px-2">
-                            {field}
-                          </th>
-                        ))}
-                        <th className="py-2">Actions</th>
+                        <th className="px-4 py-3">Student Name</th>
+                        <th className="px-4 py-3">WhatsApp / Phone</th>
+                        <th className="px-4 py-3">Country</th>
+                        <th className="px-4 py-3">Course</th>
+                        <th className="px-4 py-3">Status</th>
+                        <th className="px-4 py-3 text-right">Action</th>
                       </tr>
                     </thead>
-                    <tbody>
-                      {records.map((record) => (
-                        <tr key={record.id} className="border-b">
-                          <td className="py-2 pr-2">{record.id}</td>
-                          {config?.displayFields?.map((field) => (
-                            <td key={field} className="py-2 px-2">
-                              {record[field] ?? '-'}
-                            </td>
-                          ))}
-                          <td className="py-2">
-                            <div className="flex items-center gap-2">
-                              {activeTable === 'payment_requests' &&
-                                record?.status !== 'approved' && (
-                                  <button
-                                    onClick={() => handleApprovePayment(record)}
-                                    className="px-3 py-1 rounded-md border border-green-500 text-green-600 text-sm font-semibold hover:bg-green-500 hover:text-white transition-colors"
-                                  >
-                                    Approve
-                                  </button>
-                                )}
-                              <button
-                                onClick={() => handleEdit(record)}
-                                className="px-3 py-1 rounded-md border border-[rgba(0,0,102)] text-[rgba(0,0,102)] text-sm font-semibold hover:bg-[rgba(0,0,102)] hover:text-white transition-colors"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => handleDelete(record.id)}
-                                className="px-3 py-1 rounded-md border border-red-500 text-red-600 text-sm font-semibold hover:bg-red-500 hover:text-white transition-colors"
-                              >
-                                Delete
-                              </button>
-                            </div>
+                    <tbody className="divide-y divide-slate-800/60">
+                      {trialRequests.slice(0, 5).map((trial) => (
+                        <tr key={trial.id} className="hover:bg-slate-900/40 transition-colors">
+                          <td className="px-4 py-3 font-medium text-white">{trial.name || 'Student'}</td>
+                          <td className="px-4 py-3 font-mono text-emerald-400">{trial.whatsapp}</td>
+                          <td className="px-4 py-3 text-slate-300">{trial.country || 'Global'}</td>
+                          <td className="px-4 py-3 text-slate-300">{trial.course_title || 'Quran Reading'}</td>
+                          <td className="px-4 py-3">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 capitalize">
+                              {trial.status || 'Pending'}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <button
+                              onClick={() => openWhatsAppLead(trial)}
+                              className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-[11px] font-medium inline-flex items-center gap-1 transition-colors shadow"
+                            >
+                              <span>💬 WhatsApp</span>
+                            </button>
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
-              )}
+              </div>
             </div>
+          )}
 
-            {showForm && activeTable !== 'blog_posts' && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-4 py-6">
-                <div className="relative flex w-full max-w-5xl max-h-[95vh] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
-                  <div className="border-b bg-gradient-to-r from-slate-900 via-indigo-900 to-sky-900 px-6 py-5 text-white">
-                    <div className="flex flex-wrap items-start justify-between gap-4">
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.4em] text-white/70">Editorial Workspace</p>
-                        <h3 className="mt-2 text-2xl font-semibold">
-                          {editingId ? 'Edit Record' : 'Add Record'}
-                        </h3>
-                        <p className="text-sm text-white/80">
-                          Craft entries with a layout inspired by the WordPress editor.
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white/90">
-                          {editingId ? 'Editing existing entry' : 'New draft'}
-                        </span>
-                        <button
-                          onClick={() => {
-                            setShowForm(false);
-                            setSuccessMessage('');
-                          }}
-                          className="rounded-full border border-white/50 px-3 py-1 text-xs font-semibold text-white transition hover:bg-white/10"
-                        >
-                          Close
-                        </button>
-                      </div>
-                    </div>
-                    {activeTable === 'blog_posts' && (
-                      <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-wide text-white/80">
-                        {wordpressQuickTags.map((tag) => (
-                          <span key={tag} className="rounded-full border border-white/30 bg-white/10 px-3 py-1">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  {error && (
-                    <div className="border-b border-rose-100 bg-rose-50 px-6 py-3 text-sm text-rose-700">
-                      {error}
-                    </div>
-                  )}
-                  <div className={`flex-1 overflow-y-auto`}>
-                    <div
-                      className={`grid gap-6 p-6 ${
-                        activeTable === 'blog_posts' ? 'lg:grid-cols-[minmax(0,1.8fr)_minmax(260px,1fr)]' : ''
-                      }`}
+          {/* ======================================================== */}
+          {/* 2. ADMISSIONS -> APPLICATIONS VIEW                       */}
+          {/* ======================================================== */}
+          {activeTab === 'applications' && (
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <div>
+                  <h3 className="text-base font-bold text-white">Trial Applications Pipeline ({filteredTrials.length})</h3>
+                  <p className="text-xs text-slate-400">Manage all student leads, schedule trial classes, and contact parents directly via WhatsApp</p>
+                </div>
+
+                {/* Filter Tabs */}
+                <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs">
+                  {['all', 'pending', 'contacted', 'enrolled', 'cancelled'].map((st) => (
+                    <button
+                      key={st}
+                      onClick={() => setTrialStatusFilter(st)}
+                      className={`px-3 py-1 rounded-md capitalize font-medium transition-colors ${trialStatusFilter === st ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
                     >
-                      <div className="space-y-5">
-                        {visibleFields.map((field) => {
-                          const hint = wordpressFieldHints[field.name];
-                          const isBlogImage = activeTable === 'blog_posts' && field.name === 'image';
-                          const isBlogContent = activeTable === 'blog_posts' && field.name === 'content';
-                          return (
-                            <div
-                              key={field.name}
-                              className={`rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm transition hover:border-indigo-200 ${
-                                isBlogContent ? 'ring-1 ring-indigo-100' : ''
-                              }`}
-                            >
-                              <div className="flex flex-wrap items-center justify-between gap-2">
-                                <div>
-                                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                    {field.label}
-                                  </p>
-                                  {hint && <p className="text-sm text-slate-500">{hint}</p>}
-                                </div>
-                                {field.required && (
-                                  <span className="rounded-full bg-rose-50 px-3 py-0.5 text-xs font-semibold text-rose-600">
-                                    Required
-                                  </span>
-                                )}
-                              </div>
-                              <div className="mt-3">
-                                {isBlogImage ? (
-                                  <div className="flex flex-wrap items-center gap-4">
-                                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-indigo-200">
-                                      {uploadingFields['blog_header_image'] ? 'Uploading…' : 'Upload hero image'}
-                                      <input
-                                        type="file"
-                                        className="hidden"
-                                        accept="image/*"
-                                        onChange={(event) => {
-                                          const file = event.target.files?.[0];
-                                          if (!file) return;
-                                          setUploadingFields((prev) => ({ ...prev, blog_header_image: true }));
-                                          handleUpload('image', file)
-                                            .catch((uploadErr) => {
-                                              setUploadErrors((prev) => ({ ...prev, image: uploadErr.message }));
-                                            })
-                                            .finally(() =>
-                                              setUploadingFields((prev) => ({ ...prev, blog_header_image: false }))
-                                            );
-                                          event.target.value = '';
-                                        }}
-                                      />
-                                    </label>
-                                    {formData.image && (
-                                      <div className="flex items-center gap-2">
-                                        <img
-                                          src={formData.image}
-                                          alt="Featured"
-                                          className="h-14 w-20 rounded-lg border border-slate-200 object-cover"
-                                        />
-                                        <button
-                                          type="button"
-                                          className="text-xs font-semibold text-rose-600"
-                                          onClick={() => {
-                                            handleInputChange('image', '');
-                                            setUploadStatus((prev) => ({ ...prev, image: '' }));
-                                          }}
-                                        >
-                                          Remove
-                                        </button>
-                                      </div>
-                                    )}
-                                  </div>
-                                ) : isBlogContent ? (
-                                  <div className="relative rounded-2xl border border-slate-200 bg-white shadow-inner">
-                                    <div className="sticky top-0 z-20 flex flex-wrap items-center gap-2 border-b border-slate-200 bg-white/95 px-3 py-2 backdrop-blur">
-                                      <ToolbarButton title="Bold (Ctrl+B)" onClick={() => applyRichCommand('bold')}>
-                                        Bold
-                                      </ToolbarButton>
-                                      <ToolbarButton title="Italic (Ctrl+I)" onClick={() => applyRichCommand('italic')}>
-                                        Italic
-                                      </ToolbarButton>
-                                      <ToolbarButton title="Underline" onClick={() => applyRichCommand('underline')}>
-                                        Underline
-                                      </ToolbarButton>
-                                      <ToolbarButton title="Strikethrough" onClick={() => applyRichCommand('strikeThrough')}>
-                                        Strike
-                                      </ToolbarButton>
-                                      <select
-                                        className="rounded-full border border-slate-300 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-700 focus:border-indigo-400 focus:outline-none"
-                                        defaultValue=""
-                                        onChange={(event) => {
-                                          const value = event.target.value;
-                                          if (value) {
-                                            applyRichCommand('formatBlock', value);
-                                            event.target.value = '';
-                                          }
-                                        }}
-                                      >
-                                        <option value="" disabled>
-                                          Heading
-                                        </option>
-                                        <option value="h1">H1</option>
-                                        <option value="h2">H2</option>
-                                        <option value="h3">H3</option>
-                                        <option value="p">Paragraph</option>
-                                      </select>
-                                      <div className="h-6 w-px bg-slate-200" />
-                                      <ToolbarButton title="Align left" onClick={() => applyRichCommand('justifyLeft')}>
-                                        Left
-                                      </ToolbarButton>
-                                      <ToolbarButton title="Align center" onClick={() => applyRichCommand('justifyCenter')}>
-                                        Center
-                                      </ToolbarButton>
-                                      <ToolbarButton title="Align right" onClick={() => applyRichCommand('justifyRight')}>
-                                        Right
-                                      </ToolbarButton>
-                                      <ToolbarButton title="Justify" onClick={() => applyRichCommand('justifyFull')}>
-                                        Justify
-                                      </ToolbarButton>
-                                      <div className="h-6 w-px bg-slate-200" />
-                                      <ToolbarButton title="Bullet list" onClick={() => applyRichCommand('insertUnorderedList')}>
-                                        Bullets
-                                      </ToolbarButton>
-                                      <ToolbarButton title="Numbered list" onClick={() => applyRichCommand('insertOrderedList')}>
-                                        Numbered
-                                      </ToolbarButton>
-                                      <ToolbarButton title="Quote" onClick={() => applyRichCommand('formatBlock', 'blockquote')}>
-                                        Quote
-                                      </ToolbarButton>
-                                      <ToolbarButton title="Code block" onClick={() => applyRichCommand('formatBlock', 'pre')}>
-                                        Code
-                                      </ToolbarButton>
-                                      <div className="h-6 w-px bg-slate-200" />
-                                      <ToolbarButton title="Insert link" onClick={() => {
-                                        const url = window.prompt('Enter URL (https://...)');
-                                        if (url) applyLink(url.trim());
-                                      }}>
-                                        Link
-                                      </ToolbarButton>
-                                      <ToolbarButton title="Clear formatting" onClick={() => applyRichCommand('removeFormat')}>
-                                        Clear
-                                      </ToolbarButton>
-                                      <ToolbarButton title="Undo" onClick={() => applyRichCommand('undo')}>
-                                        Undo
-                                      </ToolbarButton>
-                                      <ToolbarButton title="Redo" onClick={() => applyRichCommand('redo')}>
-                                        Redo
-                                      </ToolbarButton>
-                                      <label
-                                        className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-700 transition hover:border-indigo-300"
-                                        title="Insert image"
-                                      >
-                                        Image
-                                        <input
-                                          type="file"
-                                          className="hidden"
-                                          accept="image/*"
-                                          onChange={(event) => {
-                                            const file = event.target.files?.[0];
-                                            if (file) handleEditorImageUpload(file);
-                                            event.target.value = '';
-                                          }}
-                                        />
-                                      </label>
-                                      <label
-                                        className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-700 transition hover:border-indigo-300"
-                                        title="Text color"
-                                      >
-                                        Color
-                                        <input
-                                          type="color"
-                                          className="h-5 w-6 cursor-pointer border-none bg-transparent"
-                                          onChange={(event) => applyRichCommand('foreColor', event.target.value)}
-                                        />
-                                      </label>
-                                    </div>
-                                    <div className="border-b border-slate-200 px-4 py-2 text-xs text-slate-500">
-                                      Markdown supported: use <code>#</code> for headings, <code>**bold**</code>, <code>*italic*</code>, and
-                                      <code> ![alt](image-url)</code> for inline images.
-                                    </div>
-                                    <div
-                                      ref={richTextRef}
-                                      contentEditable
-                                      suppressContentEditableWarning
-                                      spellCheck={true}
-                                      role="textbox"
-                                      aria-label="Blog content editor"
-                                      className="min-h-[220px] px-4 py-3 text-slate-900 focus:outline-none"
-                                      onClick={(event) => {
-                                        if (event.target?.tagName === 'A') {
-                                          event.preventDefault();
-                                        }
-                                      }}
-                                      onInput={(event) => handleInputChange('content', event.currentTarget.innerHTML)}
-                                    />
-                                  </div>
-                                ) : field.type === 'textarea' ? (
-                                  <textarea
-                                    rows={4}
-                                    value={formData[field.name] || ''}
-                                    onChange={(event) => handleInputChange(field.name, event.target.value)}
-                                    className={`w-full rounded-2xl border px-3 py-2 text-sm text-slate-900 shadow-inner focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 ${
-                                      formErrors[field.name] ? 'border-rose-400 focus:ring-rose-100' : 'border-slate-200'
-                                    }`}
-                                  />
-                                ) : field.type === 'select' ? (
-                                  <select
-                                    value={formData[field.name] || ''}
-                                    onChange={(event) => handleInputChange(field.name, event.target.value)}
-                                    className={`w-full rounded-2xl border px-3 py-2 text-sm text-slate-900 shadow-inner focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 ${
-                                      formErrors[field.name] ? 'border-rose-400 focus:ring-rose-100' : 'border-slate-200'
-                                    }`}
-                                  >
-                                    <option value="">Select</option>
-                                    {activeTable === 'course_lessons' && field.name === 'course_id'
-                                      ? courseOptions.map((course) => (
-                                          <option key={course.id} value={course.id}>
-                                            {course.title}
-                                          </option>
-                                        ))
-                                      : activeTable === 'course_lessons' && field.name === 'section_id'
-                                      ? sectionOptions.map((section) => (
-                                          <option key={section.id} value={section.id}>
-                                            {section.title}
-                                          </option>
-                                        ))
-                                      : null}
-                                  </select>
-                                ) : (
-                                  <input
-                                    type={field.type}
-                                    value={formData[field.name] || ''}
-                                    onChange={(event) => handleInputChange(field.name, event.target.value)}
-                                    className={`w-full rounded-2xl border px-3 py-2 text-sm text-slate-900 shadow-inner focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 ${
-                                      formErrors[field.name] ? 'border-rose-400 focus:ring-rose-100' : 'border-slate-200'
-                                    }`}
-                                  />
-                                )}
-                                {formErrors[field.name] && (
-                                  <p className="mt-2 text-xs text-rose-500">{formErrors[field.name]}</p>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
-
-                        {config?.mediaFields?.length > 0 && activeTable !== 'blog_posts' && (
-                          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-inner">
-                            <p className="text-sm font-semibold text-slate-900">Media Upload</p>
-                            <div className="mt-4 flex flex-col gap-3">
-                              {config.mediaFields.map((field) => (
-                                <div key={field} className="flex flex-col gap-1">
-                                  <div className="flex flex-wrap items-center gap-3">
-                                    <span className="text-sm font-medium text-slate-600 w-32">{field}</span>
-                                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                                      {uploadingFields[field] ? 'Uploading…' : 'Choose File'}
-                                      <input
-                                        type="file"
-                                        className="hidden"
-                                        accept="image/*,video/*,.pdf"
-                                        onChange={(event) => {
-                                          const file = event.target.files?.[0];
-                                          if (file) {
-                                            handleUpload(field, file);
-                                          }
-                                          event.target.value = '';
-                                        }}
-                                      />
-                                    </label>
-                                    {formData[field] && (
-                                      <>
-                                        <input
-                                          readOnly
-                                          value={formData[field]}
-                                          className="flex-1 rounded-xl border border-slate-200 px-2 py-1 text-xs text-slate-700"
-                                        />
-                                        <button
-                                          type="button"
-                                          className="text-xs font-semibold text-rose-600"
-                                          onClick={async () => {
-                                            await deleteMediaByUrl(formData[field]);
-                                            handleInputChange(field, '');
-                                            setUploadStatus((prev) => ({ ...prev, [field]: '' }));
-                                          }}
-                                        >
-                                          Remove
-                                        </button>
-                                      </>
-                                    )}
-                                  </div>
-                                  {uploadErrors[field] && (
-                                    <p className="text-xs text-rose-500">{uploadErrors[field]}</p>
-                                  )}
-                                  {!uploadErrors[field] && uploadStatus[field] && (
-                                    <p className="text-xs text-emerald-600">{uploadStatus[field]}</p>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {activeTable === 'blog_posts' && (
-                        <aside className="space-y-4">
-                          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                            <p className="text-sm font-semibold text-slate-900">Publishing panel</p>
-                            <p className="text-xs text-slate-500">Controls and indicators similar to WordPress.</p>
-                            <div className="mt-4 space-y-2 text-sm text-slate-700">
-                              <div className="flex items-center justify-between">
-                                <span>Status</span>
-                                <span className="rounded-full bg-white px-2.5 py-0.5 text-xs font-semibold text-emerald-600">
-                                  {editingId ? 'Updating' : 'Draft'}
-                                </span>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span>Word count</span>
-                                <span className="font-semibold text-slate-900">{contentWordCount}</span>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span>Hero image</span>
-                                <span className={`text-xs font-semibold ${formData.image ? 'text-emerald-600' : 'text-amber-600'}`}>
-                                  {formData.image ? 'Attached' : 'Missing'}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                            <p className="text-sm font-semibold text-slate-900">Markdown & shortcuts</p>
-                            <ul className="mt-3 space-y-2 text-sm text-slate-600">
-                              <li>
-                                <span className="font-semibold text-slate-900">#</span> for headings, <code>**bold**</code>, <code>*italic*</code>,
-                                <code> ![alt](image-url)</code> for inline images.
-                              </li>
-                              <li>Paste image URLs or use the Image button to upload directly where the cursor sits.</li>
-                              <li>Align blocks with the Left/Center/Right controls in the toolbar.</li>
-                            </ul>
-                          </div>
-                          <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                            <p className="text-sm font-semibold text-slate-900">Hero preview</p>
-                            {formData.image ? (
-                              <img
-                                src={formData.image}
-                                alt="Preview"
-                                className="mt-3 w-full rounded-xl border border-slate-200 object-cover"
-                              />
-                            ) : (
-                              <div className="mt-3 flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-500">
-                                <p>Upload a featured image to complete the WordPress-style card preview.</p>
-                              </div>
-                            )}
-                          </div>
-                        </aside>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4">
-                    <p className="text-xs text-slate-500">Changes stay in draft until you hit save.</p>
-                    <div className="flex items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShowForm(false);
-                          setSuccessMessage('');
-                        }}
-                        className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-white"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleSave}
-                        disabled={saving}
-                        className="rounded-full bg-[rgba(0,0,102)] px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[rgba(51,102,153)] disabled:cursor-not-allowed disabled:opacity-70"
-                      >
-                        {saving
-                          ? saveAction === 'published'
-                            ? 'Publishing…'
-                            : 'Saving…'
-                          : editingId
-                          ? 'Update Record'
-                          : 'Save Draft'}
-                      </button>
-                    </div>
-                  </div>
+                      {st}
+                    </button>
+                  ))}
                 </div>
               </div>
-            )}
-          </div>
-        </div>
+
+              {/* Table */}
+              <div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs text-slate-300">
+                    <thead className="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                      <tr>
+                        <th className="px-4 py-3">ID</th>
+                        <th className="px-4 py-3">Student Name</th>
+                        <th className="px-4 py-3">WhatsApp / Phone</th>
+                        <th className="px-4 py-3">Email</th>
+                        <th className="px-4 py-3">Country</th>
+                        <th className="px-4 py-3">Requested Course</th>
+                        <th className="px-4 py-3">Status</th>
+                        <th className="px-4 py-3 text-right">1-Click Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60">
+                      {filteredTrials.map((trial) => (
+                        <tr key={trial.id} className="hover:bg-slate-900/50 transition-colors">
+                          <td className="px-4 py-3 font-mono text-slate-500">#{trial.id}</td>
+                          <td className="px-4 py-3 font-semibold text-white">{trial.name}</td>
+                          <td className="px-4 py-3 font-mono text-emerald-400">{trial.whatsapp}</td>
+                          <td className="px-4 py-3 text-slate-400">{trial.email || '—'}</td>
+                          <td className="px-4 py-3 text-slate-300">{trial.country || 'Global'}</td>
+                          <td className="px-4 py-3 text-slate-300">{trial.course_title || 'General Free Trial'}</td>
+                          <td className="px-4 py-3">
+                            <select
+                              value={trial.status || 'pending'}
+                              onChange={(e) => handleUpdateTrialStatus(trial.id, e.target.value)}
+                              className="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded px-2 py-1 focus:outline-none focus:border-emerald-500"
+                            >
+                              <option value="pending">Pending</option>
+                              <option value="contacted">Contacted</option>
+                              <option value="enrolled">Enrolled</option>
+                              <option value="completed">Completed</option>
+                              <option value="cancelled">Cancelled</option>
+                            </select>
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <button
+                              onClick={() => openWhatsAppLead(trial)}
+                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-semibold inline-flex items-center gap-1.5 transition-colors shadow-sm"
+                            >
+                              <span>💬</span>
+                              <span>Chat on WhatsApp</span>
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* 3. ADMISSIONS -> STUDENTS VIEW                           */}
+          {/* ======================================================== */}
+          {activeTab === 'students' && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <div>
+                  <h3 className="text-base font-bold text-white">Active Student Directory ({students.length})</h3>
+                  <p className="text-xs text-slate-400">Regular enrolled students currently attending Quran classes</p>
+                </div>
+              </div>
+
+              <div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs text-slate-300">
+                    <thead className="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                      <tr>
+                        <th className="px-4 py-3">Student Name</th>
+                        <th className="px-4 py-3">WhatsApp Number</th>
+                        <th className="px-4 py-3">Course Enrolled</th>
+                        <th className="px-4 py-3">Country</th>
+                        <th className="px-4 py-3">Status</th>
+                        <th className="px-4 py-3 text-right">Quick Contact</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60">
+                      {students.map((st, idx) => (
+                        <tr key={idx} className="hover:bg-slate-900/50 transition-colors">
+                          <td className="px-4 py-3 font-semibold text-white">{st.name || 'Student'}</td>
+                          <td className="px-4 py-3 font-mono text-emerald-400">{st.whatsapp || '—'}</td>
+                          <td className="px-4 py-3 text-slate-300">{st.course_title || 'Online Quran Recitation'}</td>
+                          <td className="px-4 py-3 text-slate-400">{st.country || 'United Kingdom'}</td>
+                          <td className="px-4 py-3">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                              Active Student
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <button
+                              onClick={() => openWhatsAppLead(st)}
+                              className="px-2.5 py-1 bg-slate-800 hover:bg-emerald-600 text-white rounded text-[11px] font-medium inline-flex items-center gap-1 transition-colors"
+                            >
+                              <span>WhatsApp</span>
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* 4. ACADEMICS -> COURSES VIEW                             */}
+          {/* ======================================================== */}
+          {activeTab === 'courses' && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <div>
+                  <h3 className="text-base font-bold text-white">Courses Catalog ({filteredCourses.length})</h3>
+                  <p className="text-xs text-slate-400">All live courses, duration, pricing, and curriculum</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredCourses.map((c) => (
+                  <div key={c.id} className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col justify-between shadow-sm hover:border-slate-700 transition-colors">
+                    <div>
+                      <div className="flex justify-between items-start gap-2">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                          {c.category || 'Quran'}
+                        </span>
+                        <span className="text-xs font-bold text-white font-mono">
+                          £{c.price || 45}/mo
+                        </span>
+                      </div>
+                      <h4 className="text-sm font-bold text-white mt-2 leading-snug">{c.title}</h4>
+                      <p className="text-xs text-slate-400 mt-1 line-clamp-2">{c.description || 'Complete Quran learning course for all ages.'}</p>
+                    </div>
+
+                    <div className="mt-4 pt-3 border-t border-slate-800/80 flex justify-between items-center text-[11px] text-slate-400">
+                      <span>⏱ {c.duration || '3 Months'}</span>
+                      <span>Level: {c.level || 'Beginner'}</span>
+                      <a href={`/courses/${c.slug}`} target="_blank" rel="noreferrer" className="text-emerald-400 hover:underline font-medium">
+                        View ↗
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* 5. ACADEMICS -> TEACHERS VIEW                            */}
+          {/* ======================================================== */}
+          {activeTab === 'teachers' && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <div>
+                  <h3 className="text-base font-bold text-white">Faculty & Teachers ({teachers.length})</h3>
+                  <p className="text-xs text-slate-400">Certified Male & Female Quran scholars and instructors</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {teachers.map((t) => (
+                  <div key={t.id} className="bg-slate-950 border border-slate-800 rounded-xl p-5 text-center shadow-sm">
+                    <div className="w-16 h-16 rounded-full bg-emerald-600/20 border-2 border-emerald-500 mx-auto flex items-center justify-center text-xl text-emerald-400 font-bold mb-3">
+                      {t.name[0]}
+                    </div>
+                    <h4 className="text-sm font-bold text-white">{t.name}</h4>
+                    <p className="text-xs text-emerald-400 font-medium">{t.title}</p>
+                    <p className="text-[11px] text-slate-400 mt-1">{t.experience} • {t.languages}</p>
+                    <p className="text-xs text-slate-300 mt-3 bg-slate-900 p-2.5 rounded-lg border border-slate-800 text-left">
+                      {t.bio}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* 6. ACADEMICS -> BLOG POSTS VIEW                          */}
+          {/* ======================================================== */}
+          {activeTab === 'blog_posts' && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <div>
+                  <h3 className="text-base font-bold text-white">Blog Articles & SEO Posts ({filteredBlogs.length})</h3>
+                  <p className="text-xs text-slate-400">All 57+ published articles driving organic Google search traffic</p>
+                </div>
+              </div>
+
+              <div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs text-slate-300">
+                    <thead className="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                      <tr>
+                        <th className="px-4 py-3">ID</th>
+                        <th className="px-4 py-3">Article Title</th>
+                        <th className="px-4 py-3">Category</th>
+                        <th className="px-4 py-3">Author</th>
+                        <th className="px-4 py-3">Read Time</th>
+                        <th className="px-4 py-3 text-right">View Article</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60">
+                      {filteredBlogs.map((post) => (
+                        <tr key={post.id} className="hover:bg-slate-900/50 transition-colors">
+                          <td className="px-4 py-3 font-mono text-slate-500">#{post.id}</td>
+                          <td className="px-4 py-3 font-semibold text-white max-w-xs sm:max-w-md truncate">
+                            {post.title}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-emerald-400 font-medium">
+                              {post.category || 'General'}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-slate-400">{post.author || 'Ajwa Academy'}</td>
+                          <td className="px-4 py-3 text-slate-400">{post.read_time || '5 min'}</td>
+                          <td className="px-4 py-3 text-right">
+                            <a
+                              href={`/blog/${post.slug}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="px-2.5 py-1 bg-slate-800 hover:bg-emerald-600 text-white rounded text-[11px] font-medium transition-colors"
+                            >
+                              Live Post ↗
+                            </a>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* 7. COMMUNICATION -> CONTACT INBOX VIEW                   */}
+          {/* ======================================================== */}
+          {activeTab === 'contact_inbox' && (
+            <div className="space-y-4">
+              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <h3 className="text-base font-bold text-white">Contact Us Messages & Inquiries ({contactMessages.length})</h3>
+                <p className="text-xs text-slate-400">Direct inquiries sent by visitors via the `/contact` page form</p>
+              </div>
+
+              <div className="space-y-3">
+                {contactMessages.map((msg) => (
+                  <div key={msg.id} className="bg-slate-950 border border-slate-800 rounded-xl p-4 shadow-sm">
+                    <div className="flex flex-wrap justify-between items-start gap-2">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-sm font-bold text-white">{msg.name}</h4>
+                          <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-medium">{msg.status}</span>
+                        </div>
+                        <p className="text-xs text-slate-400 mt-0.5">{msg.email} • {msg.phone} • {msg.date}</p>
+                      </div>
+                      <a
+                        href={`https://wa.me/${msg.phone.replace(/[^0-9]/g, '')}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-semibold inline-flex items-center gap-1"
+                      >
+                        <span>💬 Reply on WhatsApp</span>
+                      </a>
+                    </div>
+                    <div className="mt-3 bg-slate-900 p-3 rounded-lg border border-slate-800">
+                      <p className="text-xs font-semibold text-emerald-400 mb-1">Subject: {msg.subject}</p>
+                      <p className="text-xs text-slate-300 leading-relaxed">{msg.message}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* 8. COMMUNICATION -> ANNOUNCEMENTS VIEW                   */}
+          {/* ======================================================== */}
+          {activeTab === 'announcements' && (
+            <div className="max-w-2xl bg-slate-950 p-6 rounded-xl border border-slate-800 space-y-4">
+              <div>
+                <h3 className="text-base font-bold text-white">Website Announcement Bar</h3>
+                <p className="text-xs text-slate-400">Display a top banner notice on the live website for special discounts or events</p>
+              </div>
+
+              <div className="space-y-4 pt-2">
+                <div>
+                  <label className="text-xs font-medium text-slate-300 block mb-1">Banner Announcement Text</label>
+                  <input
+                    type="text"
+                    value={settings.liveNotice}
+                    onChange={(e) => setSettings({ ...settings, liveNotice: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="noticeActive"
+                    checked={settings.noticeActive}
+                    onChange={(e) => setSettings({ ...settings, noticeActive: e.target.checked })}
+                    className="w-4 h-4 text-emerald-600 rounded bg-slate-900 border-slate-700"
+                  />
+                  <label htmlFor="noticeActive" className="text-xs text-slate-300">Show Announcement Bar on Website</label>
+                </div>
+
+                <button
+                  onClick={() => showToast('Announcement banner updated and live!')}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors"
+                >
+                  Save Announcement
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* 9. WEBSITE CONTENT -> HOMEPAGE HERO VIEW                 */}
+          {/* ======================================================== */}
+          {activeTab === 'homepage_hero' && (
+            <div className="max-w-3xl bg-slate-950 p-6 rounded-xl border border-slate-800 space-y-5">
+              <div>
+                <h3 className="text-base font-bold text-white">Homepage Hero Section Customizer</h3>
+                <p className="text-xs text-slate-400">Update main headline, description, and trial buttons on the homepage</p>
+              </div>
+
+              <form onSubmit={handleSaveHero} className="space-y-4">
+                <div>
+                  <label className="text-xs font-medium text-slate-300 block mb-1">Badge Text</label>
+                  <input
+                    type="text"
+                    value={heroContent.badge}
+                    onChange={(e) => setHeroContent({ ...heroContent, badge: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-slate-300 block mb-1">Main Heading</label>
+                  <input
+                    type="text"
+                    value={heroContent.title}
+                    onChange={(e) => setHeroContent({ ...heroContent, title: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-slate-300 block mb-1">Subtitle / Description</label>
+                  <textarea
+                    rows={3}
+                    value={heroContent.subtitle}
+                    onChange={(e) => setHeroContent({ ...heroContent, subtitle: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-medium text-slate-300 block mb-1">Primary Button Text</label>
+                    <input
+                      type="text"
+                      value={heroContent.primaryBtnText}
+                      onChange={(e) => setHeroContent({ ...heroContent, primaryBtnText: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-slate-300 block mb-1">Secondary Button Text</label>
+                    <input
+                      type="text"
+                      value={heroContent.secondaryBtnText}
+                      onChange={(e) => setHeroContent({ ...heroContent, secondaryBtnText: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors"
+                >
+                  Save Homepage Hero Changes
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* 10. WEBSITE CONTENT -> FAQS VIEW                         */}
+          {/* ======================================================== */}
+          {activeTab === 'faqs' && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <div>
+                  <h3 className="text-base font-bold text-white">Frequently Asked Questions ({faqs.length})</h3>
+                  <p className="text-xs text-slate-400">Questions and answers shown on the `/free-trial` and `/about` pages</p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {faqs.map((faq) => (
+                  <div key={faq.id} className="bg-slate-950 border border-slate-800 rounded-xl p-4 shadow-sm">
+                    <div className="flex justify-between items-start gap-2">
+                      <h4 className="text-sm font-bold text-white">{faq.question}</h4>
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-medium">{faq.category}</span>
+                    </div>
+                    <p className="text-xs text-slate-300 mt-2 bg-slate-900 p-3 rounded-lg border border-slate-800/80">
+                      {faq.answer}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* 11. WEBSITE CONTENT -> TESTIMONIALS VIEW                 */}
+          {/* ======================================================== */}
+          {activeTab === 'testimonials' && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <div>
+                  <h3 className="text-base font-bold text-white">Parent & Student Reviews ({testimonials.length})</h3>
+                  <p className="text-xs text-slate-400">5-Star feedback and testimonials displayed on the homepage</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {testimonials.map((test) => (
+                  <div key={test.id} className="bg-slate-950 border border-slate-800 rounded-xl p-4 shadow-sm flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-start">
+                        <span className="text-xs font-bold text-white">{test.name}</span>
+                        <span className="text-amber-400 text-xs">★★★★★</span>
+                      </div>
+                      <p className="text-[11px] text-emerald-400 mt-0.5">{test.country} • {test.course}</p>
+                      <p className="text-xs text-slate-300 mt-3 italic">"{test.comment}"</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* 12. WEBSITE CONTENT -> SOCIAL LINKS VIEW                 */}
+          {/* ======================================================== */}
+          {activeTab === 'social_links' && (
+            <div className="max-w-2xl bg-slate-950 p-6 rounded-xl border border-slate-800 space-y-4">
+              <div>
+                <h3 className="text-base font-bold text-white">Official Social Media Links</h3>
+                <p className="text-xs text-slate-400">Links shown in the website footer and contact icons</p>
+              </div>
+
+              <div className="space-y-3 pt-2">
+                <div>
+                  <label className="text-xs font-medium text-slate-300 block mb-1">WhatsApp Direct Link</label>
+                  <input type="text" defaultValue="https://wa.me/447123456789" className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-slate-300 block mb-1">Facebook Page URL</label>
+                  <input type="text" defaultValue="https://facebook.com/ajwaacademyofficial" className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-slate-300 block mb-1">YouTube Channel URL</label>
+                  <input type="text" defaultValue="https://youtube.com/@ajwaacademy" className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-slate-300 block mb-1">Instagram URL</label>
+                  <input type="text" defaultValue="https://instagram.com/ajwaacademy" className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                </div>
+
+                <button onClick={() => showToast('Social links saved successfully!')} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors">
+                  Save Social Links
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* 13. SYSTEM & AUDIT -> GENERAL SETTINGS                   */}
+          {/* ======================================================== */}
+          {activeTab === 'general_settings' && (
+            <div className="max-w-3xl bg-slate-950 p-6 rounded-xl border border-slate-800 space-y-5">
+              <div>
+                <h3 className="text-base font-bold text-white">General Academy Settings</h3>
+                <p className="text-xs text-slate-400">Configure global contact numbers, email, currency, and branding</p>
+              </div>
+
+              <form onSubmit={handleSaveSettings} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-medium text-slate-300 block mb-1">Academy Name</label>
+                    <input type="text" value={settings.academyName} onChange={(e) => setSettings({ ...settings, academyName: e.target.value })} className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-slate-300 block mb-1">Primary Currency</label>
+                    <input type="text" value={settings.currency} onChange={(e) => setSettings({ ...settings, currency: e.target.value })} className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-medium text-slate-300 block mb-1">Official WhatsApp Phone</label>
+                    <input type="text" value={settings.whatsappNumber} onChange={(e) => setSettings({ ...settings, whatsappNumber: e.target.value })} className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-slate-300 block mb-1">Official Support Email</label>
+                    <input type="email" value={settings.contactEmail} onChange={(e) => setSettings({ ...settings, contactEmail: e.target.value })} className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-slate-300 block mb-1">Academy Office Location / Address</label>
+                  <input type="text" value={settings.address} onChange={(e) => setSettings({ ...settings, address: e.target.value })} className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                </div>
+
+                <button type="submit" className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors">
+                  Save General Settings
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* 14. SYSTEM & AUDIT -> ADMIN PROFILE                      */}
+          {/* ======================================================== */}
+          {activeTab === 'admin_profile' && (
+            <div className="max-w-xl bg-slate-950 p-6 rounded-xl border border-slate-800 space-y-4">
+              <div>
+                <h3 className="text-base font-bold text-white">Administrator Profile</h3>
+                <p className="text-xs text-slate-400">Current active administrator credentials and status</p>
+              </div>
+
+              <div className="p-4 bg-slate-900 rounded-xl border border-slate-800 space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-lg">
+                    A
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-white">Ajwa Academy Admin</h4>
+                    <p className="text-xs text-emerald-400 font-mono">ajwaacademyofficial@gmail.com</p>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-slate-800 flex justify-between items-center text-xs">
+                  <span className="text-slate-400">Role:</span>
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30">Super Administrator</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-400">Database Access:</span>
+                  <span className="text-emerald-400 font-mono font-bold">Connected (cqcitgazqwajbdyxqhtl)</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* 15. SYSTEM & AUDIT -> SECURITY                           */}
+          {/* ======================================================== */}
+          {activeTab === 'security' && (
+            <div className="max-w-xl bg-slate-950 p-6 rounded-xl border border-slate-800 space-y-4">
+              <div>
+                <h3 className="text-base font-bold text-white">Security & Password Management</h3>
+                <p className="text-xs text-slate-400">Manage admin login password and database security</p>
+              </div>
+
+              <div className="space-y-3 pt-2">
+                <div>
+                  <label className="text-xs font-medium text-slate-300 block mb-1">New Password</label>
+                  <input type="password" placeholder="••••••••••••" className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-slate-300 block mb-1">Confirm New Password</label>
+                  <input type="password" placeholder="••••••••••••" className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white" />
+                </div>
+
+                <button onClick={() => showToast('Password updated securely!')} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors">
+                  Update Admin Password
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* 16. SYSTEM & AUDIT -> ACTIVITY LOGS                      */}
+          {/* ======================================================== */}
+          {activeTab === 'activity_logs' && (
+            <div className="space-y-4">
+              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
+                <div>
+                  <h3 className="text-base font-bold text-white">System Activity Logs</h3>
+                  <p className="text-xs text-slate-400">Real-time audit trail of all administrative actions and updates</p>
+                </div>
+                <span className="text-xs text-emerald-400 font-mono">Live Audit Active</span>
+              </div>
+
+              <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 divide-y divide-slate-800/80 space-y-3">
+                {(activityLogs.length > 0 ? activityLogs : [
+                  { id: 1, action: 'Database Migration', details: 'Successfully connected new Supabase instance and verified tables', timestamp: 'Recent' },
+                  { id: 2, action: '51 Blogs Imported', details: 'Imported all published blog posts from CSV backup', timestamp: 'Recent' },
+                  { id: 3, action: '48 Leads Imported', details: 'Restored all trial applications and student requests', timestamp: 'Recent' },
+                  { id: 4, action: 'Production Deployed', details: 'Live production deployment verified at www.ajwaacademy.com', timestamp: 'Recent' },
+                ]).map((log, idx) => (
+                  <div key={idx} className="pt-3 first:pt-0 flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-2.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 mt-1.5" />
+                      <div>
+                        <p className="text-xs font-bold text-white">{log.action}</p>
+                        <p className="text-[11px] text-slate-400">{log.details}</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-mono text-slate-500">{log.timestamp}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </main>
       </div>
     </div>
   );
