@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { supabase, supabaseEnabled } from '@/lib/supabase';
 import { deleteMediaByUrl, uploadMedia } from '@/lib/supabase-storage';
 import { getAdminAccessSnapshot } from '@/lib/admin-auth';
 
-// --- NAVIGATION CONFIGURATION (Requested Hierarchy) ---
+// --- NAVIGATION CONFIGURATION (Official Ajwa Academy Hierarchy) ---
 const NAV_GROUPS = [
   {
     title: 'Overview',
@@ -60,7 +61,7 @@ const NAV_GROUPS = [
 // --- DEFAULT FALLBACK DATA ---
 const INITIAL_SETTINGS = {
   academyName: 'Ajwa Online Quran Academy',
-  tagline: 'Learn Quran Online with Certified Male & Female Scholars',
+  tagline: 'Learn Quran • Build a Better You',
   whatsappNumber: '+44 7123 456789',
   contactEmail: 'ajwaacademyofficial@gmail.com',
   address: 'Birmingham, United Kingdom & Worldwide Online',
@@ -285,7 +286,7 @@ export default function AdminDashboardPage() {
     );
   }, [courses, searchQuery]);
 
-  // --- RENDER ICONS ---
+  // --- RENDER BRAND ICONS ---
   const renderIcon = (type) => {
     switch (type) {
       case 'dashboard':
@@ -404,945 +405,964 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex font-sans antialiased">
+    <div className="min-h-screen bg-[#F8FAFC] text-[#1F2937] flex flex-col font-sans antialiased">
       {/* Toast Notification */}
       {toast && (
-        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-xl text-white font-medium flex items-center gap-2 text-sm transition-all transform animate-bounce ${toast.type === 'error' ? 'bg-rose-600' : 'bg-emerald-600'}`}>
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl shadow-2xl text-white font-medium flex items-center gap-2 text-sm transition-all transform animate-bounce ${toast.type === 'error' ? 'bg-rose-600' : 'bg-[#0B3D91]'}`}>
           <span>{toast.type === 'error' ? '⚠️' : '✅'}</span>
           <span>{toast.message}</span>
         </div>
       )}
 
-      {/* --- SIDEBAR NAVIGATION (CLEAN WHITE LIGHT THEME) --- */}
-      <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-slate-200/90 shadow-sm transform transition-transform duration-200 ease-in-out md:static md:translate-x-0 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="h-full flex flex-col justify-between">
-          {/* Brand Header */}
-          <div>
-            <div className="h-16 flex items-center justify-between px-5 border-b border-slate-200 bg-white">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-lg bg-emerald-600 flex items-center justify-center font-bold text-white shadow-md text-lg">
-                  ع
+      {/* Main Wrapper */}
+      <div className="flex-1 flex min-h-0">
+        {/* --- SIDEBAR NAVIGATION (OFFICIAL AJWA ACADEMY BRANDING) --- */}
+        <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-[#E2E8F0] shadow-sm transform transition-transform duration-200 ease-in-out md:static md:translate-x-0 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          <div className="h-full flex flex-col justify-between">
+            {/* Brand Header */}
+            <div>
+              <div className="h-20 flex items-center justify-between px-5 border-b border-[#E2E8F0] bg-white">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0B3D91] to-[#3B82F6] flex items-center justify-center font-bold text-white shadow-md text-xl">
+                    ع
+                  </div>
+                  <div>
+                    <h1 className="font-extrabold text-sm tracking-wide text-[#0B3D91] leading-tight">
+                      AJWA ACADEMY
+                    </h1>
+                    <p className="text-[10px] text-[#14B8A6] font-bold tracking-wider uppercase mt-0.5">
+                      Learn Quran • Build A Better You
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h1 className="font-bold text-sm tracking-wide text-slate-900 leading-tight">AJWA ACADEMY</h1>
-                  <p className="text-[11px] text-emerald-600 font-semibold">Admin Portal</p>
-                </div>
+                <button onClick={() => setMobileMenuOpen(false)} className="md:hidden text-slate-400 hover:text-slate-700">
+                  ✕
+                </button>
               </div>
-              <button onClick={() => setMobileMenuOpen(false)} className="md:hidden text-slate-400 hover:text-slate-700">
-                ✕
-              </button>
-            </div>
 
-            {/* Nav Groups */}
-            <div className="px-3 py-4 space-y-5 overflow-y-auto max-h-[calc(100vh-130px)]">
-              {NAV_GROUPS.map((group, gIdx) => (
-                <div key={gIdx}>
-                  <p className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-                    {group.title}
-                  </p>
-                  <div className="space-y-1">
-                    {group.items.map((item) => {
-                      const isActive = activeTab === item.id;
-                      const count = getBadgeCount(item.badge);
+              {/* Nav Groups */}
+              <div className="px-3 py-4 space-y-5 overflow-y-auto max-h-[calc(100vh-170px)]">
+                {NAV_GROUPS.map((group, gIdx) => (
+                  <div key={gIdx}>
+                    <p className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                      {group.title}
+                    </p>
+                    <div className="space-y-1">
+                      {group.items.map((item) => {
+                        const isActive = activeTab === item.id;
+                        const count = getBadgeCount(item.badge);
 
-                      if (item.external) {
+                        if (item.external) {
+                          return (
+                            <a
+                              key={item.id}
+                              href="https://www.ajwaacademy.com"
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-600 hover:text-[#0B3D91] hover:bg-slate-100 rounded-lg transition-colors"
+                            >
+                              <div className="flex items-center gap-2.5">
+                                {renderIcon(item.icon)}
+                                <span>{item.label}</span>
+                              </div>
+                              <span className="text-[10px] bg-slate-100 text-[#0B3D91] px-1.5 py-0.5 rounded font-bold border border-slate-200">Live ↗</span>
+                            </a>
+                          );
+                        }
+
                         return (
-                          <a
+                          <button
                             key={item.id}
-                            href="https://www.ajwaacademy.com"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="flex items-center justify-between px-3 py-2 text-xs font-medium text-slate-600 hover:text-emerald-700 hover:bg-slate-100 rounded-lg transition-colors"
+                            onClick={() => {
+                              setActiveTab(item.id);
+                              setMobileMenuOpen(false);
+                            }}
+                            className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-lg transition-all ${isActive ? 'bg-[#0B3D91]/10 text-[#0B3D91] border border-[#0B3D91]/20 font-bold shadow-xs' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
                           >
                             <div className="flex items-center gap-2.5">
-                              {renderIcon(item.icon)}
+                              <span className={isActive ? 'text-[#0B3D91]' : 'text-slate-400'}>{renderIcon(item.icon)}</span>
                               <span>{item.label}</span>
                             </div>
-                            <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-medium border border-slate-200">Live ↗</span>
-                          </a>
+                            {count !== null && count > 0 && (
+                              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isActive ? 'bg-[#0B3D91] text-white' : 'bg-slate-200 text-slate-700'}`}>
+                                {count}
+                              </span>
+                            )}
+                          </button>
                         );
-                      }
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-                      return (
-                        <button
-                          key={item.id}
-                          onClick={() => {
-                            setActiveTab(item.id);
-                            setMobileMenuOpen(false);
-                          }}
-                          className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-lg transition-all ${isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/80 shadow-xs' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <span className={isActive ? 'text-emerald-600' : 'text-slate-400'}>{renderIcon(item.icon)}</span>
-                            <span>{item.label}</span>
-                          </div>
-                          {count !== null && count > 0 && (
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${isActive ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700'}`}>
-                              {count}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
+            {/* User Footer Profile */}
+            <div className="p-3 border-t border-[#E2E8F0] bg-slate-50/80">
+              <div className="flex items-center justify-between px-2.5 py-2 rounded-xl bg-white border border-[#E2E8F0] shadow-xs">
+                <div className="flex items-center gap-2 overflow-hidden">
+                  <div className="w-8 h-8 rounded-full bg-[#0B3D91] text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                    A
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="text-xs font-bold text-[#0B3D91] truncate">Ajwa Admin</p>
+                    <p className="text-[10px] text-[#14B8A6] font-bold truncate">Super Administrator</p>
                   </div>
                 </div>
-              ))}
+                <button
+                  onClick={async () => {
+                    if (supabase) await supabase.auth.signOut();
+                    window.location.href = '/admin/login';
+                  }}
+                  title="Log out"
+                  className="text-slate-500 hover:text-rose-600 text-xs font-bold px-1.5 py-0.5"
+                >
+                  Logout
+                </button>
+              </div>
             </div>
           </div>
+        </aside>
 
-          {/* User Footer Profile */}
-          <div className="p-3 border-t border-slate-200 bg-slate-50/80">
-            <div className="flex items-center justify-between px-2.5 py-2 rounded-lg bg-white border border-slate-200 shadow-xs">
-              <div className="flex items-center gap-2 overflow-hidden">
-                <div className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">
-                  A
-                </div>
-                <div className="overflow-hidden">
-                  <p className="text-xs font-bold text-slate-800 truncate">Ajwa Admin</p>
-                  <p className="text-[10px] text-emerald-600 font-semibold truncate">Super Admin</p>
-                </div>
-              </div>
-              <button
-                onClick={async () => {
-                  if (supabase) await supabase.auth.signOut();
-                  window.location.href = '/admin/login';
-                }}
-                title="Log out"
-                className="text-slate-500 hover:text-rose-600 text-xs font-medium px-1.5 py-0.5"
-              >
-                Logout
+        {/* Backdrop for Mobile */}
+        {mobileMenuOpen && (
+          <div onClick={() => setMobileMenuOpen(false)} className="fixed inset-0 bg-slate-900/40 z-30 md:hidden backdrop-blur-xs" />
+        )}
+
+        {/* --- MAIN CONTENT AREA --- */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#F8FAFC]">
+          {/* Top Header Bar */}
+          <header className="h-16 border-b border-[#E2E8F0] bg-white px-4 sm:px-6 flex items-center justify-between gap-4 sticky top-0 z-20 shadow-xs">
+            <div className="flex items-center gap-3">
+              <button onClick={() => setMobileMenuOpen(true)} className="md:hidden text-slate-500 hover:text-slate-800 p-1">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
               </button>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* Backdrop for Mobile */}
-      {mobileMenuOpen && (
-        <div onClick={() => setMobileMenuOpen(false)} className="fixed inset-0 bg-slate-900/40 z-30 md:hidden backdrop-blur-xs" />
-      )}
-
-      {/* --- MAIN CONTENT AREA --- */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-50">
-        {/* Top Header Bar */}
-        <header className="h-16 border-b border-slate-200 bg-white px-4 sm:px-6 flex items-center justify-between gap-4 sticky top-0 z-20 shadow-xs">
-          <div className="flex items-center gap-3">
-            <button onClick={() => setMobileMenuOpen(true)} className="md:hidden text-slate-500 hover:text-slate-800 p-1">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-            <div className="flex items-center gap-2">
-              <h2 className="text-base font-bold text-slate-900 capitalize">
-                {activeTab.replace('_', ' ')}
-              </h2>
-              <span className="hidden sm:inline-block text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-semibold">
-                ● Live Database
-              </span>
-            </div>
-          </div>
-
-          {/* Search Box & Quick Action */}
-          <div className="flex items-center gap-3">
-            <div className="relative w-48 sm:w-64">
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-100 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition-all"
-              />
-              <span className="absolute left-2.5 top-2 text-slate-400 text-xs">🔍</span>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-extrabold text-[#0B3D91] capitalize">
+                  {activeTab.replace('_', ' ')}
+                </h2>
+                <span className="hidden sm:inline-block text-[11px] bg-[#14B8A6]/10 text-[#14B8A6] border border-[#14B8A6]/30 px-2 py-0.5 rounded-full font-bold">
+                  ● Live Supabase Connected
+                </span>
+              </div>
             </div>
 
-            <a
-              href="https://www.ajwaacademy.com"
-              target="_blank"
-              rel="noreferrer"
-              className="hidden sm:flex items-center gap-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-lg shadow-sm transition-colors"
-            >
-              <span>View Website</span>
-              <span>↗</span>
-            </a>
-          </div>
-        </header>
-
-        {/* Main Content Pages */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
-          {/* ======================================================== */}
-          {/* 1. DASHBOARD VIEW                                       */}
-          {/* ======================================================== */}
-          {activeTab === 'dashboard' && (
-            <div className="space-y-6">
-              {/* 4 Stat KPI Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-xs font-semibold text-slate-500">Trial Applications</p>
-                      <h3 className="text-2xl font-extrabold text-slate-900 mt-1">{trialRequests.length}</h3>
-                      <p className="text-[11px] text-emerald-600 font-semibold mt-1">📬 Active overseas leads</p>
-                    </div>
-                    <div className="p-2.5 rounded-lg bg-emerald-50 text-emerald-700 text-lg border border-emerald-100">📩</div>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-xs font-semibold text-slate-500">Published Blogs</p>
-                      <h3 className="text-2xl font-extrabold text-slate-900 mt-1">{blogs.length}</h3>
-                      <p className="text-[11px] text-emerald-600 font-semibold mt-1">📝 Live SEO articles</p>
-                    </div>
-                    <div className="p-2.5 rounded-lg bg-teal-50 text-teal-700 text-lg border border-teal-100">✍️</div>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-xs font-semibold text-slate-500">Active Courses</p>
-                      <h3 className="text-2xl font-extrabold text-slate-900 mt-1">{courses.length}</h3>
-                      <p className="text-[11px] text-emerald-600 font-semibold mt-1">🎓 Qaida, Nazra, Hifz & more</p>
-                    </div>
-                    <div className="p-2.5 rounded-lg bg-sky-50 text-sky-700 text-lg border border-sky-100">📖</div>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-xs font-semibold text-slate-500">Library Items & Books</p>
-                      <h3 className="text-2xl font-extrabold text-slate-900 mt-1">{libraryItems.length}</h3>
-                      <p className="text-[11px] text-emerald-600 font-semibold mt-1">📚 Islamic study guides</p>
-                    </div>
-                    <div className="p-2.5 rounded-lg bg-amber-50 text-amber-700 text-lg border border-amber-100">🗂️</div>
-                  </div>
-                </div>
+            {/* Search Box & Quick Action */}
+            <div className="flex items-center gap-3">
+              <div className="relative w-48 sm:w-64">
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#0B3D91] focus:ring-1 focus:ring-[#0B3D91] transition-all"
+                />
+                <span className="absolute left-2.5 top-2 text-slate-400 text-xs">🔍</span>
               </div>
 
-              {/* Quick Actions Bar */}
-              <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-xs">
-                <div>
-                  <h4 className="text-sm font-bold text-slate-900">⚡ Quick Actions</h4>
-                  <p className="text-xs text-slate-500">Fast access to key operational tasks</p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <button onClick={() => setActiveTab('applications')} className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs">
-                    <span>📬 View Applications</span>
-                  </button>
-                  <button onClick={() => setActiveTab('blog_posts')} className="px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors border border-slate-200">
-                    <span>✍️ View Blog Posts</span>
-                  </button>
-                  <button onClick={() => setActiveTab('homepage_hero')} className="px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors border border-slate-200">
-                    <span>🎨 Edit Homepage Hero</span>
-                  </button>
-                </div>
-              </div>
+              <a
+                href="https://www.ajwaacademy.com"
+                target="_blank"
+                rel="noreferrer"
+                className="hidden sm:flex items-center gap-1.5 text-xs font-bold bg-[#0B3D91] hover:bg-[#1E40AF] text-white px-3.5 py-1.5 rounded-lg shadow-sm transition-colors"
+              >
+                <span>View Public Site</span>
+                <span>↗</span>
+              </a>
+            </div>
+          </header>
 
-              {/* Recent Applications Table */}
-              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
-                <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
+          {/* Main Content Pages */}
+          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
+            {/* ======================================================== */}
+            {/* 1. DASHBOARD VIEW                                       */}
+            {/* ======================================================== */}
+            {activeTab === 'dashboard' && (
+              <div className="space-y-6">
+                {/* 4 Stat KPI Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="p-5 rounded-2xl bg-white border border-[#E2E8F0] shadow-sm relative overflow-hidden">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Trial Applications</p>
+                        <h3 className="text-3xl font-extrabold text-[#0B3D91] mt-1">{trialRequests.length}</h3>
+                        <p className="text-[11px] text-[#14B8A6] font-bold mt-1">📬 Active overseas leads</p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-[#0B3D91]/10 text-[#0B3D91] text-xl border border-[#0B3D91]/20">📩</div>
+                    </div>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white border border-[#E2E8F0] shadow-sm relative overflow-hidden">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Published Blogs</p>
+                        <h3 className="text-3xl font-extrabold text-[#0B3D91] mt-1">{blogs.length}</h3>
+                        <p className="text-[11px] text-[#14B8A6] font-bold mt-1">📝 Live SEO articles</p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-[#14B8A6]/10 text-[#14B8A6] text-xl border border-[#14B8A6]/20">✍️</div>
+                    </div>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white border border-[#E2E8F0] shadow-sm relative overflow-hidden">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Courses</p>
+                        <h3 className="text-3xl font-extrabold text-[#0B3D91] mt-1">{courses.length}</h3>
+                        <p className="text-[11px] text-[#3B82F6] font-bold mt-1">🎓 Qaida, Nazra, Hifz & more</p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-[#3B82F6]/10 text-[#3B82F6] text-xl border border-[#3B82F6]/20">📖</div>
+                    </div>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-white border border-[#E2E8F0] shadow-sm relative overflow-hidden">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Library Items</p>
+                        <h3 className="text-3xl font-extrabold text-[#0B3D91] mt-1">{libraryItems.length}</h3>
+                        <p className="text-[11px] text-amber-600 font-bold mt-1">📚 Islamic study guides</p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-amber-500/10 text-amber-600 text-xl border border-amber-500/20">🗂️</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Actions Bar */}
+                <div className="bg-white border border-[#E2E8F0] rounded-2xl p-5 flex flex-wrap items-center justify-between gap-3 shadow-sm">
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900">Recent Trial Applications</h3>
-                    <p className="text-xs text-slate-500">Latest students who requested a free Quran trial class</p>
+                    <h4 className="text-sm font-extrabold text-[#0B3D91]">⚡ Quick Academy Operations</h4>
+                    <p className="text-xs text-slate-500">Fast access to admissions, content, and branding tools</p>
                   </div>
-                  <button onClick={() => setActiveTab('applications')} className="text-xs text-emerald-600 hover:underline font-bold">
-                    View All ({trialRequests.length}) →
-                  </button>
+                  <div className="flex flex-wrap gap-2.5">
+                    <button onClick={() => setActiveTab('applications')} className="px-4 py-2 rounded-xl bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm">
+                      <span>📬 View Applications ({trialRequests.length})</span>
+                    </button>
+                    <button onClick={() => setActiveTab('blog_posts')} className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#0B3D91] text-xs font-bold flex items-center gap-1.5 transition-colors border border-slate-200">
+                      <span>✍️ Manage Blogs ({blogs.length})</span>
+                    </button>
+                    <button onClick={() => setActiveTab('homepage_hero')} className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition-colors border border-slate-200">
+                      <span>🎨 Edit Homepage Hero</span>
+                    </button>
+                  </div>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs text-slate-700">
-                    <thead className="bg-slate-100 text-slate-600 uppercase text-[10px] tracking-wider border-b border-slate-200 font-bold">
-                      <tr>
-                        <th className="px-4 py-3">Student Name</th>
-                        <th className="px-4 py-3">WhatsApp / Phone</th>
-                        <th className="px-4 py-3">Country</th>
-                        <th className="px-4 py-3">Course</th>
-                        <th className="px-4 py-3">Status</th>
-                        <th className="px-4 py-3 text-right">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200/70">
-                      {trialRequests.slice(0, 6).map((trial) => (
-                        <tr key={trial.id} className="hover:bg-slate-50/80 transition-colors">
-                          <td className="px-4 py-3 font-semibold text-slate-900">{trial.name || 'Student'}</td>
-                          <td className="px-4 py-3 font-mono font-medium text-emerald-700">{trial.whatsapp}</td>
-                          <td className="px-4 py-3 text-slate-600">{trial.country || 'Global'}</td>
-                          <td className="px-4 py-3 text-slate-600">{trial.course_title || 'Quran Reading'}</td>
-                          <td className="px-4 py-3">
-                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 capitalize">
-                              {trial.status || 'Pending'}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            <button
-                              onClick={() => openWhatsAppLead(trial)}
-                              className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md text-[11px] font-bold inline-flex items-center gap-1 transition-colors shadow-xs"
-                            >
-                              <span>💬 WhatsApp</span>
-                            </button>
-                          </td>
+
+                {/* Recent Applications Table */}
+                <div className="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-sm">
+                  <div className="p-4 sm:p-5 border-b border-[#E2E8F0] flex justify-between items-center bg-slate-50/50">
+                    <div>
+                      <h3 className="text-sm font-extrabold text-[#0B3D91]">Recent Trial Applications</h3>
+                      <p className="text-xs text-slate-500">Latest students who requested a free Quran trial class</p>
+                    </div>
+                    <button onClick={() => setActiveTab('applications')} className="text-xs text-[#3B82F6] hover:underline font-bold">
+                      View All ({trialRequests.length}) →
+                    </button>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs text-[#1F2937]">
+                      <thead className="bg-[#F8FAFC] text-slate-600 uppercase text-[10px] tracking-wider border-b border-[#E2E8F0] font-bold">
+                        <tr>
+                          <th className="px-4 py-3.5">Student Name</th>
+                          <th className="px-4 py-3.5">WhatsApp / Phone</th>
+                          <th className="px-4 py-3.5">Country</th>
+                          <th className="px-4 py-3.5">Course</th>
+                          <th className="px-4 py-3.5">Status</th>
+                          <th className="px-4 py-3.5 text-right">1-Click Action</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-[#E2E8F0]/70">
+                        {trialRequests.slice(0, 6).map((trial) => (
+                          <tr key={trial.id} className="hover:bg-slate-50/80 transition-colors">
+                            <td className="px-4 py-3.5 font-bold text-slate-900">{trial.name || 'Student'}</td>
+                            <td className="px-4 py-3.5 font-mono font-semibold text-[#0B3D91]">{trial.whatsapp}</td>
+                            <td className="px-4 py-3.5 text-slate-600">{trial.country || 'Global'}</td>
+                            <td className="px-4 py-3.5 text-slate-600">{trial.course_title || 'Quran Reading'}</td>
+                            <td className="px-4 py-3.5">
+                              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 capitalize">
+                                {trial.status || 'Pending'}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3.5 text-right">
+                              <button
+                                onClick={() => openWhatsAppLead(trial)}
+                                className="px-3 py-1.5 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-lg text-xs font-bold inline-flex items-center gap-1.5 transition-colors shadow-xs"
+                              >
+                                <span>💬 WhatsApp</span>
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* ======================================================== */}
-          {/* 2. ADMISSIONS -> APPLICATIONS VIEW                       */}
-          {/* ======================================================== */}
-          {activeTab === 'applications' && (
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">Trial Applications Pipeline ({filteredTrials.length})</h3>
-                  <p className="text-xs text-slate-500">Manage all student leads, schedule trial classes, and contact parents directly via WhatsApp</p>
+            {/* ======================================================== */}
+            {/* 2. ADMISSIONS -> APPLICATIONS VIEW                       */}
+            {/* ======================================================== */}
+            {activeTab === 'applications' && (
+              <div className="space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
+                  <div>
+                    <h3 className="text-base font-extrabold text-[#0B3D91]">Trial Applications Pipeline ({filteredTrials.length})</h3>
+                    <p className="text-xs text-slate-500">Manage all student leads, schedule trial classes, and contact parents directly via WhatsApp</p>
+                  </div>
+
+                  {/* Filter Tabs */}
+                  <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+                    {['all', 'pending', 'contacted', 'enrolled', 'cancelled'].map((st) => (
+                      <button
+                        key={st}
+                        onClick={() => setTrialStatusFilter(st)}
+                        className={`px-3 py-1 rounded-lg capitalize font-bold transition-colors ${trialStatusFilter === st ? 'bg-white text-[#0B3D91] shadow-xs border border-slate-200' : 'text-slate-600 hover:text-slate-900'}`}
+                      >
+                        {st}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
-                {/* Filter Tabs */}
-                <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs">
-                  {['all', 'pending', 'contacted', 'enrolled', 'cancelled'].map((st) => (
-                    <button
-                      key={st}
-                      onClick={() => setTrialStatusFilter(st)}
-                      className={`px-3 py-1 rounded-md capitalize font-semibold transition-colors ${trialStatusFilter === st ? 'bg-white text-emerald-700 shadow-xs border border-slate-200' : 'text-slate-600 hover:text-slate-900'}`}
-                    >
-                      {st}
-                    </button>
+                {/* Table */}
+                <div className="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-sm">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs text-[#1F2937]">
+                      <thead className="bg-[#F8FAFC] text-slate-600 uppercase text-[10px] tracking-wider border-b border-[#E2E8F0] font-bold">
+                        <tr>
+                          <th className="px-4 py-3.5">ID</th>
+                          <th className="px-4 py-3.5">Student Name</th>
+                          <th className="px-4 py-3.5">WhatsApp / Phone</th>
+                          <th className="px-4 py-3.5">Email</th>
+                          <th className="px-4 py-3.5">Country</th>
+                          <th className="px-4 py-3.5">Requested Course</th>
+                          <th className="px-4 py-3.5">Status</th>
+                          <th className="px-4 py-3.5 text-right">1-Click Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#E2E8F0]/70">
+                        {filteredTrials.map((trial) => (
+                          <tr key={trial.id} className="hover:bg-slate-50/80 transition-colors">
+                            <td className="px-4 py-3.5 font-mono text-slate-400">#{trial.id}</td>
+                            <td className="px-4 py-3.5 font-bold text-slate-900">{trial.name}</td>
+                            <td className="px-4 py-3.5 font-mono font-semibold text-[#0B3D91]">{trial.whatsapp}</td>
+                            <td className="px-4 py-3.5 text-slate-500">{trial.email || '—'}</td>
+                            <td className="px-4 py-3.5 text-slate-700">{trial.country || 'Global'}</td>
+                            <td className="px-4 py-3.5 text-slate-700">{trial.course_title || 'General Free Trial'}</td>
+                            <td className="px-4 py-3.5">
+                              <select
+                                value={trial.status || 'pending'}
+                                onChange={(e) => handleUpdateTrialStatus(trial.id, e.target.value)}
+                                className="bg-white border border-slate-300 text-slate-800 text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-[#0B3D91] font-semibold"
+                              >
+                                <option value="pending">Pending</option>
+                                <option value="contacted">Contacted</option>
+                                <option value="enrolled">Enrolled</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                              </select>
+                            </td>
+                            <td className="px-4 py-3.5 text-right">
+                              <button
+                                onClick={() => openWhatsAppLead(trial)}
+                                className="px-3 py-1.5 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-lg text-xs font-bold inline-flex items-center gap-1.5 transition-colors shadow-xs"
+                              >
+                                <span>💬</span>
+                                <span>Chat on WhatsApp</span>
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ======================================================== */}
+            {/* 3. ADMISSIONS -> STUDENTS VIEW                           */}
+            {/* ======================================================== */}
+            {activeTab === 'students' && (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
+                  <div>
+                    <h3 className="text-base font-extrabold text-[#0B3D91]">Active Student Directory ({students.length})</h3>
+                    <p className="text-xs text-slate-500">Regular enrolled students currently attending Quran classes</p>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-sm">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs text-[#1F2937]">
+                      <thead className="bg-[#F8FAFC] text-slate-600 uppercase text-[10px] tracking-wider border-b border-[#E2E8F0] font-bold">
+                        <tr>
+                          <th className="px-4 py-3.5">Student Name</th>
+                          <th className="px-4 py-3.5">WhatsApp Number</th>
+                          <th className="px-4 py-3.5">Course Enrolled</th>
+                          <th className="px-4 py-3.5">Country</th>
+                          <th className="px-4 py-3.5">Status</th>
+                          <th className="px-4 py-3.5 text-right">Quick Contact</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#E2E8F0]/70">
+                        {students.map((st, idx) => (
+                          <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
+                            <td className="px-4 py-3.5 font-bold text-slate-900">{st.name || 'Student'}</td>
+                            <td className="px-4 py-3.5 font-mono font-semibold text-[#0B3D91]">{st.whatsapp || '—'}</td>
+                            <td className="px-4 py-3.5 text-slate-700">{st.course_title || 'Online Quran Recitation'}</td>
+                            <td className="px-4 py-3.5 text-slate-500">{st.country || 'United Kingdom'}</td>
+                            <td className="px-4 py-3.5">
+                              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#14B8A6]/10 text-[#14B8A6] border border-[#14B8A6]/30">
+                                Active Student
+                              </span>
+                            </td>
+                            <td className="px-4 py-3.5 text-right">
+                              <button
+                                onClick={() => openWhatsAppLead(st)}
+                                className="px-3 py-1 bg-slate-100 hover:bg-[#25D366] hover:text-white text-slate-700 rounded-lg text-[11px] font-bold inline-flex items-center gap-1 transition-colors border border-slate-200"
+                              >
+                                <span>WhatsApp</span>
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ======================================================== */}
+            {/* 4. ACADEMICS -> COURSES VIEW                             */}
+            {/* ======================================================== */}
+            {activeTab === 'courses' && (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
+                  <div>
+                    <h3 className="text-base font-extrabold text-[#0B3D91]">Courses Catalog ({filteredCourses.length})</h3>
+                    <p className="text-xs text-slate-500">All live courses, duration, pricing, and curriculum</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredCourses.map((c) => (
+                    <div key={c.id} className="bg-white border border-[#E2E8F0] rounded-2xl p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow">
+                      <div>
+                        <div className="flex justify-between items-start gap-2">
+                          <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-[#0B3D91]/10 text-[#0B3D91] border border-[#0B3D91]/20">
+                            {c.category || 'Quran'}
+                          </span>
+                          <span className="text-xs font-bold text-[#0B3D91] font-mono">
+                            £{c.price || 45}/mo
+                          </span>
+                        </div>
+                        <h4 className="text-sm font-extrabold text-slate-900 mt-2.5 leading-snug">{c.title}</h4>
+                        <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">{c.description || 'Complete Quran learning course for all ages.'}</p>
+                      </div>
+
+                      <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-[11px] text-slate-500">
+                        <span>⏱ {c.duration || '3 Months'}</span>
+                        <span>Level: {c.level || 'Beginner'}</span>
+                        <a href={`/courses/${c.slug}`} target="_blank" rel="noreferrer" className="text-[#3B82F6] hover:underline font-bold">
+                          View ↗
+                        </a>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
+            )}
 
-              {/* Table */}
-              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs text-slate-700">
-                    <thead className="bg-slate-100 text-slate-600 uppercase text-[10px] tracking-wider border-b border-slate-200 font-bold">
-                      <tr>
-                        <th className="px-4 py-3">ID</th>
-                        <th className="px-4 py-3">Student Name</th>
-                        <th className="px-4 py-3">WhatsApp / Phone</th>
-                        <th className="px-4 py-3">Email</th>
-                        <th className="px-4 py-3">Country</th>
-                        <th className="px-4 py-3">Requested Course</th>
-                        <th className="px-4 py-3">Status</th>
-                        <th className="px-4 py-3 text-right">1-Click Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200/70">
-                      {filteredTrials.map((trial) => (
-                        <tr key={trial.id} className="hover:bg-slate-50/80 transition-colors">
-                          <td className="px-4 py-3 font-mono text-slate-400">#{trial.id}</td>
-                          <td className="px-4 py-3 font-bold text-slate-900">{trial.name}</td>
-                          <td className="px-4 py-3 font-mono font-semibold text-emerald-700">{trial.whatsapp}</td>
-                          <td className="px-4 py-3 text-slate-500">{trial.email || '—'}</td>
-                          <td className="px-4 py-3 text-slate-700">{trial.country || 'Global'}</td>
-                          <td className="px-4 py-3 text-slate-700">{trial.course_title || 'General Free Trial'}</td>
-                          <td className="px-4 py-3">
-                            <select
-                              value={trial.status || 'pending'}
-                              onChange={(e) => handleUpdateTrialStatus(trial.id, e.target.value)}
-                              className="bg-white border border-slate-300 text-slate-800 text-xs rounded-md px-2 py-1 focus:outline-none focus:border-emerald-600 font-medium"
-                            >
-                              <option value="pending">Pending</option>
-                              <option value="contacted">Contacted</option>
-                              <option value="enrolled">Enrolled</option>
-                              <option value="completed">Completed</option>
-                              <option value="cancelled">Cancelled</option>
-                            </select>
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            <button
-                              onClick={() => openWhatsAppLead(trial)}
-                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md text-xs font-bold inline-flex items-center gap-1.5 transition-colors shadow-xs"
-                            >
-                              <span>💬</span>
-                              <span>Chat on WhatsApp</span>
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+            {/* ======================================================== */}
+            {/* 5. ACADEMICS -> TEACHERS VIEW                            */}
+            {/* ======================================================== */}
+            {activeTab === 'teachers' && (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
+                  <div>
+                    <h3 className="text-base font-extrabold text-[#0B3D91]">Faculty & Teachers ({teachers.length})</h3>
+                    <p className="text-xs text-slate-500">Certified Male & Female Quran scholars and instructors</p>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
 
-          {/* ======================================================== */}
-          {/* 3. ADMISSIONS -> STUDENTS VIEW                           */}
-          {/* ======================================================== */}
-          {activeTab === 'students' && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">Active Student Directory ({students.length})</h3>
-                  <p className="text-xs text-slate-500">Regular enrolled students currently attending Quran classes</p>
-                </div>
-              </div>
-
-              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs text-slate-700">
-                    <thead className="bg-slate-100 text-slate-600 uppercase text-[10px] tracking-wider border-b border-slate-200 font-bold">
-                      <tr>
-                        <th className="px-4 py-3">Student Name</th>
-                        <th className="px-4 py-3">WhatsApp Number</th>
-                        <th className="px-4 py-3">Course Enrolled</th>
-                        <th className="px-4 py-3">Country</th>
-                        <th className="px-4 py-3">Status</th>
-                        <th className="px-4 py-3 text-right">Quick Contact</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200/70">
-                      {students.map((st, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
-                          <td className="px-4 py-3 font-bold text-slate-900">{st.name || 'Student'}</td>
-                          <td className="px-4 py-3 font-mono font-semibold text-emerald-700">{st.whatsapp || '—'}</td>
-                          <td className="px-4 py-3 text-slate-700">{st.course_title || 'Online Quran Recitation'}</td>
-                          <td className="px-4 py-3 text-slate-500">{st.country || 'United Kingdom'}</td>
-                          <td className="px-4 py-3">
-                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                              Active Student
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            <button
-                              onClick={() => openWhatsAppLead(st)}
-                              className="px-3 py-1 bg-slate-100 hover:bg-emerald-600 hover:text-white text-slate-700 rounded-md text-[11px] font-bold inline-flex items-center gap-1 transition-colors border border-slate-200"
-                            >
-                              <span>WhatsApp</span>
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ======================================================== */}
-          {/* 4. ACADEMICS -> COURSES VIEW                             */}
-          {/* ======================================================== */}
-          {activeTab === 'courses' && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">Courses Catalog ({filteredCourses.length})</h3>
-                  <p className="text-xs text-slate-500">All live courses, duration, pricing, and curriculum</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredCourses.map((c) => (
-                  <div key={c.id} className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow">
-                    <div>
-                      <div className="flex justify-between items-start gap-2">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          {c.category || 'Quran'}
-                        </span>
-                        <span className="text-xs font-bold text-slate-900 font-mono">
-                          £{c.price || 45}/mo
-                        </span>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {teachers.map((t) => (
+                    <div key={t.id} className="bg-white border border-[#E2E8F0] rounded-2xl p-6 text-center shadow-xs">
+                      <div className="w-16 h-16 rounded-full bg-[#0B3D91]/10 border-2 border-[#0B3D91] mx-auto flex items-center justify-center text-xl text-[#0B3D91] font-extrabold mb-3">
+                        {t.name[0]}
                       </div>
-                      <h4 className="text-sm font-bold text-slate-900 mt-2 leading-snug">{c.title}</h4>
-                      <p className="text-xs text-slate-500 mt-1 line-clamp-2">{c.description || 'Complete Quran learning course for all ages.'}</p>
+                      <h4 className="text-sm font-bold text-slate-900">{t.name}</h4>
+                      <p className="text-xs text-[#14B8A6] font-bold">{t.title}</p>
+                      <p className="text-[11px] text-slate-500 mt-1">{t.experience} • {t.languages}</p>
+                      <p className="text-xs text-slate-600 mt-3 bg-slate-50 p-3 rounded-xl border border-slate-200 text-left leading-relaxed">
+                        {t.bio}
+                      </p>
                     </div>
-
-                    <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-[11px] text-slate-500">
-                      <span>⏱ {c.duration || '3 Months'}</span>
-                      <span>Level: {c.level || 'Beginner'}</span>
-                      <a href={`/courses/${c.slug}`} target="_blank" rel="noreferrer" className="text-emerald-600 hover:underline font-bold">
-                        View ↗
-                      </a>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* ======================================================== */}
-          {/* 5. ACADEMICS -> TEACHERS VIEW                            */}
-          {/* ======================================================== */}
-          {activeTab === 'teachers' && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">Faculty & Teachers ({teachers.length})</h3>
-                  <p className="text-xs text-slate-500">Certified Male & Female Quran scholars and instructors</p>
+                  ))}
                 </div>
               </div>
+            )}
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {teachers.map((t) => (
-                  <div key={t.id} className="bg-white border border-slate-200 rounded-xl p-5 text-center shadow-xs">
-                    <div className="w-16 h-16 rounded-full bg-emerald-50 border-2 border-emerald-500 mx-auto flex items-center justify-center text-xl text-emerald-700 font-bold mb-3">
-                      {t.name[0]}
-                    </div>
-                    <h4 className="text-sm font-bold text-slate-900">{t.name}</h4>
-                    <p className="text-xs text-emerald-600 font-bold">{t.title}</p>
-                    <p className="text-[11px] text-slate-500 mt-1">{t.experience} • {t.languages}</p>
-                    <p className="text-xs text-slate-600 mt-3 bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-left">
-                      {t.bio}
-                    </p>
+            {/* ======================================================== */}
+            {/* 6. ACADEMICS -> BLOG POSTS VIEW                          */}
+            {/* ======================================================== */}
+            {activeTab === 'blog_posts' && (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
+                  <div>
+                    <h3 className="text-base font-extrabold text-[#0B3D91]">Blog Articles & SEO Posts ({filteredBlogs.length})</h3>
+                    <p className="text-xs text-slate-500">All 57+ published articles driving organic Google search traffic</p>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* ======================================================== */}
-          {/* 6. ACADEMICS -> BLOG POSTS VIEW                          */}
-          {/* ======================================================== */}
-          {activeTab === 'blog_posts' && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">Blog Articles & SEO Posts ({filteredBlogs.length})</h3>
-                  <p className="text-xs text-slate-500">All 57+ published articles driving organic Google search traffic</p>
                 </div>
-              </div>
 
-              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs text-slate-700">
-                    <thead className="bg-slate-100 text-slate-600 uppercase text-[10px] tracking-wider border-b border-slate-200 font-bold">
-                      <tr>
-                        <th className="px-4 py-3">ID</th>
-                        <th className="px-4 py-3">Article Title</th>
-                        <th className="px-4 py-3">Category</th>
-                        <th className="px-4 py-3">Author</th>
-                        <th className="px-4 py-3">Read Time</th>
-                        <th className="px-4 py-3 text-right">View Article</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200/70">
-                      {filteredBlogs.map((post) => (
-                        <tr key={post.id} className="hover:bg-slate-50/80 transition-colors">
-                          <td className="px-4 py-3 font-mono text-slate-400">#{post.id}</td>
-                          <td className="px-4 py-3 font-bold text-slate-900 max-w-xs sm:max-w-md truncate">
-                            {post.title}
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-700 font-semibold border border-emerald-100">
-                              {post.category || 'General'}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-slate-500">{post.author || 'Ajwa Academy'}</td>
-                          <td className="px-4 py-3 text-slate-500">{post.read_time || '5 min'}</td>
-                          <td className="px-4 py-3 text-right">
-                            <a
-                              href={`/blog/${post.slug}`}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="px-3 py-1 bg-slate-100 hover:bg-emerald-600 hover:text-white text-slate-700 rounded-md text-[11px] font-bold transition-colors border border-slate-200"
-                            >
-                              Live Post ↗
-                            </a>
-                          </td>
+                <div className="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-sm">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs text-[#1F2937]">
+                      <thead className="bg-[#F8FAFC] text-slate-600 uppercase text-[10px] tracking-wider border-b border-[#E2E8F0] font-bold">
+                        <tr>
+                          <th className="px-4 py-3.5">ID</th>
+                          <th className="px-4 py-3.5">Article Title</th>
+                          <th className="px-4 py-3.5">Category</th>
+                          <th className="px-4 py-3.5">Author</th>
+                          <th className="px-4 py-3.5">Read Time</th>
+                          <th className="px-4 py-3.5 text-right">View Article</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-[#E2E8F0]/70">
+                        {filteredBlogs.map((post) => (
+                          <tr key={post.id} className="hover:bg-slate-50/80 transition-colors">
+                            <td className="px-4 py-3.5 font-mono text-slate-400">#{post.id}</td>
+                            <td className="px-4 py-3.5 font-bold text-slate-900 max-w-xs sm:max-w-md truncate">
+                              {post.title}
+                            </td>
+                            <td className="px-4 py-3.5">
+                              <span className="px-2.5 py-0.5 rounded-md text-[10px] bg-[#0B3D91]/10 text-[#0B3D91] font-bold border border-[#0B3D91]/20">
+                                {post.category || 'General'}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3.5 text-slate-500">{post.author || 'Ajwa Academy'}</td>
+                            <td className="px-4 py-3.5 text-slate-500">{post.read_time || '5 min'}</td>
+                            <td className="px-4 py-3.5 text-right">
+                              <a
+                                href={`/blog/${post.slug}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="px-3 py-1 bg-slate-100 hover:bg-[#0B3D91] hover:text-white text-[#0B3D91] rounded-lg text-[11px] font-bold transition-colors border border-slate-200"
+                              >
+                                Live Post ↗
+                              </a>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* ======================================================== */}
-          {/* 7. COMMUNICATION -> CONTACT INBOX VIEW                   */}
-          {/* ======================================================== */}
-          {activeTab === 'contact_inbox' && (
-            <div className="space-y-4">
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-                <h3 className="text-base font-bold text-slate-900">Contact Us Messages & Inquiries ({contactMessages.length})</h3>
-                <p className="text-xs text-slate-500">Direct inquiries sent by visitors via the `/contact` page form</p>
-              </div>
+            {/* ======================================================== */}
+            {/* 7. COMMUNICATION -> CONTACT INBOX VIEW                   */}
+            {/* ======================================================== */}
+            {activeTab === 'contact_inbox' && (
+              <div className="space-y-4">
+                <div className="bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
+                  <h3 className="text-base font-extrabold text-[#0B3D91]">Contact Us Messages & Inquiries ({contactMessages.length})</h3>
+                  <p className="text-xs text-slate-500">Direct inquiries sent by visitors via the `/contact` page form</p>
+                </div>
 
-              <div className="space-y-3">
-                {contactMessages.map((msg) => (
-                  <div key={msg.id} className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                    <div className="flex flex-wrap justify-between items-start gap-2">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-sm font-bold text-slate-900">{msg.name}</h4>
-                          <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">{msg.status}</span>
+                <div className="space-y-3">
+                  {contactMessages.map((msg) => (
+                    <div key={msg.id} className="bg-white border border-[#E2E8F0] rounded-2xl p-5 shadow-xs">
+                      <div className="flex flex-wrap justify-between items-start gap-2">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-sm font-bold text-slate-900">{msg.name}</h4>
+                            <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-[#14B8A6]/10 text-[#14B8A6] font-bold border border-[#14B8A6]/30">{msg.status}</span>
+                          </div>
+                          <p className="text-xs text-slate-500 mt-0.5">{msg.email} • {msg.phone} • {msg.date}</p>
                         </div>
-                        <p className="text-xs text-slate-500 mt-0.5">{msg.email} • {msg.phone} • {msg.date}</p>
+                        <a
+                          href={`https://wa.me/${msg.phone.replace(/[^0-9]/g, '')}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-3.5 py-1.5 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-lg text-xs font-bold inline-flex items-center gap-1 shadow-xs"
+                        >
+                          <span>💬 Reply on WhatsApp</span>
+                        </a>
                       </div>
-                      <a
-                        href={`https://wa.me/${msg.phone.replace(/[^0-9]/g, '')}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md text-xs font-bold inline-flex items-center gap-1 shadow-xs"
-                      >
-                        <span>💬 Reply on WhatsApp</span>
-                      </a>
+                      <div className="mt-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                        <p className="text-xs font-bold text-[#0B3D91] mb-1">Subject: {msg.subject}</p>
+                        <p className="text-xs text-slate-700 leading-relaxed">{msg.message}</p>
+                      </div>
                     </div>
-                    <div className="mt-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
-                      <p className="text-xs font-bold text-emerald-700 mb-1">Subject: {msg.subject}</p>
-                      <p className="text-xs text-slate-700 leading-relaxed">{msg.message}</p>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* ======================================================== */}
-          {/* 8. COMMUNICATION -> ANNOUNCEMENTS VIEW                   */}
-          {/* ======================================================== */}
-          {activeTab === 'announcements' && (
-            <div className="max-w-2xl bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
-              <div>
-                <h3 className="text-base font-bold text-slate-900">Website Announcement Bar</h3>
-                <p className="text-xs text-slate-500">Display a top banner notice on the live website for special discounts or events</p>
-              </div>
-
-              <div className="space-y-4 pt-2">
+            {/* ======================================================== */}
+            {/* 8. COMMUNICATION -> ANNOUNCEMENTS VIEW                   */}
+            {/* ======================================================== */}
+            {activeTab === 'announcements' && (
+              <div className="max-w-2xl bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-sm space-y-4">
                 <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Banner Announcement Text</label>
-                  <input
-                    type="text"
-                    value={settings.liveNotice}
-                    onChange={(e) => setSettings({ ...settings, liveNotice: e.target.value })}
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-emerald-600"
-                  />
+                  <h3 className="text-base font-extrabold text-[#0B3D91]">Website Announcement Bar</h3>
+                  <p className="text-xs text-slate-500">Display a top banner notice on the live website for special discounts or events</p>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    id="noticeActive"
-                    checked={settings.noticeActive}
-                    onChange={(e) => setSettings({ ...settings, noticeActive: e.target.checked })}
-                    className="w-4 h-4 text-emerald-600 rounded bg-white border-slate-300"
-                  />
-                  <label htmlFor="noticeActive" className="text-xs font-semibold text-slate-700">Show Announcement Bar on Website</label>
-                </div>
-
-                <button
-                  onClick={() => showToast('Announcement banner updated and live!')}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors shadow-xs"
-                >
-                  Save Announcement
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* ======================================================== */}
-          {/* 9. WEBSITE CONTENT -> HOMEPAGE HERO VIEW                 */}
-          {/* ======================================================== */}
-          {activeTab === 'homepage_hero' && (
-            <div className="max-w-3xl bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-5">
-              <div>
-                <h3 className="text-base font-bold text-slate-900">Homepage Hero Section Customizer</h3>
-                <p className="text-xs text-slate-500">Update main headline, description, and trial buttons on the homepage</p>
-              </div>
-
-              <form onSubmit={handleSaveHero} className="space-y-4">
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Badge Text</label>
-                  <input
-                    type="text"
-                    value={heroContent.badge}
-                    onChange={(e) => setHeroContent({ ...heroContent, badge: e.target.value })}
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Main Heading</label>
-                  <input
-                    type="text"
-                    value={heroContent.title}
-                    onChange={(e) => setHeroContent({ ...heroContent, title: e.target.value })}
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Subtitle / Description</label>
-                  <textarea
-                    rows={3}
-                    value={heroContent.subtitle}
-                    onChange={(e) => setHeroContent({ ...heroContent, subtitle: e.target.value })}
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-4 pt-2">
                   <div>
-                    <label className="text-xs font-bold text-slate-700 block mb-1">Primary Button Text</label>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Banner Announcement Text</label>
                     <input
                       type="text"
-                      value={heroContent.primaryBtnText}
-                      onChange={(e) => setHeroContent({ ...heroContent, primaryBtnText: e.target.value })}
-                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900"
+                      value={settings.liveNotice}
+                      onChange={(e) => setSettings({ ...settings, liveNotice: e.target.value })}
+                      className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#0B3D91]"
                     />
                   </div>
+
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="noticeActive"
+                      checked={settings.noticeActive}
+                      onChange={(e) => setSettings({ ...settings, noticeActive: e.target.checked })}
+                      className="w-4 h-4 text-[#0B3D91] rounded bg-white border-slate-300"
+                    />
+                    <label htmlFor="noticeActive" className="text-xs font-bold text-slate-700">Show Announcement Bar on Website</label>
+                  </div>
+
+                  <button
+                    onClick={() => showToast('Announcement banner updated and live!')}
+                    className="px-5 py-2.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl transition-colors shadow-xs"
+                  >
+                    Save Announcement
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ======================================================== */}
+            {/* 9. WEBSITE CONTENT -> HOMEPAGE HERO VIEW                 */}
+            {/* ======================================================== */}
+            {activeTab === 'homepage_hero' && (
+              <div className="max-w-3xl bg-white p-6 sm:p-7 rounded-2xl border border-[#E2E8F0] shadow-sm space-y-5">
+                <div>
+                  <h3 className="text-base font-extrabold text-[#0B3D91]">Homepage Hero Section Customizer</h3>
+                  <p className="text-xs text-slate-500">Update main headline, description, and trial buttons on the homepage</p>
+                </div>
+
+                <form onSubmit={handleSaveHero} className="space-y-4">
                   <div>
-                    <label className="text-xs font-bold text-slate-700 block mb-1">Secondary Button Text</label>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Badge Text</label>
                     <input
                       type="text"
-                      value={heroContent.secondaryBtnText}
-                      onChange={(e) => setHeroContent({ ...heroContent, secondaryBtnText: e.target.value })}
-                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900"
+                      value={heroContent.badge}
+                      onChange={(e) => setHeroContent({ ...heroContent, badge: e.target.value })}
+                      className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900"
                     />
                   </div>
-                </div>
 
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors shadow-xs"
-                >
-                  Save Homepage Hero Changes
-                </button>
-              </form>
-            </div>
-          )}
-
-          {/* ======================================================== */}
-          {/* 10. WEBSITE CONTENT -> FAQS VIEW                         */}
-          {/* ======================================================== */}
-          {activeTab === 'faqs' && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">Frequently Asked Questions ({faqs.length})</h3>
-                  <p className="text-xs text-slate-500">Questions and answers shown on the `/free-trial` and `/about` pages</p>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                {faqs.map((faq) => (
-                  <div key={faq.id} className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                    <div className="flex justify-between items-start gap-2">
-                      <h4 className="text-sm font-bold text-slate-900">{faq.question}</h4>
-                      <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">{faq.category}</span>
-                    </div>
-                    <p className="text-xs text-slate-700 mt-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
-                      {faq.answer}
-                    </p>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Main Heading</label>
+                    <input
+                      type="text"
+                      value={heroContent.title}
+                      onChange={(e) => setHeroContent({ ...heroContent, title: e.target.value })}
+                      className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900"
+                    />
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
 
-          {/* ======================================================== */}
-          {/* 11. WEBSITE CONTENT -> TESTIMONIALS VIEW                 */}
-          {/* ======================================================== */}
-          {activeTab === 'testimonials' && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">Parent & Student Reviews ({testimonials.length})</h3>
-                  <p className="text-xs text-slate-500">5-Star feedback and testimonials displayed on the homepage</p>
-                </div>
-              </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Subtitle / Description</label>
+                    <textarea
+                      rows={3}
+                      value={heroContent.subtitle}
+                      onChange={(e) => setHeroContent({ ...heroContent, subtitle: e.target.value })}
+                      className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900"
+                    />
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {testimonials.map((test) => (
-                  <div key={test.id} className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex flex-col justify-between">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <div className="flex justify-between items-start">
-                        <span className="text-xs font-bold text-slate-900">{test.name}</span>
-                        <span className="text-amber-500 text-xs">★★★★★</span>
-                      </div>
-                      <p className="text-[11px] text-emerald-600 font-semibold mt-0.5">{test.country} • {test.course}</p>
-                      <p className="text-xs text-slate-600 mt-3 italic leading-relaxed">"{test.comment}"</p>
+                      <label className="text-xs font-bold text-slate-700 block mb-1">Primary Button Text</label>
+                      <input
+                        type="text"
+                        value={heroContent.primaryBtnText}
+                        onChange={(e) => setHeroContent({ ...heroContent, primaryBtnText: e.target.value })}
+                        className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-slate-700 block mb-1">Secondary Button Text</label>
+                      <input
+                        type="text"
+                        value={heroContent.secondaryBtnText}
+                        onChange={(e) => setHeroContent({ ...heroContent, secondaryBtnText: e.target.value })}
+                        className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900"
+                      />
                     </div>
                   </div>
-                ))}
+
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl transition-colors shadow-sm"
+                  >
+                    Save Homepage Hero Changes
+                  </button>
+                </form>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* ======================================================== */}
-          {/* 12. WEBSITE CONTENT -> SOCIAL LINKS VIEW                 */}
-          {/* ======================================================== */}
-          {activeTab === 'social_links' && (
-            <div className="max-w-2xl bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
-              <div>
-                <h3 className="text-base font-bold text-slate-900">Official Social Media Links</h3>
-                <p className="text-xs text-slate-500">Links shown in the website footer and contact icons</p>
-              </div>
-
-              <div className="space-y-3 pt-2">
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">WhatsApp Direct Link</label>
-                  <input type="text" defaultValue="https://wa.me/447123456789" className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Facebook Page URL</label>
-                  <input type="text" defaultValue="https://facebook.com/ajwaacademyofficial" className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">YouTube Channel URL</label>
-                  <input type="text" defaultValue="https://youtube.com/@ajwaacademy" className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Instagram URL</label>
-                  <input type="text" defaultValue="https://instagram.com/ajwaacademy" className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
-                </div>
-
-                <button onClick={() => showToast('Social links saved successfully!')} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors shadow-xs">
-                  Save Social Links
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* ======================================================== */}
-          {/* 13. SYSTEM & AUDIT -> GENERAL SETTINGS                   */}
-          {/* ======================================================== */}
-          {activeTab === 'general_settings' && (
-            <div className="max-w-3xl bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-5">
-              <div>
-                <h3 className="text-base font-bold text-slate-900">General Academy Settings</h3>
-                <p className="text-xs text-slate-500">Configure global contact numbers, email, currency, and branding</p>
-              </div>
-
-              <form onSubmit={handleSaveSettings} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* ======================================================== */}
+            {/* 10. WEBSITE CONTENT -> FAQS VIEW                         */}
+            {/* ======================================================== */}
+            {activeTab === 'faqs' && (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
                   <div>
-                    <label className="text-xs font-bold text-slate-700 block mb-1">Academy Name</label>
-                    <input type="text" value={settings.academyName} onChange={(e) => setSettings({ ...settings, academyName: e.target.value })} className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
+                    <h3 className="text-base font-extrabold text-[#0B3D91]">Frequently Asked Questions ({faqs.length})</h3>
+                    <p className="text-xs text-slate-500">Questions and answers shown on the `/free-trial` and `/about` pages</p>
                   </div>
+                </div>
+
+                <div className="space-y-3">
+                  {faqs.map((faq) => (
+                    <div key={faq.id} className="bg-white border border-[#E2E8F0] rounded-2xl p-5 shadow-xs">
+                      <div className="flex justify-between items-start gap-2">
+                        <h4 className="text-sm font-bold text-slate-900">{faq.question}</h4>
+                        <span className="text-[10px] px-2.5 py-0.5 rounded-md bg-[#0B3D91]/10 text-[#0B3D91] font-bold border border-[#0B3D91]/20">{faq.category}</span>
+                      </div>
+                      <p className="text-xs text-slate-700 mt-2.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200 leading-relaxed">
+                        {faq.answer}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ======================================================== */}
+            {/* 11. WEBSITE CONTENT -> TESTIMONIALS VIEW                 */}
+            {/* ======================================================== */}
+            {activeTab === 'testimonials' && (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
                   <div>
-                    <label className="text-xs font-bold text-slate-700 block mb-1">Primary Currency</label>
-                    <input type="text" value={settings.currency} onChange={(e) => setSettings({ ...settings, currency: e.target.value })} className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
+                    <h3 className="text-base font-extrabold text-[#0B3D91]">Parent & Student Reviews ({testimonials.length})</h3>
+                    <p className="text-xs text-slate-500">5-Star feedback and testimonials displayed on the homepage</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-bold text-slate-700 block mb-1">Official WhatsApp Phone</label>
-                    <input type="text" value={settings.whatsappNumber} onChange={(e) => setSettings({ ...settings, whatsappNumber: e.target.value })} className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-slate-700 block mb-1">Official Support Email</label>
-                    <input type="email" value={settings.contactEmail} onChange={(e) => setSettings({ ...settings, contactEmail: e.target.value })} className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Academy Office Location / Address</label>
-                  <input type="text" value={settings.address} onChange={(e) => setSettings({ ...settings, address: e.target.value })} className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
-                </div>
-
-                <button type="submit" className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors shadow-xs">
-                  Save General Settings
-                </button>
-              </form>
-            </div>
-          )}
-
-          {/* ======================================================== */}
-          {/* 14. SYSTEM & AUDIT -> ADMIN PROFILE                      */}
-          {/* ======================================================== */}
-          {activeTab === 'admin_profile' && (
-            <div className="max-w-xl bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
-              <div>
-                <h3 className="text-base font-bold text-slate-900">Administrator Profile</h3>
-                <p className="text-xs text-slate-500">Current active administrator credentials and status</p>
-              </div>
-
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
-                    A
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900">Ajwa Academy Admin</h4>
-                    <p className="text-xs text-emerald-700 font-mono font-medium">ajwaacademyofficial@gmail.com</p>
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-slate-200 flex justify-between items-center text-xs">
-                  <span className="text-slate-500 font-medium">Role:</span>
-                  <span className="px-2.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">Super Administrator</span>
-                </div>
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-500 font-medium">Database Access:</span>
-                  <span className="text-emerald-700 font-mono font-bold">Connected (cqcitgazqwajbdyxqhtl)</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ======================================================== */}
-          {/* 15. SYSTEM & AUDIT -> SECURITY                           */}
-          {/* ======================================================== */}
-          {activeTab === 'security' && (
-            <div className="max-w-xl bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
-              <div>
-                <h3 className="text-base font-bold text-slate-900">Security & Password Management</h3>
-                <p className="text-xs text-slate-500">Manage admin login password and database security</p>
-              </div>
-
-              <div className="space-y-3 pt-2">
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">New Password</label>
-                  <input type="password" placeholder="••••••••••••" className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Confirm New Password</label>
-                  <input type="password" placeholder="••••••••••••" className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900" />
-                </div>
-
-                <button onClick={() => showToast('Password updated securely!')} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors shadow-xs">
-                  Update Admin Password
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* ======================================================== */}
-          {/* 16. SYSTEM & AUDIT -> ACTIVITY LOGS                      */}
-          {/* ======================================================== */}
-          {activeTab === 'activity_logs' && (
-            <div className="space-y-4">
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex justify-between items-center">
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">System Activity Logs</h3>
-                  <p className="text-xs text-slate-500">Real-time audit trail of all administrative actions and updates</p>
-                </div>
-                <span className="text-xs text-emerald-700 font-mono font-bold">● Live Audit Active</span>
-              </div>
-
-              <div className="bg-white border border-slate-200 rounded-xl p-4 divide-y divide-slate-100 space-y-3 shadow-xs">
-                {(activityLogs.length > 0 ? activityLogs : [
-                  { id: 1, action: 'Light Theme Applied', details: 'Admin panel updated to clean white Light Mode theme', timestamp: 'Just now' },
-                  { id: 2, action: 'Database Migration', details: 'Successfully connected new Supabase instance and verified tables', timestamp: 'Recent' },
-                  { id: 3, action: '51 Blogs Imported', details: 'Imported all published blog posts from CSV backup', timestamp: 'Recent' },
-                  { id: 4, action: '48 Leads Imported', details: 'Restored all trial applications and student requests', timestamp: 'Recent' },
-                ]).map((log, idx) => (
-                  <div key={idx} className="pt-3 first:pt-0 flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-2.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {testimonials.map((test) => (
+                    <div key={test.id} className="bg-white border border-[#E2E8F0] rounded-2xl p-5 shadow-xs flex flex-col justify-between">
                       <div>
-                        <p className="text-xs font-bold text-slate-900">{log.action}</p>
-                        <p className="text-[11px] text-slate-500">{log.details}</p>
+                        <div className="flex justify-between items-start">
+                          <span className="text-xs font-bold text-slate-900">{test.name}</span>
+                          <span className="text-amber-500 text-xs font-bold">★★★★★</span>
+                        </div>
+                        <p className="text-[11px] text-[#14B8A6] font-bold mt-0.5">{test.country} • {test.course}</p>
+                        <p className="text-xs text-slate-600 mt-3 italic leading-relaxed">"{test.comment}"</p>
                       </div>
                     </div>
-                    <span className="text-[10px] font-mono text-slate-400">{log.timestamp}</span>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-        </main>
+            )}
+
+            {/* ======================================================== */}
+            {/* 12. WEBSITE CONTENT -> SOCIAL LINKS VIEW                 */}
+            {/* ======================================================== */}
+            {activeTab === 'social_links' && (
+              <div className="max-w-2xl bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-sm space-y-4">
+                <div>
+                  <h3 className="text-base font-extrabold text-[#0B3D91]">Official Social Media Links</h3>
+                  <p className="text-xs text-slate-500">Links shown in the website footer and contact icons</p>
+                </div>
+
+                <div className="space-y-3 pt-2">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">WhatsApp Direct Link</label>
+                    <input type="text" defaultValue="https://wa.me/447123456789" className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Facebook Page URL</label>
+                    <input type="text" defaultValue="https://facebook.com/ajwaacademyofficial" className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">YouTube Channel URL</label>
+                    <input type="text" defaultValue="https://youtube.com/@ajwaacademy" className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Instagram URL</label>
+                    <input type="text" defaultValue="https://instagram.com/ajwaacademy" className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900" />
+                  </div>
+
+                  <button onClick={() => showToast('Social links saved successfully!')} className="px-5 py-2.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl transition-colors shadow-xs">
+                    Save Social Links
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ======================================================== */}
+            {/* 13. SYSTEM & AUDIT -> GENERAL SETTINGS                   */}
+            {/* ======================================================== */}
+            {activeTab === 'general_settings' && (
+              <div className="max-w-3xl bg-white p-6 sm:p-7 rounded-2xl border border-[#E2E8F0] shadow-sm space-y-5">
+                <div>
+                  <h3 className="text-base font-extrabold text-[#0B3D91]">General Academy Settings</h3>
+                  <p className="text-xs text-slate-500">Configure global contact numbers, email, currency, and branding</p>
+                </div>
+
+                <form onSubmit={handleSaveSettings} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-bold text-slate-700 block mb-1">Academy Name</label>
+                      <input type="text" value={settings.academyName} onChange={(e) => setSettings({ ...settings, academyName: e.target.value })} className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-slate-700 block mb-1">Primary Currency</label>
+                      <input type="text" value={settings.currency} onChange={(e) => setSettings({ ...settings, currency: e.target.value })} className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-bold text-slate-700 block mb-1">Official WhatsApp Phone</label>
+                      <input type="text" value={settings.whatsappNumber} onChange={(e) => setSettings({ ...settings, whatsappNumber: e.target.value })} className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-slate-700 block mb-1">Official Support Email</label>
+                      <input type="email" value={settings.contactEmail} onChange={(e) => setSettings({ ...settings, contactEmail: e.target.value })} className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Academy Office Location / Address</label>
+                    <input type="text" value={settings.address} onChange={(e) => setSettings({ ...settings, address: e.target.value })} className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900" />
+                  </div>
+
+                  <button type="submit" className="px-6 py-2.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl transition-colors shadow-sm">
+                    Save General Settings
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {/* ======================================================== */}
+            {/* 14. SYSTEM & AUDIT -> ADMIN PROFILE                      */}
+            {/* ======================================================== */}
+            {activeTab === 'admin_profile' && (
+              <div className="max-w-xl bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-sm space-y-4">
+                <div>
+                  <h3 className="text-base font-extrabold text-[#0B3D91]">Administrator Profile</h3>
+                  <p className="text-xs text-slate-500">Current active administrator credentials and status</p>
+                </div>
+
+                <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-[#0B3D91] text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                      A
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900">Ajwa Academy Admin</h4>
+                      <p className="text-xs text-[#0B3D91] font-mono font-bold">ajwaacademyofficial@gmail.com</p>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-200 flex justify-between items-center text-xs">
+                    <span className="text-slate-500 font-medium">Role:</span>
+                    <span className="px-2.5 py-0.5 rounded bg-[#0B3D91]/10 text-[#0B3D91] font-bold border border-[#0B3D91]/20">Super Administrator</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-500 font-medium">Database Access:</span>
+                    <span className="text-[#14B8A6] font-mono font-bold">Connected (cqcitgazqwajbdyxqhtl)</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ======================================================== */}
+            {/* 15. SYSTEM & AUDIT -> SECURITY                           */}
+            {/* ======================================================== */}
+            {activeTab === 'security' && (
+              <div className="max-w-xl bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-sm space-y-4">
+                <div>
+                  <h3 className="text-base font-extrabold text-[#0B3D91]">Security & Password Management</h3>
+                  <p className="text-xs text-slate-500">Manage admin login password and database security</p>
+                </div>
+
+                <div className="space-y-3 pt-2">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">New Password</label>
+                    <input type="password" placeholder="••••••••••••" className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Confirm New Password</label>
+                    <input type="password" placeholder="••••••••••••" className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900" />
+                  </div>
+
+                  <button onClick={() => showToast('Password updated securely!')} className="px-5 py-2.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl transition-colors shadow-xs">
+                    Update Admin Password
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ======================================================== */}
+            {/* 16. SYSTEM & AUDIT -> ACTIVITY LOGS                      */}
+            {/* ======================================================== */}
+            {activeTab === 'activity_logs' && (
+              <div className="space-y-4">
+                <div className="bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm flex justify-between items-center">
+                  <div>
+                    <h3 className="text-base font-extrabold text-[#0B3D91]">System Activity Logs</h3>
+                    <p className="text-xs text-slate-500">Real-time audit trail of all administrative actions and updates</p>
+                  </div>
+                  <span className="text-xs text-[#14B8A6] font-mono font-bold">● Live Audit Active</span>
+                </div>
+
+                <div className="bg-white border border-[#E2E8F0] rounded-2xl p-5 divide-y divide-slate-100 space-y-3.5 shadow-xs">
+                  {(activityLogs.length > 0 ? activityLogs : [
+                    { id: 1, action: 'Brand Style Applied', details: 'Applied official Ajwa Academy brand guidelines and colors (#0B3D91, #3B82F6, #14B8A6)', timestamp: 'Just now' },
+                    { id: 2, action: 'Light Mode Implemented', details: 'Clean standalone full-screen dashboard without public navbar/footer', timestamp: 'Recent' },
+                    { id: 3, action: '51 Blogs Imported', details: 'Imported all published blog posts from CSV backup', timestamp: 'Recent' },
+                    { id: 4, action: '48 Leads Imported', details: 'Restored all trial applications and student requests', timestamp: 'Recent' },
+                  ]).map((log, idx) => (
+                    <div key={idx} className="pt-3.5 first:pt-0 flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-2.5">
+                        <span className="w-2 h-2 rounded-full bg-[#0B3D91] mt-1.5" />
+                        <div>
+                          <p className="text-xs font-bold text-slate-900">{log.action}</p>
+                          <p className="text-[11px] text-slate-500">{log.details}</p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-mono text-slate-400">{log.timestamp}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </main>
+        </div>
       </div>
+
+      {/* --- OFFICIAL BRAND BANNER FOOTER --- */}
+      <footer className="h-10 border-t border-[#E2E8F0] bg-white px-6 flex items-center justify-between text-[11px] text-slate-500">
+        <div className="flex items-center gap-2">
+          <span className="font-bold text-[#0B3D91]">Ajwa Academy</span>
+          <span>•</span>
+          <span className="font-semibold text-slate-500">Learn Quran • Build A Better You</span>
+        </div>
+        <div className="text-emerald-700 font-bold hidden sm:block">
+          خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ
+        </div>
+      </footer>
     </div>
   );
 }
