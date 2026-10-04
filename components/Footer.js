@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 const QUICK_LINKS = [
@@ -83,6 +84,11 @@ const linkClass =
   'footer-link text-sm text-white/80 transition-colors duration-200 hover:text-white';
 
 export default function Footer() {
+  const pathname = usePathname();
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
   const footerRef = useRef(null);
   const [visible, setVisible] = useState(false);
 

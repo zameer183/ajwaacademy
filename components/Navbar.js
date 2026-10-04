@@ -18,6 +18,12 @@ const isMissingLibraryTableError = (error) => {
 };
 
 export default function Navbar() {
+  const pathname = usePathname();
+
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
   const [openSubmenu, setOpenSubmenu] = useState(null);
@@ -29,7 +35,6 @@ export default function Navbar() {
   const [courses, setCourses] = useState([]);
   const [scrolled, setScrolled] = useState(false);
 
-  const pathname = usePathname();
   const closeTimeoutRef = useRef(null);
 
   // Track scroll for subtle navbar elevation
