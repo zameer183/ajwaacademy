@@ -105,11 +105,10 @@ export default function RootLayout({ children }) {
       <body suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} ${amiri.variable} antialiased`}>
         {isProduction && (
           <>
-            <Script
+            <script
               async
               src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7784006101063230"
               crossOrigin="anonymous"
-              strategy="lazyOnload"
             />
             <Script id="google-tag-manager" strategy="lazyOnload">
               {`
