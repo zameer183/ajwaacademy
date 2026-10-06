@@ -1,7 +1,20 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { libraryAPI } from '@/lib/static-api';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }) {
+  const resolvedParams = await params;
+  const id = resolvedParams?.id;
+  const item = await libraryAPI.getItemById(id);
+  if (!item) return { title: 'Book Not Found | Ajwa Academy' };
+
+  return {
+    title: `${item.title} - Read Online | Ajwa Academy Library`,
+    description: item.description || `Read ${item.title} online inside Ajwa Academy's digital Islamic library.`,
+  };
+}
 
 export default async function LibraryDetailPage({ params }) {
   const resolvedParams = await params;
@@ -10,113 +23,110 @@ export default async function LibraryDetailPage({ params }) {
 
   if (!item) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center text-gray-700">
-          <h1 className="text-2xl font-bold mb-2">Item Not Found</h1>
-          <a
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-lg border border-slate-200 space-y-4">
+          <div className="text-4xl">📚</div>
+          <h1 className="text-xl font-black text-slate-800">Book Not Found</h1>
+          <p className="text-xs text-slate-500">
+            The requested library book could not be found or has been moved.
+          </p>
+          <Link
             href="/library"
-            className="inline-block bg-[rgba(0,0,102)] text-white px-4 py-2 rounded-md font-semibold hover:bg-[rgba(51,102,153)]"
+            className="inline-block px-5 py-2.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white rounded-xl text-xs font-bold transition-colors"
           >
-            Back to Library
-          </a>
+            ← Back to Library
+          </Link>
         </div>
       </div>
     );
   }
 
-  const fileUrl = String(item.file_url || '');
-  const lowerFileUrl = fileUrl.toLowerCase();
-  const isPdf =
-    lowerFileUrl.includes('.pdf') ||
-    lowerFileUrl.includes('drive.google.com/file/d/') ||
-    lowerFileUrl.includes('drive.google.com/uc?');
+  const getPreviewUrl = (url) => {
+    if (!url) return '';
+    const cleanUrl = String(url).trim();
+    if (cleanUrl.includes('/preview')) return cleanUrl;
+    if (cleanUrl.includes('/view')) return cleanUrl.replace(/\/view(\?.*)?$/, '/preview');
+    if (cleanUrl.includes('drive.google.com/file/d/')) {
+      const match = cleanUrl.match(/file\/d\/([a-zA-Z0-9_-]+)/);
+      if (match?.[1]) return `https://drive.google.com/file/d/${match[1]}/preview`;
+    }
+    return cleanUrl;
+  };
+
+  const getDownloadUrl = (url) => {
+    if (!url) return '';
+    const cleanUrl = String(url).trim();
+    if (cleanUrl.includes('drive.google.com/file/d/')) {
+      const match = cleanUrl.match(/file\/d\/([a-zA-Z0-9_-]+)/);
+      if (match?.[1]) return `https://drive.google.com/uc?export=download&id=${match[1]}`;
+    }
+    return cleanUrl;
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="mb-6">
-          <a
+    <main className="min-h-screen bg-slate-900 text-white flex flex-col">
+      {/* Top Bar Header */}
+      <div className="bg-slate-950/90 border-b border-slate-800 px-4 sm:px-6 py-3.5 flex items-center justify-between shrink-0 shadow-md">
+        <div className="flex items-center gap-3 min-w-0">
+          <Link
             href="/library"
-            className="text-[rgba(0,0,102)] hover:text-[rgba(51,102,153)] font-semibold"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition-colors shrink-0"
           >
-            ← Back to Library
+            ← Library
+          </Link>
+
+          <div className="min-w-0">
+            <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider block">
+              {item.category || 'Islamic Book'}
+            </span>
+            <h1 className="text-xs sm:text-sm font-extrabold text-white truncate max-w-md">
+              {item.title}
+            </h1>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          {item.file_url && (
+            <a
+              href={getDownloadUrl(item.file_url)}
+              target="_blank"
+              rel="noreferrer"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors shadow-xs"
+            >
+              <span>📥 Download PDF</span>
+            </a>
+          )}
+
+          <a
+            href={`https://wa.me/447440409217?text=${encodeURIComponent(
+              `Assalam-o-Alaikum Ajwa Academy! I would like guidance on reading: "${item.title}".`
+            )}`}
+            target="_blank"
+            rel="noreferrer"
+            className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1"
+          >
+            <span>💬 WhatsApp</span>
           </a>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-8">
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="relative w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
-              {item.image ? (
-                <Image
-                  src={item.image}
-                  alt={item.title || 'Library item'}
-                  fill
-                  className="object-cover"
-                  unoptimized
-                />
-              ) : (
-                <div className="h-full w-full flex items-center justify-center text-gray-400">
-                  No Image
-                </div>
-              )}
+      {/* Embedded In-Website Viewer Frame */}
+      <div className="flex-1 w-full flex flex-col p-2 sm:p-4 bg-slate-900">
+        <div className="flex-1 w-full bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl relative min-h-[600px] flex flex-col">
+          {item.file_url ? (
+            <iframe
+              src={getPreviewUrl(item.file_url)}
+              title={item.title}
+              className="w-full h-full flex-1 border-0 bg-white"
+              allow="autoplay; fullscreen"
+            />
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">
+              No digital copy attached for this item.
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mt-6">
-              {item.title || 'Untitled'}
-            </h1>
-            {item.author && (
-              <p className="text-sm text-gray-600 mt-2">{item.author}</p>
-            )}
-            <div className="flex flex-wrap gap-2 mt-4">
-              {item.type && (
-                <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-green-100 text-green-800">
-                  {item.type}
-                </span>
-              )}
-              {item.category && (
-                <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-blue-100 text-blue-800">
-                  {item.category}
-                </span>
-              )}
-            </div>
-            {item.description && (
-              <p className="text-sm text-gray-600 mt-4">
-                {item.description}
-              </p>
-            )}
-            {item.file_url && (
-              <a
-                href={item.file_url}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-6 inline-flex items-center justify-center bg-[rgba(0,0,102)] text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(51,102,153)] transition-colors"
-              >
-                Open File
-              </a>
-            )}
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md p-6 min-h-[400px]">
-            {item.file_url ? (
-              isPdf ? (
-                <iframe
-                  title={item.title || 'PDF'}
-                  src={item.file_url}
-                  className="w-full h-[650px] rounded-lg border border-gray-200"
-                />
-              ) : (
-                <div className="text-gray-600">
-                  File preview is not available. Use the Open File button to view or download.
-                </div>
-              )
-            ) : (
-              <div className="text-gray-600">
-                No file attached to this item.
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
-    </div>
+    </main>
   );
 }
-
