@@ -14,10 +14,49 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseKey, {
   auth: { persistSession: false },
 });
 
+export async function GET() {
+  try {
+    const [coursesRes, blogsRes, trialsRes, libraryRes] = await Promise.all([
+      supabaseAdmin.from('courses').select('*').order('id', { ascending: false }),
+      supabaseAdmin.from('blog_posts').select('id, title, slug, category, author, read_time, excerpt, image, status, created_at').order('id', { ascending: false }),
+      supabaseAdmin.from('trial_requests').select('*').order('id', { ascending: false }),
+      supabaseAdmin.from('library_items').select('*').order('id', { ascending: false }),
+    ]);
+
+    return NextResponse.json({
+      success: true,
+      courses: coursesRes.data || [],
+      blogs: blogsRes.data || [],
+      trialRequests: trialsRes.data || [],
+      libraryItems: libraryRes.data || [],
+    });
+  } catch (err) {
+    console.error('Admin GET data error:', err);
+    return NextResponse.json({ error: err.message || 'Failed to load admin data' }, { status: 500 });
+  }
+}
+
 export async function POST(request) {
   try {
     const body = await request.json();
     const { action, table, id, data } = body;
+
+    if (action === 'fetch_all') {
+      const [coursesRes, blogsRes, trialsRes, libraryRes] = await Promise.all([
+        supabaseAdmin.from('courses').select('*').order('id', { ascending: false }),
+        supabaseAdmin.from('blog_posts').select('id, title, slug, category, author, read_time, excerpt, image, status, created_at').order('id', { ascending: false }),
+        supabaseAdmin.from('trial_requests').select('*').order('id', { ascending: false }),
+        supabaseAdmin.from('library_items').select('*').order('id', { ascending: false }),
+      ]);
+
+      return NextResponse.json({
+        success: true,
+        courses: coursesRes.data || [],
+        blogs: blogsRes.data || [],
+        trialRequests: trialsRes.data || [],
+        libraryItems: libraryRes.data || [],
+      });
+    }
 
     if (!table) {
       return NextResponse.json({ error: 'Missing table name' }, { status: 400 });

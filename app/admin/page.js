@@ -285,29 +285,57 @@ export default function AdminDashboardPage() {
     checkAuth();
   }, []);
 
-  // --- FETCH DATA FROM SUPABASE ---
+  // --- SLUG SANITIZER HELPER ---
+  const generateCleanSlug = (text) => {
+    return String(text || '')
+      .toLowerCase()
+      .trim()
+      .replace(/[:\/\\?#\[\]@!$&'()*+,;=."]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
+
+  // --- FETCH DATA (HIGH-SPEED PARALLEL LOADER) ---
   const fetchData = async () => {
+    try {
+      // 1. Try fast server-side API (service-role in parallel, <100ms)
+      const res = await fetch('/api/admin/crud', { cache: 'no-store' });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success) {
+          if (Array.isArray(json.courses)) setCourses(json.courses);
+          if (Array.isArray(json.blogs)) setBlogs(json.blogs);
+          if (Array.isArray(json.trialRequests)) {
+            setTrialRequests(json.trialRequests);
+            const enrolled = json.trialRequests.filter(t => t.status === 'enrolled' || t.status === 'completed');
+            setStudents(enrolled.length > 0 ? enrolled : json.trialRequests.slice(0, 8));
+          }
+          if (Array.isArray(json.libraryItems)) setLibraryItems(json.libraryItems);
+          return;
+        }
+      }
+    } catch (apiErr) {
+      console.warn('API fetch fallback to direct Supabase:', apiErr);
+    }
+
+    // 2. Direct browser Supabase fallback in parallel
     if (!supabaseEnabled || !supabase) return;
     try {
-      // 1. Courses
-      const { data: cData } = await supabase.from('courses').select('*').order('id', { ascending: true });
-      if (cData) setCourses(cData);
+      const [cRes, bRes, tRes, lRes] = await Promise.allSettled([
+        supabase.from('courses').select('*').order('id', { ascending: false }),
+        supabase.from('blog_posts').select('id, title, slug, category, author, read_time, excerpt, image, status, created_at').order('id', { ascending: false }),
+        supabase.from('trial_requests').select('*').order('id', { ascending: false }),
+        supabase.from('library_items').select('*').order('id', { ascending: false }),
+      ]);
 
-      // 2. Blogs
-      const { data: bData } = await supabase.from('blog_posts').select('*').order('id', { ascending: false });
-      if (bData) setBlogs(bData);
-
-      // 3. Trial Requests
-      const { data: tData } = await supabase.from('trial_requests').select('*').order('id', { ascending: false });
-      if (tData) {
-        setTrialRequests(tData);
-        const enrolled = tData.filter(t => t.status === 'enrolled' || t.status === 'completed');
-        setStudents(enrolled.length > 0 ? enrolled : tData.slice(0, 8));
+      if (cRes.status === 'fulfilled' && cRes.value?.data) setCourses(cRes.value.data);
+      if (bRes.status === 'fulfilled' && bRes.value?.data) setBlogs(bRes.value.data);
+      if (tRes.status === 'fulfilled' && tRes.value?.data) {
+        setTrialRequests(tRes.value.data);
+        const enrolled = tRes.value.data.filter(t => t.status === 'enrolled' || t.status === 'completed');
+        setStudents(enrolled.length > 0 ? enrolled : tRes.value.data.slice(0, 8));
       }
-
-      // 4. Library
-      const { data: lData } = await supabase.from('library_items').select('*');
-      if (lData) setLibraryItems(lData);
+      if (lRes.status === 'fulfilled' && lRes.value?.data) setLibraryItems(lRes.value.data);
     } catch (e) {
       console.error('Error fetching admin data:', e);
     }
@@ -368,9 +396,9 @@ export default function AdminDashboardPage() {
     const { mode, data } = courseModal;
 
     try {
-      const slug = data.slug || data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      const slug = generateCleanSlug(data.slug || data.title);
       const payload = {
-        title: data.title,
+        title: data.title.trim(),
         slug,
         category: data.category,
         level: data.level,
@@ -386,7 +414,7 @@ export default function AdminDashboardPage() {
       if (mode === 'create') {
         const res = await callCrudApi('create', 'courses', null, payload);
         const createdRecord = res.record || { ...payload, id: Date.now() };
-        setCourses(prev => [...prev, createdRecord]);
+        setCourses(prev => [createdRecord, ...prev]);
         showToast('New Course created successfully!');
         addLog('Course Created', `Added new course: "${data.title}"`);
       } else {
@@ -471,9 +499,9 @@ export default function AdminDashboardPage() {
     const { mode, data } = blogModal;
 
     try {
-      const slug = data.slug || data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      const slug = generateCleanSlug(data.slug || data.title);
       const payload = {
-        title: data.title,
+        title: data.title.trim(),
         slug,
         category: data.category,
         author: data.author,
@@ -2078,7 +2106,19 @@ export default function AdminDashboardPage() {
                     type="text"
                     required
                     value={courseModal.data.title}
-                    onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, title: e.target.value } }))}
+                    onChange={(e) => {
+                      const newTitle = e.target.value;
+                      setCourseModal(prev => ({
+                        ...prev,
+                        data: {
+                          ...prev.data,
+                          title: newTitle,
+                          ...(prev.mode === 'create' && (!prev.data.slug || prev.data.slug === generateCleanSlug(prev.data.title))
+                            ? { slug: generateCleanSlug(newTitle) }
+                            : {})
+                        }
+                      }));
+                    }}
                     placeholder="e.g. Noorani Qaida Course"
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
                   />
@@ -2088,7 +2128,7 @@ export default function AdminDashboardPage() {
                   <input
                     type="text"
                     value={courseModal.data.slug}
-                    onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, slug: e.target.value } }))}
+                    onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, slug: generateCleanSlug(e.target.value) } }))}
                     placeholder="e.g. noorani-qaida-course"
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
                   />
@@ -2333,7 +2373,19 @@ export default function AdminDashboardPage() {
                     type="text"
                     required
                     value={blogModal.data.title}
-                    onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, title: e.target.value } }))}
+                    onChange={(e) => {
+                      const newTitle = e.target.value;
+                      setBlogModal(prev => ({
+                        ...prev,
+                        data: {
+                          ...prev.data,
+                          title: newTitle,
+                          ...(prev.mode === 'create' && (!prev.data.slug || prev.data.slug === generateCleanSlug(prev.data.title))
+                            ? { slug: generateCleanSlug(newTitle) }
+                            : {})
+                        }
+                      }));
+                    }}
                     placeholder="e.g. 10 Benefits of Learning Quran with Tajweed"
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
                   />
@@ -2343,7 +2395,7 @@ export default function AdminDashboardPage() {
                   <input
                     type="text"
                     value={blogModal.data.slug}
-                    onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, slug: e.target.value } }))}
+                    onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, slug: generateCleanSlug(e.target.value) } }))}
                     placeholder="e.g. 10-benefits-of-learning-quran-tajweed"
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
                   />
