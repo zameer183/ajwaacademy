@@ -1,7 +1,7 @@
 'use client';
-
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import CourseCard from '@/components/CourseCard';
+import { courseAPI } from '@/lib/static-api';
 
 const getSortValue = (course, sortBy) => {
   if (sortBy === 'Newest') return Number(course.id) || 0;
@@ -15,11 +15,35 @@ export default function CoursesPageClient({ initialCourses = [], initialCategori
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedLevel, setSelectedLevel] = useState('');
   const [sortBy, setSortBy] = useState('Newest');
+  const [courses, setCourses] = useState(Array.isArray(initialCourses) ? initialCourses : []);
+  const [categories, setCategories] = useState(
+    Array.isArray(initialCategories) && initialCategories.length
+      ? initialCategories
+      : [{ name: 'All Courses', value: 'all', count: (initialCourses || []).length }]
+  );
 
-  const courses = Array.isArray(initialCourses) ? initialCourses : [];
-  const categories = Array.isArray(initialCategories)
-    ? initialCategories
-    : [{ name: 'All Courses', value: 'all', count: courses.length }];
+  useEffect(() => {
+    let isMounted = true;
+    const loadLiveCourses = async () => {
+      try {
+        const data = await courseAPI.getCourses();
+        if (isMounted && Array.isArray(data) && data.length) {
+          setCourses(data);
+          const uniqueCategories = [...new Set(data.map((course) => course.category).filter(Boolean))];
+          const categoryCounts = uniqueCategories.map((category) => ({
+            name: category,
+            value: category,
+            count: data.filter((course) => course.category === category).length,
+          }));
+          setCategories([{ name: 'All Courses', value: 'all', count: data.length }, ...categoryCounts]);
+        }
+      } catch {}
+    };
+    loadLiveCourses();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const sortedCourses = useMemo(() => {
     const normalizedSearch = searchTerm.toLowerCase();

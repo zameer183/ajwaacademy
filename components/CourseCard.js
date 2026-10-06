@@ -8,6 +8,7 @@ const ALLOWED_REMOTE_HOSTS = new Set([
   'images.unsplash.com',
   'unsplash.com',
   'randomuser.me',
+  'cqcitgazqwajbdyxqhtl.supabase.co',
   'aawqtepmkpsiynxxokxn.supabase.co',
   'vdzwhurilkucadjgcshv.supabase.co',
 ]);
@@ -19,8 +20,10 @@ const sanitizeImageSrc = (value, fallback) => {
 
   try {
     const url = new URL(source);
-    if (url.protocol !== 'https:') return fallback;
-    if (!ALLOWED_REMOTE_HOSTS.has(url.hostname)) return fallback;
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') return fallback;
+    if (url.hostname.endsWith('.supabase.co') || ALLOWED_REMOTE_HOSTS.has(url.hostname)) {
+      return source;
+    }
     return source;
   } catch {
     return fallback;

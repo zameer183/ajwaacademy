@@ -8,6 +8,7 @@ import HomeContactCard from '../components/HomeContactCard';
 import HomeCtaPopup from '../components/HomeCtaPopup';
 import HomeStats from '../components/HomeStats';
 import HomeCoursePreview from '../components/HomeCoursePreview';
+import CourseCard from '../components/CourseCard';
 import HomeWhyChoose from '../components/HomeWhyChoose';
 import HomeTestimonials, { TESTIMONIALS } from '../components/HomeTestimonials';
 import HomeCtaSection from '../components/HomeCtaSection';
@@ -498,6 +499,50 @@ export default function HomePage() {
             </div>
 
             <HomeStats />
+
+            {/* Live Popular Online Quran Courses from Database */}
+            {courses && courses.length > 0 && (
+              <div className="my-14 sm:my-20">
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 sm:mb-12 gap-4">
+                  <div>
+                    <span className="inline-block text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-[rgba(0,0,102)] bg-blue-50 px-3.5 py-1 rounded-full mb-3">
+                      Featured Courses
+                    </span>
+                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 tracking-tight">
+                      Explore Online Quran Courses
+                    </h3>
+                    <div className="w-16 h-1 bg-[rgba(0,0,102)] rounded-full mt-3" />
+                  </div>
+                  <Link
+                    href="/courses"
+                    className="inline-flex items-center gap-2 font-bold text-[rgba(0,0,102)] hover:text-[rgba(51,102,153)] text-sm sm:text-base group"
+                  >
+                    <span>View All {courses.length} Courses</span>
+                    <span className="transition-transform group-hover:translate-x-1">→</span>
+                  </Link>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                  {courses.slice(0, 6).map((course) => (
+                    <div key={course.id || course.slug} className="h-full">
+                      <CourseCard course={course} />
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-10 text-center">
+                  <Link
+                    href="/courses"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[rgba(0,0,102)] px-8 py-3.5 text-base font-bold text-white shadow-md hover:bg-[rgba(51,102,153)] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+                  >
+                    <span>Browse All Quran Courses</span>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </Link>
+                </div>
+              </div>
+            )}
 
             <HomeCoursePreview />
           </div>
