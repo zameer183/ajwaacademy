@@ -1,56 +1,68 @@
 [
   {
-    "id": 2001,
-    "title": "Library Book 1",
-    "category": "Islamic Books",
-    "description": "Book resource for students.",
-    "type": "PDF",
-    "image": null,
-    "file_url": "https://drive.google.com/file/d/1ioGCF93k7wgsIYn1175KnpIOeQCHK1g7/view?usp=drive_link"
+    "id": 1,
+    "title": "Noorani Qaida (English & Urdu Edition)",
+    "category": "Qaida & Basics",
+    "type": "PDF Book",
+    "author": "Ajwa Academy Scholars",
+    "description": "Complete step-by-step Noorani Qaida for beginners and children to master Arabic letters and pronunciation.",
+    "image": "https://cqcitgazqwajbdyxqhtl.supabase.co/storage/v1/object/public/media/library/library-1-1791307511899.jpg",
+    "file_url": "https://drive.google.com/drive/folders/1Ue74S90PJPU1DPr15NXAswvB3PIHwVY6?usp=sharing",
+    "created_at": "2026-10-03T14:39:42.499784+00:00"
   },
   {
-    "id": 2002,
-    "title": "Library Book 2",
-    "category": "Islamic Books",
-    "description": "Book resource for students.",
-    "type": "PDF",
-    "image": null,
-    "file_url": "https://drive.google.com/file/d/18eK8mXhR8fRv5RNIrFLs3njJr3ayI9Il/view?usp=drive_link"
+    "id": 2,
+    "title": "Holy Quran (16-Line Tajweed Edition)",
+    "category": "Holy Quran",
+    "type": "PDF Book",
+    "author": "King Fahd Complex / Ajwa Library",
+    "description": "Clear 16-line Holy Quran format with color-coded Tajweed rules for smooth and accurate recitation.",
+    "image": "https://images.unsplash.com/photo-1542816417-0983677f43f3?auto=format&fit=crop&w=800&q=80",
+    "file_url": "https://drive.google.com/drive/folders/1tX8wkokfYJ2sXHYmwnjXOlqqdcrq4ybn?usp=sharing",
+    "created_at": "2026-10-03T14:39:42.68758+00:00"
   },
   {
-    "id": 2003,
-    "title": "Library Book 3",
-    "category": "Islamic Books",
-    "description": "Book resource for students.",
-    "type": "PDF",
-    "image": null,
-    "file_url": "https://drive.google.com/file/d/1WpFu-YjEPgeBWQnoDgu5M5suJs3nWGta/view?usp=drive_link"
+    "id": 3,
+    "title": "Nimaz & Masnoon Duas Guide (Urdu & English)",
+    "category": "Salah & Namaz",
+    "type": "PDF Book",
+    "author": "Department of Islamic Studies",
+    "description": "Step-by-step illustrated guide for Salah, Wudu, and essential daily Masnoon prayers.",
+    "image": "https://cqcitgazqwajbdyxqhtl.supabase.co/storage/v1/object/public/media/library/library-3-1791307515093.jpg",
+    "file_url": "https://drive.google.com/drive/folders/16KZt4dLUbLuUU87nxcj-vyFoxPbaV-dn?usp=sharing",
+    "created_at": "2026-10-03T14:39:42.873897+00:00"
   },
   {
-    "id": 2004,
-    "title": "Library Book 4",
-    "category": "Islamic Books",
-    "description": "Book resource for students.",
-    "type": "PDF",
-    "image": null,
-    "file_url": "https://drive.google.com/file/d/1jpFFWLPyZn3pLdAbH-9pibUaGGL-q2tl/view?usp=drive_link"
+    "id": 4,
+    "title": "Six Kalimas of Islam (with Translation)",
+    "category": "Kalimas & Aqeedah",
+    "type": "PDF Book",
+    "author": "Ajwa Academy Scholars",
+    "description": "Learn all 6 Kalimas with correct Arabic pronunciation, English translation, and Urdu meanings.",
+    "image": "https://cqcitgazqwajbdyxqhtl.supabase.co/storage/v1/object/public/media/library/library-4-1791307516139.jpg",
+    "file_url": "https://drive.google.com/drive/folders/1j460RieqYx3u5gFRzltw3mydKaOuiYKr?usp=sharing",
+    "created_at": "2026-10-03T14:39:43.067233+00:00"
   },
   {
-    "id": 2005,
-    "title": "Library Book 5",
-    "category": "Islamic Books",
-    "description": "Book resource for students.",
-    "type": "PDF",
-    "image": null,
-    "file_url": "https://drive.google.com/file/d/1xtfFL1QMwHKWDx4QXCx17ky_Z539F-sZ/view?usp=drive_link"
+    "id": 5,
+    "title": "Tajweed Rules & Makharij Handbook",
+    "category": "Tajweed Mastery",
+    "type": "PDF Book",
+    "author": "Qari Muhammad Ahmed",
+    "description": "Comprehensive rules of Noon Saakin, Meem Saakin, Madd, and articulation points (Makharij).",
+    "image": "https://cqcitgazqwajbdyxqhtl.supabase.co/storage/v1/object/public/media/library/library-5-1791307517169.jpg",
+    "file_url": "https://drive.google.com/file/d/1xtfFL1QMwHKWDx4QXCx17ky_Z539F-sZ/view?usp=drive_link",
+    "created_at": "2026-10-03T14:39:43.256275+00:00"
   },
   {
-    "id": 2006,
-    "title": "Library Book 6",
-    "category": "Islamic Books",
-    "description": "Book resource for students.",
-    "type": "PDF",
-    "image": null,
-    "file_url": "https://drive.google.com/file/d/1TsRn9y3AMDsDH7JScGD5Heg-RTnjbXGv/view?usp=drive_link"
+    "id": 6,
+    "title": "40 Rabbana Duas & Daily Supplications",
+    "category": "Duas & Azkar",
+    "type": "PDF Book",
+    "author": "Ajwa Academic Research",
+    "description": "Collection of 40 Quranic Rabbana Duas for morning, evening, protection, and forgiveness.",
+    "image": "https://images.unsplash.com/photo-1590076215667-875d4ef2d7ee?auto=format&fit=crop&w=800&q=80",
+    "file_url": "https://drive.google.com/file/d/1TsRn9y3AMDsDH7JScGD5Heg-RTnjbXGv/view?usp=drive_link",
+    "created_at": "2026-10-03T14:39:43.4394+00:00"
   }
 ]
