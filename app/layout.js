@@ -109,9 +109,9 @@ export default function RootLayout({ children }) {
               async
               src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7784006101063230"
               crossOrigin="anonymous"
-              strategy="afterInteractive"
+              strategy="lazyOnload"
             />
-            <Script id="google-tag-manager" strategy="afterInteractive">
+            <Script id="google-tag-manager" strategy="lazyOnload">
               {`
                 (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
                 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -122,9 +122,9 @@ export default function RootLayout({ children }) {
             </Script>
             <Script
               src="https://www.googletagmanager.com/gtag/js?id=G-EW1NLQJWTD"
-              strategy="afterInteractive"
+              strategy="lazyOnload"
             />
-            <Script id="google-analytics" strategy="afterInteractive">
+            <Script id="google-analytics" strategy="lazyOnload">
               {`
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
@@ -135,7 +135,7 @@ export default function RootLayout({ children }) {
                 }
               `}
             </Script>
-            <Script id="meta-pixel" strategy="afterInteractive">
+            <Script id="meta-pixel" strategy="lazyOnload">
               {`
                 !function(f,b,e,v,n,t,s)
                 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?

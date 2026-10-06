@@ -2,7 +2,19 @@ import Link from 'next/link';
 
 import { fetchBlogPostBySlug } from '../../../lib/static-api';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  try {
+    const posts = await fetchBlogPosts();
+    return (Array.isArray(posts) ? posts : [])
+      .filter((p) => Boolean(p.slug))
+      .slice(0, 15)
+      .map((post) => ({ slug: String(post.slug) }));
+  } catch {
+    return [];
+  }
+}
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;

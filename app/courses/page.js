@@ -1,6 +1,7 @@
-﻿import { courseAPI } from '@/lib/static-api';
+import { courseAPI } from '@/lib/static-api';
 import CoursesPageClient from '@/components/CoursesPageClient';
 
+export const revalidate = 60;
 export const metadata = {
   title: { absolute: 'Online Quran Courses | Noorani Qaida Tajweed Hifz — Ajwa Academy' },
   description:

@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { libraryAPI } from '@/lib/static-api';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export const metadata = {
   title: 'Library | Ajwa Academy',

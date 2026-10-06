@@ -169,13 +169,33 @@ export default function Navbar() {
     }));
   }, [blogPosts]);
 
-  // Load Data
+  // Load Data with session caching for instant menu response
   useEffect(() => {
     let isMounted = true;
+    if (typeof window !== 'undefined') {
+      try {
+        const cachedCourses = window.sessionStorage.getItem('nav_courses');
+        const cachedBlogs = window.sessionStorage.getItem('nav_blogs');
+        if (cachedCourses) {
+          const parsed = JSON.parse(cachedCourses);
+          if (Array.isArray(parsed) && parsed.length) setCourses(parsed);
+        }
+        if (cachedBlogs) {
+          const parsed = JSON.parse(cachedBlogs);
+          if (Array.isArray(parsed) && parsed.length) setBlogPosts(parsed);
+        }
+      } catch {}
+    }
+
     const fetchCourses = async () => {
       try {
         const data = await courseAPI.getCourses();
-        if (isMounted) setCourses(Array.isArray(data) ? data : []);
+        if (isMounted && Array.isArray(data) && data.length) {
+          setCourses(data);
+          try {
+            window.sessionStorage.setItem('nav_courses', JSON.stringify(data));
+          } catch {}
+        }
       } catch (error) {
         if (error?.name !== 'AbortError') console.error('Error fetching courses:', error);
       }
@@ -184,7 +204,12 @@ export default function Navbar() {
     const fetchBlogPosts = async () => {
       try {
         const data = await blogAPI.getPosts();
-        if (isMounted) setBlogPosts(Array.isArray(data) ? data : []);
+        if (isMounted && Array.isArray(data) && data.length) {
+          setBlogPosts(data);
+          try {
+            window.sessionStorage.setItem('nav_blogs', JSON.stringify(data));
+          } catch {}
+        }
       } catch (error) {
         if (error?.name !== 'AbortError') console.error('Error fetching blog posts:', error);
       }

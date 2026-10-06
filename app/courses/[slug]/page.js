@@ -1,4 +1,4 @@
-﻿import { courseAPI, fetchBlogPosts } from '@/lib/static-api';
+import { courseAPI, fetchBlogPosts } from '@/lib/static-api';
 import EnrollButton from '@/components/EnrollButton';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -7,7 +7,7 @@ import LessonAccessButton from '@/components/LessonAccessButton';
 import RevealOnScroll from '@/components/RevealOnScroll';
 import CourseFaqSection from '@/components/CourseFaqSection';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 const SITE_URL = 'https://www.ajwaacademy.com';
 
@@ -113,6 +113,10 @@ const courseMeta = {
     description: 'Learn Quran from scratch with our online Noorani Qaida course at Ajwa Academy. Perfect for beginners and young children. Free trial available.',
   },
 };
+
+export async function generateStaticParams() {
+  return Object.keys(courseMeta).map((slug) => ({ slug }));
+}
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;

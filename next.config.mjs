@@ -49,9 +49,11 @@ const nextConfig = {
       },
     ];
   },
+  compress: true,
+  poweredByHeader: false,
   images: {
-    formats: ['image/webp'],
-    minimumCacheTTL: 60,
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 31536000,
     remotePatterns: [
       {
         protocol: 'https',
@@ -103,7 +105,6 @@ const nextConfig = {
       },
     ],
   },
-  /* config options here */
 };
 
 export default nextConfig;
