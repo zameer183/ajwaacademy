@@ -2365,292 +2365,401 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* 2. BLOG POST MODAL */}
+      {/* 2. BLOG POST MODAL - PREMIUM STUDIO LAYOUT */}
       {blogModal.isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-5xl w-full p-6 shadow-2xl border border-slate-200 my-8">
-            <div className="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
-              <h3 className="text-base font-extrabold text-[#0B3D91]">
-                {blogModal.mode === 'create' ? '✍️ Write New Blog Post' : '✏️ Edit Blog Post'}
-              </h3>
-              <button
-                onClick={() => setBlogModal(prev => ({ ...prev, isOpen: false }))}
-                className="text-slate-400 hover:text-slate-700 text-lg font-bold"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveBlog} className="space-y-4 text-xs">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">Article Title *</label>
-                  <input
-                    type="text"
-                    required
-                    value={blogModal.data.title}
-                    onChange={(e) => {
-                      const newTitle = e.target.value;
-                      setBlogModal(prev => ({
-                        ...prev,
-                        data: {
-                          ...prev.data,
-                          title: newTitle,
-                          ...(prev.mode === 'create' && (!prev.data.slug || prev.data.slug === generateCleanSlug(prev.data.title))
-                            ? { slug: generateCleanSlug(newTitle) }
-                            : {})
-                        }
-                      }));
-                    }}
-                    placeholder="e.g. 10 Benefits of Learning Quran with Tajweed"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
-                  />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/70 backdrop-blur-xs overflow-hidden">
+          <div className="bg-white rounded-2xl max-w-6xl w-full h-[94vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+            
+            {/* STICKY TOP HEADER */}
+            <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 border-b border-slate-200 bg-white shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#0B3D91]/10 text-[#0B3D91] flex items-center justify-center text-lg font-black shrink-0">
+                  ✍️
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">URL Slug</label>
-                  <input
-                    type="text"
-                    value={blogModal.data.slug}
-                    onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, slug: generateCleanSlug(e.target.value) } }))}
-                    placeholder="e.g. 10-benefits-of-learning-quran-tajweed"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
-                  />
+                  <h3 className="text-base font-extrabold text-slate-900 leading-tight">
+                    {blogModal.mode === 'create' ? 'Write New Blog Article' : 'Edit Blog Article'}
+                  </h3>
+                  <p className="text-[11px] text-slate-500 font-medium">
+                    Ajwa Academy Publishing Studio
+                  </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="sm:col-span-1">
-                  <label className="font-bold text-slate-700 block mb-1">
-                    Category *
-                  </label>
-                  <select
-                    value={
-                      BLOG_CATEGORIES.includes(blogModal.data.category)
-                        ? blogModal.data.category
-                        : blogModal.data.category
-                        ? '__custom__'
-                        : 'Quran & Tajweed'
-                    }
-                    onChange={(e) => {
-                      if (e.target.value === '__custom__') {
-                        setBlogModal(prev => ({ ...prev, data: { ...prev.data, category: '' } }));
-                      } else {
-                        setBlogModal(prev => ({ ...prev, data: { ...prev.data, category: e.target.value } }));
-                      }
-                    }}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91] font-medium text-xs cursor-pointer"
-                  >
-                    {BLOG_CATEGORIES.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                    <option value="__custom__">✏️ + Custom / Other Category...</option>
-                  </select>
+              <div className="flex items-center gap-2">
+                <select
+                  value={blogModal.data.status || 'published'}
+                  onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, status: e.target.value } }))}
+                  className="px-3 py-1.5 bg-slate-100 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 focus:outline-none cursor-pointer"
+                >
+                  <option value="published">🟢 Published (Live)</option>
+                  <option value="draft">🟡 Draft (Hidden)</option>
+                </select>
 
-                  {/* Custom category input if selected */}
-                  {(!BLOG_CATEGORIES.includes(blogModal.data.category)) && (
-                    <input
-                      type="text"
-                      autoFocus
-                      required
-                      value={blogModal.data.category}
-                      onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, category: e.target.value } }))}
-                      placeholder="Type custom category name..."
-                      className="w-full mt-1.5 px-3 py-1.5 bg-white border-2 border-[#0B3D91] rounded-lg text-xs focus:outline-none"
-                    />
-                  )}
-
-                  {/* Quick Select Category Badges */}
-                  <div className="flex flex-wrap gap-1 mt-1.5">
-                    {['Quran & Tajweed', 'Islamic Studies & Ethics', 'Parenting & Kids Guidance', 'Arabic Language & Grammar'].map((quickCat) => (
-                      <button
-                        key={quickCat}
-                        type="button"
-                        onClick={() => setBlogModal(prev => ({ ...prev, data: { ...prev.data, category: quickCat } }))}
-                        className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-colors ${
-                          blogModal.data.category === quickCat
-                            ? 'bg-[#0B3D91] text-white shadow-xs'
-                            : 'bg-slate-200/70 hover:bg-slate-300 text-slate-700'
-                        }`}
-                      >
-                        {quickCat.split(' ')[0]}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">Author Name</label>
-                  <input
-                    type="text"
-                    value={blogModal.data.author}
-                    onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, author: e.target.value } }))}
-                    placeholder="Ajwa Academy Scholar"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">Read Time</label>
-                  <input
-                    type="text"
-                    value={blogModal.data.read_time}
-                    onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, read_time: e.target.value } }))}
-                    placeholder="5 min read"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
-                  />
-                </div>
-              </div>
-
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="font-extrabold text-slate-800 text-xs">
-                    🖼️ Featured Blog Image
-                  </label>
-                  {uploadingBlogImage && (
-                    <span className="text-[11px] font-bold text-[#0B3D91] animate-pulse">
-                      ⏳ Uploading to Supabase...
-                    </span>
-                  )}
-                </div>
-
-                {blogModal.data.image ? (
-                  <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 bg-white p-3 rounded-xl border border-slate-200">
-                    <img
-                      src={blogModal.data.image}
-                      alt="Blog Preview"
-                      className="w-24 h-16 rounded-lg object-cover border border-slate-200 shadow-xs shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-bold text-emerald-700">✓ Image Attached</p>
-                      <p className="text-[10px] text-slate-500 truncate">{blogModal.data.image}</p>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <label className="px-3 py-1.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white rounded-lg text-xs font-bold cursor-pointer transition-colors shadow-xs">
-                        <span>{uploadingBlogImage ? 'Uploading...' : '🔄 Change Image'}</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          disabled={uploadingBlogImage}
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (!file) return;
-                            setUploadingBlogImage(true);
-                            try {
-                              const res = await uploadMedia({ file, pathPrefix: 'blogs' });
-                              setBlogModal(prev => ({ ...prev, data: { ...prev.data, image: res.publicUrl } }));
-                              showToast('Blog image uploaded successfully!');
-                            } catch (err) {
-                              showToast(err.message || 'Image upload failed', 'error');
-                            } finally {
-                              setUploadingBlogImage(false);
-                              e.target.value = '';
-                            }
-                          }}
-                        />
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => setBlogModal(prev => ({ ...prev, data: { ...prev.data, image: '' } }))}
-                        className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-bold transition-colors"
-                      >
-                        ✕ Remove
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center p-5 bg-white rounded-xl border-2 border-dashed border-[#0B3D91]/30 hover:border-[#0B3D91] transition-colors text-center">
-                    <div className="w-10 h-10 rounded-full bg-[#0B3D91]/10 text-[#0B3D91] flex items-center justify-center text-xl font-bold mb-2">
-                      📸
-                    </div>
-                    <p className="text-xs font-bold text-slate-800 mb-1">
-                      No blog featured image selected
-                    </p>
-                    <p className="text-[11px] text-slate-400 mb-3">
-                      Upload from your laptop or mobile (JPG, PNG, WebP)
-                    </p>
-                    <label className="px-4 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-sm inline-flex items-center gap-1.5">
-                      <span>📁 Choose Image File from Device</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        disabled={uploadingBlogImage}
-                        onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
-                          setUploadingBlogImage(true);
-                          try {
-                            const res = await uploadMedia({ file, pathPrefix: 'blogs' });
-                            setBlogModal(prev => ({ ...prev, data: { ...prev.data, image: res.publicUrl } }));
-                            showToast('Blog image uploaded successfully!');
-                          } catch (err) {
-                            showToast(err.message || 'Image upload failed', 'error');
-                          } finally {
-                            setUploadingBlogImage(false);
-                            e.target.value = '';
-                          }
-                        }}
-                      />
-                    </label>
-                  </div>
-                )}
-
-                {/* Optional URL input fallback */}
-                <div className="flex items-center gap-2 pt-1">
-                  <span className="text-[11px] font-bold text-slate-500 shrink-0">Or Image URL:</span>
-                  <input
-                    type="text"
-                    value={blogModal.data.image}
-                    onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, image: e.target.value } }))}
-                    placeholder="https://..."
-                    className="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-700 focus:outline-none focus:border-[#0B3D91]"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">Short Excerpt / SEO Meta Summary</label>
-                <textarea
-                  rows={2}
-                  value={blogModal.data.excerpt}
-                  onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, excerpt: e.target.value } }))}
-                  placeholder="Brief summary of the article..."
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
-                />
-              </div>
-
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">
-                  Full Article Content (Rich Visual Editor, Headings, Links & Live Preview)
-                </label>
-                <RichBlogEditor
-                  value={blogModal.data.content}
-                  onChange={(newContent) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, content: newContent } }))}
-                  onUploadImage={async (file) => {
-                    const res = await uploadMedia({ file, pathPrefix: 'blogs' });
-                    return res.publicUrl;
-                  }}
-                />
-              </div>
-
-              <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setBlogModal(prev => ({ ...prev, isOpen: false }))}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl"
+                  className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition-colors"
                 >
                   Cancel
                 </button>
+
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={handleSaveBlog}
                   disabled={isSubmitting}
-                  className="px-5 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-xl shadow-xs transition-colors disabled:opacity-50"
+                  className="px-4.5 py-1.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-xl text-xs shadow-sm transition-all flex items-center gap-1.5 disabled:opacity-50"
                 >
-                  {isSubmitting ? 'Saving...' : blogModal.mode === 'create' ? 'Publish Article' : 'Save Changes'}
+                  <span>{isSubmitting ? '⏳ Saving...' : blogModal.mode === 'create' ? '🚀 Publish Article' : '💾 Save Changes'}</span>
                 </button>
+
+                <button
+                  type="button"
+                  onClick={() => setBlogModal(prev => ({ ...prev, isOpen: false }))}
+                  className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 text-base font-bold ml-1"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* SCROLLABLE 2-COLUMN BODY */}
+            <form onSubmit={handleSaveBlog} className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50/50 flex flex-col justify-between">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 max-w-7xl mx-auto w-full">
+                
+                {/* LEFT COLUMN: MAIN ARTICLE STUDIO (8 cols on lg) */}
+                <div className="lg:col-span-8 space-y-4">
+                  {/* Title & Slug Box */}
+                  <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2.5">
+                    <div>
+                      <label className="font-extrabold text-slate-800 text-xs block mb-1">
+                        Article Title *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={blogModal.data.title}
+                        onChange={(e) => {
+                          const newTitle = e.target.value;
+                          setBlogModal(prev => ({
+                            ...prev,
+                            data: {
+                              ...prev.data,
+                              title: newTitle,
+                              ...(prev.mode === 'create' && (!prev.data.slug || prev.data.slug === generateCleanSlug(prev.data.title))
+                                ? { slug: generateCleanSlug(newTitle) }
+                                : {})
+                            }
+                          }));
+                        }}
+                        placeholder="e.g. 10 Proven Benefits of Learning Quran with Tajweed Online"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm sm:text-base font-bold text-slate-900 focus:bg-white focus:border-[#0B3D91] focus:outline-none transition-all placeholder:font-normal placeholder:text-slate-400"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-2 border-t border-slate-100 text-xs">
+                      <span className="text-slate-500 font-bold shrink-0">🔗 Live URL:</span>
+                      <span className="text-slate-400 font-mono text-[11px] hidden sm:inline">https://www.ajwaacademy.com/blog/</span>
+                      <input
+                        type="text"
+                        value={blogModal.data.slug}
+                        onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, slug: generateCleanSlug(e.target.value) } }))}
+                        placeholder="article-slug"
+                        className="flex-1 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg font-mono text-xs text-slate-700 focus:bg-white focus:border-[#0B3D91] focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setBlogModal(prev => ({ ...prev, data: { ...prev.data, slug: generateCleanSlug(prev.data.title) } }))}
+                        className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[11px] font-semibold shrink-0"
+                        title="Regenerate slug from title"
+                      >
+                        🔄 Auto
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Rich Content Editor */}
+                  <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="font-extrabold text-slate-800 text-xs flex items-center gap-1.5">
+                        <span>📝 Full Article Content</span>
+                        <span className="text-slate-400 font-normal text-[11px]">(WYSIWYG, MS Word & Markdown Paste Support)</span>
+                      </label>
+                    </div>
+
+                    <RichBlogEditor
+                      value={blogModal.data.content}
+                      onChange={(newContent) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, content: newContent } }))}
+                      onUploadImage={async (file) => {
+                        const res = await uploadMedia({ file, pathPrefix: 'blogs' });
+                        return res.publicUrl;
+                      }}
+                    />
+                  </div>
+
+                  {/* SEO Excerpt */}
+                  <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs">
+                    <label className="font-extrabold text-slate-800 text-xs block mb-1">
+                      Short Excerpt / SEO Meta Summary
+                    </label>
+                    <p className="text-[11px] text-slate-400 mb-2">
+                      Brief 1-2 sentences shown on Google search and blog card previews.
+                    </p>
+                    <textarea
+                      rows={2}
+                      value={blogModal.data.excerpt}
+                      onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, excerpt: e.target.value } }))}
+                      placeholder="e.g. Discover why learning Quran with Tajweed is essential for every Muslim child and beginner..."
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-700 focus:bg-white focus:border-[#0B3D91] focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* RIGHT SIDEBAR: SETTINGS & METADATA (4 cols on lg) */}
+                <div className="lg:col-span-4 space-y-4">
+                  
+                  {/* Category & Taxonomy Card */}
+                  <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+                    <label className="font-extrabold text-slate-800 text-xs flex items-center gap-1">
+                      <span>🏷️ Category & Topic</span>
+                      <span className="text-rose-500">*</span>
+                    </label>
+
+                    <select
+                      value={
+                        BLOG_CATEGORIES.includes(blogModal.data.category)
+                          ? blogModal.data.category
+                          : blogModal.data.category
+                          ? '__custom__'
+                          : 'Quran & Tajweed'
+                      }
+                      onChange={(e) => {
+                        if (e.target.value === '__custom__') {
+                          setBlogModal(prev => ({ ...prev, data: { ...prev.data, category: '' } }));
+                        } else {
+                          setBlogModal(prev => ({ ...prev, data: { ...prev.data, category: e.target.value } }));
+                        }
+                      }}
+                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91] font-semibold text-xs text-slate-800 cursor-pointer"
+                    >
+                      {BLOG_CATEGORIES.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                      <option value="__custom__">✏️ + Type Custom Category...</option>
+                    </select>
+
+                    {/* Custom category input if selected */}
+                    {(!BLOG_CATEGORIES.includes(blogModal.data.category)) && (
+                      <input
+                        type="text"
+                        autoFocus
+                        required
+                        value={blogModal.data.category}
+                        onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, category: e.target.value } }))}
+                        placeholder="Type custom category name..."
+                        className="w-full px-3 py-2 bg-white border-2 border-[#0B3D91] rounded-xl text-xs font-semibold focus:outline-none"
+                      />
+                    )}
+
+                    {/* Quick Select Category Badges */}
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-400 block mb-1 uppercase tracking-wider">Quick Select:</span>
+                      <div className="flex flex-wrap gap-1">
+                        {['Quran & Tajweed', 'Quran Reading & Qaida', 'Islamic Studies & Ethics', 'Parenting & Kids Guidance', 'Arabic Language & Grammar'].map((quickCat) => (
+                          <button
+                            key={quickCat}
+                            type="button"
+                            onClick={() => setBlogModal(prev => ({ ...prev, data: { ...prev.data, category: quickCat } }))}
+                            className={`px-2 py-1 rounded-lg text-[10px] font-semibold transition-all ${
+                              blogModal.data.category === quickCat
+                                ? 'bg-[#0B3D91] text-white shadow-xs'
+                                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                            }`}
+                          >
+                            {quickCat.split(' ')[0]}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Featured Image Card */}
+                  <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="font-extrabold text-slate-800 text-xs">
+                        🖼️ Featured Cover Image
+                      </label>
+                      {uploadingBlogImage && (
+                        <span className="text-[10px] font-bold text-[#0B3D91] animate-pulse">
+                          ⏳ Uploading...
+                        </span>
+                      )}
+                    </div>
+
+                    {blogModal.data.image ? (
+                      <div className="space-y-2">
+                        <div className="relative rounded-xl overflow-hidden border border-slate-200 shadow-xs aspect-video bg-slate-100">
+                          <img
+                            src={blogModal.data.image}
+                            alt="Blog Preview"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex items-center justify-between gap-2 pt-1">
+                          <label className="flex-1 text-center px-3 py-1.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-xs">
+                            <span>{uploadingBlogImage ? 'Uploading...' : '🔄 Replace Image'}</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              disabled={uploadingBlogImage}
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                setUploadingBlogImage(true);
+                                try {
+                                  const res = await uploadMedia({ file, pathPrefix: 'blogs' });
+                                  setBlogModal(prev => ({ ...prev, data: { ...prev.data, image: res.publicUrl } }));
+                                  showToast('Blog image uploaded successfully!');
+                                } catch (err) {
+                                  showToast(err.message || 'Image upload failed', 'error');
+                                } finally {
+                                  setUploadingBlogImage(false);
+                                  e.target.value = '';
+                                }
+                              }}
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setBlogModal(prev => ({ ...prev, data: { ...prev.data, image: '' } }))}
+                            className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold transition-colors"
+                          >
+                            ✕ Remove
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-4 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 hover:border-[#0B3D91] transition-colors text-center">
+                        <div className="w-10 h-10 rounded-full bg-[#0B3D91]/10 text-[#0B3D91] flex items-center justify-center text-lg font-bold mx-auto mb-1.5">
+                          📸
+                        </div>
+                        <p className="text-xs font-bold text-slate-800 mb-0.5">
+                          Upload Cover Image
+                        </p>
+                        <p className="text-[10px] text-slate-400 mb-2.5">
+                          JPG, PNG or WebP from your device
+                        </p>
+                        <label className="px-3.5 py-1.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-xs inline-flex items-center gap-1">
+                          <span>📁 Select Image File</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            disabled={uploadingBlogImage}
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              setUploadingBlogImage(true);
+                              try {
+                                const res = await uploadMedia({ file, pathPrefix: 'blogs' });
+                                setBlogModal(prev => ({ ...prev, data: { ...prev.data, image: res.publicUrl } }));
+                                showToast('Blog image uploaded successfully!');
+                              } catch (err) {
+                                showToast(err.message || 'Image upload failed', 'error');
+                              } finally {
+                                setUploadingBlogImage(false);
+                                e.target.value = '';
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+                    )}
+
+                    {/* Image URL fallback */}
+                    <div className="flex items-center gap-2 pt-1 border-t border-slate-100">
+                      <span className="text-[10px] font-bold text-slate-500 shrink-0">Or URL:</span>
+                      <input
+                        type="text"
+                        value={blogModal.data.image}
+                        onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, image: e.target.value } }))}
+                        placeholder="https://..."
+                        className="flex-1 px-2.5 py-1 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-700 focus:bg-white focus:border-[#0B3D91] focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Publishing Meta: Author, Read Time */}
+                  <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+                    <label className="font-extrabold text-slate-800 text-xs block">
+                      👤 Author & Read Time
+                    </label>
+
+                    <div>
+                      <span className="text-[11px] font-bold text-slate-600 block mb-1">Author Name:</span>
+                      <input
+                        type="text"
+                        value={blogModal.data.author}
+                        onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, author: e.target.value } }))}
+                        placeholder="Ajwa Academy Scholar"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:border-[#0B3D91] focus:outline-none font-medium"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-bold text-slate-600">Estimated Read Time:</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const textOnly = (blogModal.data.content || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/gi, ' ').trim();
+                            const words = textOnly ? textOnly.split(/\s+/).filter(Boolean).length : 0;
+                            const minutes = Math.max(1, Math.ceil(words / 180));
+                            setBlogModal(prev => ({ ...prev, data: { ...prev.data, read_time: `${minutes} min read` } }));
+                          }}
+                          className="text-[10px] font-bold text-[#0B3D91] hover:underline"
+                        >
+                          ⚡ Auto-Calculate
+                        </button>
+                      </div>
+                      <input
+                        type="text"
+                        value={blogModal.data.read_time}
+                        onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, read_time: e.target.value } }))}
+                        placeholder="5 min read"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:border-[#0B3D91] focus:outline-none font-medium"
+                      />
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+              {/* Bottom bar inside form for easy submit */}
+              <div className="flex items-center justify-between pt-4 mt-4 border-t border-slate-200 bg-white/60">
+                <span className="text-[11px] text-slate-500 font-semibold">
+                  Status: <strong className="text-emerald-700 font-bold">{blogModal.data.status === 'draft' ? 'Draft' : 'Published (Live)'}</strong>
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setBlogModal(prev => ({ ...prev, isOpen: false }))}
+                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="px-5 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-xl text-xs shadow-md transition-all flex items-center gap-1.5 disabled:opacity-50"
+                  >
+                    <span>{isSubmitting ? '⏳ Saving...' : blogModal.mode === 'create' ? '🚀 Publish Article' : '💾 Save Changes'}</span>
+                  </button>
+                </div>
               </div>
             </form>
           </div>

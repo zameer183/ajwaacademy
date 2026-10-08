@@ -454,11 +454,11 @@ export default function RichBlogEditor({
   };
 
   return (
-    <div className="border border-slate-300 rounded-2xl overflow-hidden bg-white shadow-xs focus-within:border-[#0B3D91] transition-all">
+    <div className="border border-slate-300 rounded-2xl overflow-hidden bg-white shadow-xs focus-within:border-[#0B3D91] transition-all flex flex-col">
       {/* 1. TOP BAR: TABS & STATS */}
-      <div className="flex flex-wrap items-center justify-between px-3.5 py-2.5 bg-slate-100 border-b border-slate-200 gap-2">
+      <div className="flex flex-wrap items-center justify-between px-3.5 py-2 bg-slate-100/90 border-b border-slate-200 gap-2 shrink-0">
         {/* Mode Switcher Tabs */}
-        <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200">
+        <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 shadow-2xs">
           <button
             type="button"
             onClick={() => setActiveTab('visual')}
@@ -468,7 +468,7 @@ export default function RichBlogEditor({
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
             }`}
           >
-            <span>✍️ Visual Editor (WYSIWYG)</span>
+            <span>✍️ Visual Editor</span>
           </button>
           <button
             type="button"
@@ -479,7 +479,7 @@ export default function RichBlogEditor({
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
             }`}
           >
-            <span>💻 HTML / Markdown Code</span>
+            <span>💻 HTML / Code</span>
           </button>
           <button
             type="button"
@@ -495,19 +495,19 @@ export default function RichBlogEditor({
         </div>
 
         {/* Word Count & Read Time Info */}
-        <div className="flex items-center gap-3 text-[11px] font-semibold text-slate-500">
+        <div className="flex items-center gap-2 text-[11px] font-semibold text-slate-500">
           <span className="bg-white px-2.5 py-1 rounded-lg border border-slate-200">
-            📊 {stats.words} words ({stats.chars} chars)
+            📊 {stats.words} words
           </span>
-          <span className="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-lg border border-emerald-200">
+          <span className="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-lg border border-emerald-200 font-bold">
             ⏱️ {stats.readTime}
           </span>
         </div>
       </div>
 
-      {/* 2. RICH TOOLBAR (Visual Mode Only) */}
+      {/* 2. RICH TOOLBAR (Visual Mode Only) - STICKY TOP */}
       {activeTab === 'visual' && (
-        <div className="p-2 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center gap-1.5 text-xs text-slate-700">
+        <div className="sticky top-0 z-20 p-2 bg-slate-50/95 backdrop-blur-xs border-b border-slate-200 flex flex-wrap items-center gap-1.5 text-xs text-slate-700 shrink-0 shadow-2xs">
           {/* Format / Heading Select */}
           <div className="flex items-center gap-1 pr-1 border-r border-slate-200">
             <select
