@@ -11,9 +11,13 @@ export default function BlogCard({ post }) {
       : '';
   const title = String(post?.title || 'Untitled');
   const excerpt = String(post?.excerpt || '');
-  const category = String(post?.category || 'General');
-  const readTime = String(post?.readTime || '');
-  const date = String(post?.date || '');
+  const category = String(post?.category || 'Quran & Tajweed');
+  const readTime = String(post?.read_time || post?.readTime || '5 min read');
+  const date = String(
+    post?.created_at
+      ? new Date(post.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      : post?.date || ''
+  );
   const href = `/blog/${post?.slug || post?.id || ''}`;
 
   return (

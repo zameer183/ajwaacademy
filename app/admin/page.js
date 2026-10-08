@@ -60,6 +60,21 @@ const NAV_GROUPS = [
 ];
 
 // --- DEFAULT FALLBACK DATA ---
+const BLOG_CATEGORIES = [
+  'Quran & Tajweed',
+  'Quran Reading & Qaida',
+  'Quran Memorization (Hifz)',
+  'Quran Translation & Tafseer',
+  'Islamic Studies & Ethics',
+  'Hadith & Sunnah',
+  'Parenting & Kids Guidance',
+  'Daily Duas & Supplications',
+  'Arabic Language & Grammar',
+  'Ramadan & Islamic Events',
+  'Online Quran Learning',
+  'General',
+];
+
 const INITIAL_SETTINGS = {
   academyName: 'Ajwa Online Quran Academy',
   tagline: 'Learn Quran • Build a Better You',
@@ -2404,16 +2419,67 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">Category</label>
-                  <input
-                    type="text"
-                    value={blogModal.data.category}
-                    onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, category: e.target.value } }))}
-                    placeholder="Quran & Tajweed"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
-                  />
+                <div className="sm:col-span-1">
+                  <label className="font-bold text-slate-700 block mb-1">
+                    Category *
+                  </label>
+                  <select
+                    value={
+                      BLOG_CATEGORIES.includes(blogModal.data.category)
+                        ? blogModal.data.category
+                        : blogModal.data.category
+                        ? '__custom__'
+                        : 'Quran & Tajweed'
+                    }
+                    onChange={(e) => {
+                      if (e.target.value === '__custom__') {
+                        setBlogModal(prev => ({ ...prev, data: { ...prev.data, category: '' } }));
+                      } else {
+                        setBlogModal(prev => ({ ...prev, data: { ...prev.data, category: e.target.value } }));
+                      }
+                    }}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91] font-medium text-xs cursor-pointer"
+                  >
+                    {BLOG_CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                    <option value="__custom__">✏️ + Custom / Other Category...</option>
+                  </select>
+
+                  {/* Custom category input if selected */}
+                  {(!BLOG_CATEGORIES.includes(blogModal.data.category)) && (
+                    <input
+                      type="text"
+                      autoFocus
+                      required
+                      value={blogModal.data.category}
+                      onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, category: e.target.value } }))}
+                      placeholder="Type custom category name..."
+                      className="w-full mt-1.5 px-3 py-1.5 bg-white border-2 border-[#0B3D91] rounded-lg text-xs focus:outline-none"
+                    />
+                  )}
+
+                  {/* Quick Select Category Badges */}
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    {['Quran & Tajweed', 'Islamic Studies & Ethics', 'Parenting & Kids Guidance', 'Arabic Language & Grammar'].map((quickCat) => (
+                      <button
+                        key={quickCat}
+                        type="button"
+                        onClick={() => setBlogModal(prev => ({ ...prev, data: { ...prev.data, category: quickCat } }))}
+                        className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-colors ${
+                          blogModal.data.category === quickCat
+                            ? 'bg-[#0B3D91] text-white shadow-xs'
+                            : 'bg-slate-200/70 hover:bg-slate-300 text-slate-700'
+                        }`}
+                      >
+                        {quickCat.split(' ')[0]}
+                      </button>
+                    ))}
+                  </div>
                 </div>
+
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">Author Name</label>
                   <input
@@ -2421,9 +2487,10 @@ export default function AdminDashboardPage() {
                     value={blogModal.data.author}
                     onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, author: e.target.value } }))}
                     placeholder="Ajwa Academy Scholar"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
                   />
                 </div>
+
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">Read Time</label>
                   <input
@@ -2431,7 +2498,7 @@ export default function AdminDashboardPage() {
                     value={blogModal.data.read_time}
                     onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, read_time: e.target.value } }))}
                     placeholder="5 min read"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
                   />
                 </div>
               </div>
