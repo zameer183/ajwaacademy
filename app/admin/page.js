@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { supabase, supabaseEnabled } from '@/lib/supabase';
 import { deleteMediaByUrl, uploadMedia } from '@/lib/supabase-storage';
 import { getAdminAccessSnapshot } from '@/lib/admin-auth';
+import RichBlogEditor from '@/components/RichBlogEditor';
 
 // --- NAVIGATION CONFIGURATION (Official Ajwa Academy Hierarchy) ---
 const NAV_GROUPS = [
@@ -323,7 +324,7 @@ export default function AdminDashboardPage() {
     try {
       const [cRes, bRes, tRes, lRes] = await Promise.allSettled([
         supabase.from('courses').select('*').order('id', { ascending: false }),
-        supabase.from('blog_posts').select('id, title, slug, category, author, read_time, excerpt, image, status, created_at').order('id', { ascending: false }),
+        supabase.from('blog_posts').select('*').order('id', { ascending: false }),
         supabase.from('trial_requests').select('*').order('id', { ascending: false }),
         supabase.from('library_items').select('*').order('id', { ascending: false }),
       ]);
@@ -2352,7 +2353,7 @@ export default function AdminDashboardPage() {
       {/* 2. BLOG POST MODAL */}
       {blogModal.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-slate-200 my-8">
+          <div className="bg-white rounded-2xl max-w-5xl w-full p-6 shadow-2xl border border-slate-200 my-8">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
               <h3 className="text-base font-extrabold text-[#0B3D91]">
                 {blogModal.mode === 'create' ? '✍️ Write New Blog Post' : '✏️ Edit Blog Post'}
@@ -2555,13 +2556,16 @@ export default function AdminDashboardPage() {
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Full Article Content (Markdown / HTML)</label>
-                <textarea
-                  rows={8}
+                <label className="font-bold text-slate-700 block mb-1">
+                  Full Article Content (Rich Visual Editor, Headings, Links & Live Preview)
+                </label>
+                <RichBlogEditor
                   value={blogModal.data.content}
-                  onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, content: e.target.value } }))}
-                  placeholder="Write full article here..."
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono text-xs"
+                  onChange={(newContent) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, content: newContent } }))}
+                  onUploadImage={async (file) => {
+                    const res = await uploadMedia({ file, pathPrefix: 'blogs' });
+                    return res.publicUrl;
+                  }}
                 />
               </div>
 

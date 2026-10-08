@@ -18,7 +18,7 @@ export async function GET() {
   try {
     const [coursesRes, blogsRes, trialsRes, libraryRes] = await Promise.all([
       supabaseAdmin.from('courses').select('*').order('id', { ascending: false }),
-      supabaseAdmin.from('blog_posts').select('id, title, slug, category, author, read_time, excerpt, image, status, created_at').order('id', { ascending: false }),
+      supabaseAdmin.from('blog_posts').select('*').order('id', { ascending: false }),
       supabaseAdmin.from('trial_requests').select('*').order('id', { ascending: false }),
       supabaseAdmin.from('library_items').select('*').order('id', { ascending: false }),
     ]);
@@ -44,7 +44,7 @@ export async function POST(request) {
     if (action === 'fetch_all') {
       const [coursesRes, blogsRes, trialsRes, libraryRes] = await Promise.all([
         supabaseAdmin.from('courses').select('*').order('id', { ascending: false }),
-        supabaseAdmin.from('blog_posts').select('id, title, slug, category, author, read_time, excerpt, image, status, created_at').order('id', { ascending: false }),
+        supabaseAdmin.from('blog_posts').select('*').order('id', { ascending: false }),
         supabaseAdmin.from('trial_requests').select('*').order('id', { ascending: false }),
         supabaseAdmin.from('library_items').select('*').order('id', { ascending: false }),
       ]);

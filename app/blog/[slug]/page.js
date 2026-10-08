@@ -54,7 +54,13 @@ export default async function BlogDetailPage({ params }) {
   }
 
   const rawContent = post?.content || '';
-  const content = rawContent.includes('<') ? rawContent : rawContent.replace(/\n/g, '<br />');
+  let content = rawContent;
+  if (content && !content.includes('<')) {
+    content = content
+      .split(/\n\s*\n/)
+      .map((p) => `<p>${p.trim().replace(/\n/g, '<br />')}</p>`)
+      .join('\n');
+  }
   const contentBlocks = Array.isArray(post?.content_blocks) ? post.content_blocks : [];
   const headerTitle =
     String(post?.title || '')
@@ -151,16 +157,13 @@ export default async function BlogDetailPage({ params }) {
                 ))}
               </div>
 
-              <div className="prose prose-gray max-w-none blog-detail-content">
-                <h2 className="text-2xl font-bold text-gray-900 text-center">
-                  Learn Quran Online with Practical Guidance
-                </h2>
+              <div className="blog-detail-content prose-blog max-w-none">
                 {contentBlocks.length > 0 ? (
                   <div className="space-y-6">
                     {contentBlocks.map((block, index) => (
                       <div key={`block-${index}`} className="space-y-4">
                         {block?.heading && (
-                          <h3 className="text-xl font-bold text-gray-900 text-center">
+                          <h3 className="text-xl font-bold text-gray-900">
                             {block.heading}
                           </h3>
                         )}
@@ -175,8 +178,10 @@ export default async function BlogDetailPage({ params }) {
                       </div>
                     ))}
                   </div>
-                ) : (
+                ) : content ? (
                   <div dangerouslySetInnerHTML={{ __html: content }} />
+                ) : (
+                  <p className="text-gray-500 italic">No article content available.</p>
                 )}
               </div>
 
