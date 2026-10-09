@@ -113,7 +113,7 @@ export default function Footer() {
   return (
     <footer
       ref={footerRef}
-      className={`site-footer bg-[rgba(0,0,102)] text-white border-t border-[rgba(51,102,153)] ${
+      className={`site-footer bg-[#0F766E] text-white border-t border-[#115E59] ${
         visible ? 'is-visible' : ''
       }`}
     >
@@ -236,7 +236,7 @@ export default function Footer() {
             </ul>
             <Link
               href="/free-trial"
-              className="mt-5 inline-flex items-center justify-center rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-[rgba(0,0,102)] shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-100 hover:shadow-md"
+              className="mt-5 inline-flex items-center justify-center rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-[#0F766E] shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-100 hover:shadow-md"
             >
               Free Trial Class
             </Link>

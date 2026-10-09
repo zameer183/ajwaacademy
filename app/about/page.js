@@ -38,7 +38,7 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
-        <section className="bg-gradient-to-r from-[rgba(0,0,102)] to-[rgba(51,102,153)] text-white rounded-3xl p-8 sm:p-10 shadow-xl">
+        <section className="bg-gradient-to-r from-[#0F766E] to-[#115E59] text-white rounded-3xl p-8 sm:p-10 shadow-xl">
           <h1 className="text-3xl sm:text-4xl font-bold mb-4 text-center">About Ajwa Academy</h1>
           <p className="text-lg leading-relaxed">
             Ajwa Academy is an online Quran academy built with the vision to provide authentic online Quran classes and skill-based
@@ -100,8 +100,8 @@ export default function AboutPage() {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {coreValues.map((value) => (
-              <div key={value} className="rounded-2xl border border-[rgba(0,0,102,0.08)] bg-gray-50 p-4 shadow-sm">
-                <span className="text-[rgba(0,0,102)] font-semibold">*</span> <span className="ml-2 text-gray-800">{value}</span>
+              <div key={value} className="rounded-2xl border border-[#0F766E]/15 bg-gray-50 p-4 shadow-sm">
+                <span className="text-[#0F766E] font-semibold">*</span> <span className="ml-2 text-gray-800">{value}</span>
               </div>
             ))}
           </div>
@@ -121,9 +121,9 @@ export default function AboutPage() {
             {whyChooseUs.map((item, index) => (
               <div
                 key={item}
-                className="rounded-2xl border border-[rgba(0,0,102,0.08)] bg-white shadow-md shadow-[rgba(0,0,102,0.05)] p-5 flex gap-4 items-start hover:-translate-y-1 transition-transform duration-200"
+                className="rounded-2xl border border-[#0F766E]/15 bg-white shadow-md shadow-[rgba(15,118,110,0.05)] p-5 flex gap-4 items-start hover:-translate-y-1 transition-transform duration-200"
               >
-                <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-[rgba(0,0,102,0.1)] to-[rgba(51,102,153,0.2)] flex items-center justify-center text-[rgba(0,0,102)] font-semibold">
+                <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-[#0F766E]/10 to-[#115E59]/20 flex items-center justify-center text-[#0F766E] font-semibold">
                   {index + 1}
                 </div>
                 <p className="text-base text-gray-800 leading-relaxed">{item}</p>
@@ -147,13 +147,13 @@ export default function AboutPage() {
           <div className="flex flex-wrap gap-3">
             <Link
               href="/courses"
-              className="bg-[rgba(0,0,102)] text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(51,102,153)] transition-colors"
+              className="bg-[#0F766E] text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-[#115E59] transition-colors"
             >
               View Courses
             </Link>
             <Link
               href="/contact"
-              className="border border-[rgba(0,0,102)] text-[rgba(0,0,102)] px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(0,0,102)] hover:text-white transition-colors"
+              className="border border-[#0F766E] text-[#0F766E] px-4 py-2 rounded-md text-sm font-semibold hover:bg-[#0F766E] hover:text-white transition-colors"
             >
               Contact Us
             </Link>
@@ -173,7 +173,7 @@ export default function AboutPage() {
           </p>
           <div className="flex flex-wrap gap-3">
             {countries.map((country) => (
-              <span key={country} className="px-4 py-2 rounded-full bg-[rgba(0,0,102,0.08)] text-[rgba(0,0,102)] font-semibold text-sm">
+              <span key={country} className="px-4 py-2 rounded-full bg-[#0F766E]/10 text-[#0F766E] font-semibold text-sm">
                 {country}
               </span>
             ))}
@@ -192,7 +192,7 @@ export default function AboutPage() {
           <ul className="space-y-3 text-gray-800">
             {eligibleGroups.map((group) => (
               <li key={group} className="flex items-start gap-3">
-                <span className="mt-1 h-2.5 w-2.5 rounded-full bg-[rgba(0,0,102)]" />
+                <span className="mt-1 h-2.5 w-2.5 rounded-full bg-[#0F766E]" />
                 <span>{group}</span>
               </li>
             ))}
@@ -215,7 +215,7 @@ export default function AboutPage() {
         <section className="bg-white rounded-3xl shadow-lg p-8 space-y-6">
           <h2 className="text-2xl font-bold text-gray-900 text-center">Leadership</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-            <div className="rounded-2xl overflow-hidden border border-[rgba(0,0,102,0.08)] bg-gray-50">
+            <div className="rounded-2xl overflow-hidden border border-[#0F766E]/15 bg-gray-50">
               <img
                 src="/muhammad-sufyan-cofounder.jpg"
                 alt="Muhammad Sufyan, Co-Founder and Islamic Scholar at Ajwa Academy"
@@ -226,17 +226,17 @@ export default function AboutPage() {
               />
             </div>
             <div className="space-y-4">
-              <h3 className="text-3xl font-bold text-[rgba(0,0,102)]">Meet Our Co-Founder</h3>
+              <h3 className="text-3xl font-bold text-[#0F766E]">Meet Our Co-Founder</h3>
               <p className="text-gray-700 leading-relaxed">
                 Muhammad Sufyan brings deep Islamic scholarship to Ajwa Academy. A graduate of Jamia Ashrafia Lahore with a completed Dars-e-Nizami, he combines traditional madrasa education with modern teaching skills.
               </p>
               <p className="text-gray-700 leading-relaxed">
                 His expertise in Tajweed, Arabic, and Islamic guidance ensures every student receives authentic and structured Quran education.
               </p>
-              <div className="rounded-xl border border-[rgba(0,0,102,0.15)] bg-[rgba(0,0,102,0.03)] px-4 py-3">
+              <div className="rounded-xl border border-[#0F766E]/20 bg-[#0F766E]/5 px-4 py-3">
                 <p className="text-lg font-semibold text-gray-900">Muhammad Sufyan</p>
                 <p className="text-sm text-gray-700">Co-Founder & Islamic Scholar</p>
-                <p className="text-sm font-semibold text-[rgba(0,0,102)] mt-2">Jamia Ashrafia Lahore — Dars-e-Nizami</p>
+                <p className="text-sm font-semibold text-[#0F766E] mt-2">Jamia Ashrafia Lahore — Dars-e-Nizami</p>
               </div>
             </div>
           </div>

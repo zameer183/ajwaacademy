@@ -66,7 +66,7 @@ export function cleanPastedHTML(html) {
             el.setAttribute('target', '_blank');
             el.setAttribute('rel', 'noopener noreferrer');
             if (!el.getAttribute('class')) {
-              el.setAttribute('class', 'text-[#000066] font-semibold underline hover:text-blue-600');
+              el.setAttribute('class', 'text-[#0F766E] font-semibold underline hover:text-blue-600');
             }
           }
 
@@ -322,7 +322,7 @@ export default function RichBlogEditor({
 
     if (editorRef.current) editorRef.current.focus();
 
-    const linkHtml = `<a href="${linkData.url}" ${linkData.newTab ? 'target="_blank" rel="noopener noreferrer"' : ''} class="text-[#000066] font-semibold underline hover:text-blue-600">${linkData.text || linkData.url}</a>`;
+    const linkHtml = `<a href="${linkData.url}" ${linkData.newTab ? 'target="_blank" rel="noopener noreferrer"' : ''} class="text-[#0F766E] font-semibold underline hover:text-blue-600">${linkData.text || linkData.url}</a>`;
 
     document.execCommand('insertHTML', false, linkHtml);
     handleEditorChange();
@@ -384,8 +384,8 @@ export default function RichBlogEditor({
       `;
     } else if (type === 'tip') {
       calloutHtml = `
-        <div class="my-6 p-5 rounded-2xl bg-blue-50 border-l-4 border-[#000066] text-slate-800 shadow-sm">
-          <div class="flex items-center gap-2 font-bold text-[#000066] text-sm mb-2">
+        <div class="my-6 p-5 rounded-2xl bg-teal-50 border-l-4 border-[#0F766E] text-slate-800 shadow-sm">
+          <div class="flex items-center gap-2 font-bold text-[#0F766E] text-sm mb-2">
             <span>💡</span> <span>Key Takeaway / Academy Tip</span>
           </div>
           <p class="text-slate-700 leading-relaxed">
@@ -395,12 +395,12 @@ export default function RichBlogEditor({
       `;
     } else if (type === 'cta') {
       calloutHtml = `
-        <div class="my-8 p-6 rounded-2xl bg-gradient-to-r from-[#000066] to-[#336699] text-white text-center shadow-lg">
+        <div class="my-8 p-6 rounded-2xl bg-gradient-to-r from-[#0F766E] to-[#115E59] text-white text-center shadow-lg">
           <h3 className="text-xl font-bold mb-2 text-white">Start Your Quran Journey Today</h3>
-          <p class="text-sm text-blue-100 mb-4 max-w-xl mx-auto">
+          <p class="text-sm text-teal-100 mb-4 max-w-xl mx-auto">
             Book a 3-day free trial class with expert Arab & native tutors from the comfort of home.
           </p>
-          <a href="/free-trial" target="_blank" rel="noopener noreferrer" class="inline-block bg-white text-[#000066] font-bold px-6 py-2.5 rounded-xl hover:bg-amber-400 hover:text-slate-900 transition-colors">
+          <a href="/free-trial" target="_blank" rel="noopener noreferrer" class="inline-block bg-white text-[#0F766E] font-bold px-6 py-2.5 rounded-xl hover:bg-amber-400 hover:text-slate-900 transition-colors">
             Book Free Trial Class ➔
           </a>
         </div><p><br></p>
@@ -454,7 +454,7 @@ export default function RichBlogEditor({
   };
 
   return (
-    <div className="border border-slate-300 rounded-2xl overflow-hidden bg-white shadow-xs focus-within:border-[#0B3D91] transition-all flex flex-col">
+    <div className="border border-slate-300 rounded-2xl overflow-hidden bg-white shadow-xs focus-within:border-[#0F766E] transition-all flex flex-col">
       {/* 1. TOP BAR: TABS & STATS */}
       <div className="flex flex-wrap items-center justify-between px-3.5 py-2 bg-slate-100/90 border-b border-slate-200 gap-2 shrink-0">
         {/* Mode Switcher Tabs */}
@@ -464,7 +464,7 @@ export default function RichBlogEditor({
             onClick={() => setActiveTab('visual')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
               activeTab === 'visual'
-                ? 'bg-[#0B3D91] text-white shadow-xs'
+                ? 'bg-[#0F766E] text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
             }`}
           >
@@ -475,7 +475,7 @@ export default function RichBlogEditor({
             onClick={() => setActiveTab('code')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
               activeTab === 'code'
-                ? 'bg-[#0B3D91] text-white shadow-xs'
+                ? 'bg-[#0F766E] text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
             }`}
           >
@@ -486,7 +486,7 @@ export default function RichBlogEditor({
             onClick={() => setActiveTab('preview')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
               activeTab === 'preview'
-                ? 'bg-[#0B3D91] text-white shadow-xs'
+                ? 'bg-[#0F766E] text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
             }`}
           >
@@ -513,7 +513,7 @@ export default function RichBlogEditor({
             <select
               value={selectedFormat}
               onChange={(e) => handleBlockFormat(e.target.value)}
-              className="bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-bold text-slate-700 focus:outline-none focus:border-[#0B3D91] text-xs"
+              className="bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-bold text-slate-700 focus:outline-none focus:border-[#0F766E] text-xs"
               title="Heading style"
             >
               <option value="p">Paragraph (Normal)</option>
@@ -566,9 +566,9 @@ export default function RichBlogEditor({
           <div className="flex items-center gap-1 pr-1 border-r border-slate-200">
             <button
               type="button"
-              onClick={() => execCommand('foreColor', '#000066')}
+              onClick={() => execCommand('foreColor', '#0F766E')}
               title="Navy Blue Brand Color"
-              className="w-5 h-5 rounded-full bg-[#000066] border border-white ring-1 ring-slate-300 hover:scale-110 transition-transform"
+              className="w-5 h-5 rounded-full bg-[#0F766E] border border-white ring-1 ring-slate-300 hover:scale-110 transition-transform"
             />
             <button
               type="button"
@@ -644,7 +644,7 @@ export default function RichBlogEditor({
               type="button"
               onClick={handleOpenLinkModal}
               title="Insert Hyperlink"
-              className="px-2.5 py-1 bg-white hover:bg-blue-50 border border-slate-300 rounded-lg font-bold text-[#0B3D91] flex items-center gap-1 text-xs shadow-xs"
+              className="px-2.5 py-1 bg-white hover:bg-teal-50 border border-slate-300 rounded-lg font-bold text-[#0F766E] flex items-center gap-1 text-xs shadow-xs"
             >
               🔗 Link
             </button>
@@ -665,7 +665,7 @@ export default function RichBlogEditor({
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
               title="Upload Image into Article"
-              className="px-2.5 py-1 bg-[#0B3D91] hover:bg-[#1E40AF] text-white rounded-lg font-bold flex items-center gap-1 text-xs shadow-xs disabled:opacity-50"
+              className="px-2.5 py-1 bg-[#0F766E] hover:bg-[#1E40AF] text-white rounded-lg font-bold flex items-center gap-1 text-xs shadow-xs disabled:opacity-50"
             >
               <span>{isUploading ? '⏳ Uploading...' : '🖼️ +Image'}</span>
             </button>
@@ -703,7 +703,7 @@ export default function RichBlogEditor({
               type="button"
               onClick={() => insertCallout('tip')}
               title="Insert Pro Tip Box"
-              className="px-2 py-1 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-[#000066] font-bold text-xs"
+              className="px-2 py-1 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-lg text-[#0F766E] font-bold text-xs"
             >
               💡 Tip
             </button>
@@ -781,7 +781,7 @@ export default function RichBlogEditor({
         {activeTab === 'preview' && (
           <div className="bg-slate-50 p-4 sm:p-6 rounded-2xl border border-slate-200">
             <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-100">
-              <div className="text-xs font-bold text-[#000066] uppercase tracking-wider mb-2">
+              <div className="text-xs font-bold text-[#0F766E] uppercase tracking-wider mb-2">
                 Live Article Preview
               </div>
               <div
@@ -798,7 +798,7 @@ export default function RichBlogEditor({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
           <div className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200">
             <div className="flex justify-between items-center pb-3 mb-3 border-b border-slate-100">
-              <h4 className="font-extrabold text-[#0B3D91] text-sm flex items-center gap-1.5">
+              <h4 className="font-extrabold text-[#0F766E] text-sm flex items-center gap-1.5">
                 <span>🔗</span> <span>Insert Hyperlink</span>
               </h4>
               <button
@@ -818,7 +818,7 @@ export default function RichBlogEditor({
                   value={linkData.url}
                   onChange={(e) => setLinkData(prev => ({ ...prev, url: e.target.value }))}
                   placeholder="https://www.ajwaacademy.com/courses/..."
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-[#0B3D91]"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-[#0F766E]"
                 />
               </div>
               <div>
@@ -828,7 +828,7 @@ export default function RichBlogEditor({
                   value={linkData.text}
                   onChange={(e) => setLinkData(prev => ({ ...prev, text: e.target.value }))}
                   placeholder="e.g. Learn Noorani Qaida Online"
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-[#0B3D91]"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-[#0F766E]"
                 />
               </div>
               <div className="flex items-center gap-2 pt-1">
@@ -837,7 +837,7 @@ export default function RichBlogEditor({
                   id="newTabCheckbox"
                   checked={linkData.newTab}
                   onChange={(e) => setLinkData(prev => ({ ...prev, newTab: e.target.checked }))}
-                  className="rounded text-[#0B3D91]"
+                  className="rounded text-[#0F766E]"
                 />
                 <label htmlFor="newTabCheckbox" className="font-bold text-slate-700 cursor-pointer">
                   Open link in new browser tab (`target="_blank"`)
@@ -853,7 +853,7 @@ export default function RichBlogEditor({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-lg shadow-xs"
+                  className="px-4 py-1.5 bg-[#0F766E] hover:bg-[#1E40AF] text-white font-bold rounded-lg shadow-xs"
                 >
                   Insert Link
                 </button>
@@ -868,7 +868,7 @@ export default function RichBlogEditor({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
           <div className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200">
             <div className="flex justify-between items-center pb-3 mb-3 border-b border-slate-100">
-              <h4 className="font-extrabold text-[#0B3D91] text-sm flex items-center gap-1.5">
+              <h4 className="font-extrabold text-[#0F766E] text-sm flex items-center gap-1.5">
                 <span>🖼️</span> <span>Insert Image by URL</span>
               </h4>
               <button
@@ -888,7 +888,7 @@ export default function RichBlogEditor({
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}
                   placeholder="https://images.unsplash.com/..."
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-[#0B3D91]"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-[#0F766E]"
                 />
               </div>
               <div>
@@ -898,7 +898,7 @@ export default function RichBlogEditor({
                   value={imageAlt}
                   onChange={(e) => setImageAlt(e.target.value)}
                   placeholder="e.g. Students practicing Tajweed"
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-[#0B3D91]"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-[#0F766E]"
                 />
               </div>
               <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
@@ -911,7 +911,7 @@ export default function RichBlogEditor({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-lg shadow-xs"
+                  className="px-4 py-1.5 bg-[#0F766E] hover:bg-[#1E40AF] text-white font-bold rounded-lg shadow-xs"
                 >
                   Insert Image
                 </button>

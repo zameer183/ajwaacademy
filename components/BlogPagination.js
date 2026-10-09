@@ -25,8 +25,8 @@ export default function BlogPagination({ currentPage = 1, totalPages = 1 }) {
             onClick={() => goTo(page)}
             className={`px-3 py-2 rounded-md font-medium transition-colors ${
               currentPage === page
-                ? 'bg-[rgba(0,0,102)] text-white'
-                : 'text-gray-700 hover:bg-[rgba(0,0,102)] hover:text-white'
+                ? 'bg-[#0F766E] text-white'
+                : 'text-gray-700 hover:bg-[#0F766E] hover:text-white'
             }`}
           >
             {page}
@@ -37,8 +37,8 @@ export default function BlogPagination({ currentPage = 1, totalPages = 1 }) {
           onClick={() => goTo(Math.min(currentPage + 1, totalPages))}
           className={`px-3 py-2 rounded-md font-medium transition-colors ${
             currentPage === totalPages
-              ? 'bg-[rgba(0,0,102)] text-white'
-              : 'text-gray-700 hover:bg-[rgba(0,0,102)] hover:text-white'
+              ? 'bg-[#0F766E] text-white'
+              : 'text-gray-700 hover:bg-[#0F766E] hover:text-white'
           }`}
         >
           Next

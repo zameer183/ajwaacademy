@@ -243,7 +243,7 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="absolute inset-0 bg-gradient-to-r from-[rgba(0,0,102,0.92)] via-[rgba(0,0,102,0.78)] to-[rgba(0,0,102,0.52)]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0B3B36]/95 via-[#0F766E]/80 to-[#0F766E]/60" />
 
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-24 min-h-[82svh] sm:min-h-[78vh] flex items-center">
             <div className="max-w-3xl text-left">
@@ -317,7 +317,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
                 <Link
                   href="/free-trial"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-base sm:text-lg font-bold text-[rgba(0,0,102)] shadow-xl hover:bg-gray-100 hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-200 text-center"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-base sm:text-lg font-bold text-[#0F766E] shadow-xl hover:bg-gray-100 hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-200 text-center"
                 >
                   <span>Book Free Trial</span>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -326,7 +326,7 @@ export default function HomePage() {
                 </Link>
                 <Link
                   href="/courses"
-                  className="inline-flex items-center justify-center rounded-xl border-2 border-white/90 bg-white/5 px-8 py-4 text-base sm:text-lg font-bold text-white hover:bg-white hover:text-[rgba(0,0,102)] backdrop-blur-sm transition-all duration-200 text-center"
+                  className="inline-flex items-center justify-center rounded-xl border-2 border-white/90 bg-white/5 px-8 py-4 text-base sm:text-lg font-bold text-white hover:bg-white hover:text-[#0F766E] backdrop-blur-sm transition-all duration-200 text-center"
                 >
                   View Quran Courses
                 </Link>
@@ -377,13 +377,13 @@ export default function HomePage() {
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-              <span className="inline-block text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-[rgba(0,0,102)] bg-blue-50 px-3.5 py-1 rounded-full mb-3">
+              <span className="inline-block text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-[#0F766E] bg-teal-50 px-3.5 py-1 rounded-full mb-3">
                 Learn Quran Online
               </span>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight">
                 Online Quran Classes for Kids & Adults
               </h2>
-              <div className="w-20 h-1.5 bg-[rgba(0,0,102)] mx-auto mt-4 mb-4 rounded-full" />
+              <div className="w-20 h-1.5 bg-[#0F766E] mx-auto mt-4 mb-4 rounded-full" />
               <p className="text-base sm:text-lg text-gray-700 leading-relaxed font-medium">
                 Learn Quran from qualified teachers from anywhere in the world. Personalized one-to-one lessons designed for kids, beginners, and advanced students.
               </p>
@@ -391,9 +391,9 @@ export default function HomePage() {
 
             {/* 4 Core Benefit Cards Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white rounded-2xl p-6 sm:p-7 border border-[rgba(0,0,102,0.08)] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+              <div className="bg-white rounded-2xl p-6 sm:p-7 border border-[#0F766E]/15 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
                 <div>
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 text-[rgba(0,0,102)] flex items-center justify-center text-2xl mb-5">
+                  <div className="w-12 h-12 rounded-xl bg-teal-50 text-[#0F766E] flex items-center justify-center text-2xl mb-5">
                     ⏰
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">Flexible Timings</h3>
@@ -401,12 +401,12 @@ export default function HomePage() {
                     Choose schedules that suit your daily routine across UK, USA, Canada, UAE & worldwide time zones.
                   </p>
                 </div>
-                <div className="mt-4 pt-3 border-t border-gray-100 text-xs font-bold text-[rgba(0,0,102)] uppercase tracking-wider">
+                <div className="mt-4 pt-3 border-t border-gray-100 text-xs font-bold text-[#0F766E] uppercase tracking-wider">
                   24/7 Availability
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-6 sm:p-7 border border-[rgba(0,0,102,0.08)] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+              <div className="bg-white rounded-2xl p-6 sm:p-7 border border-[#0F766E]/15 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
                 <div>
                   <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl mb-5">
                     👤
@@ -421,7 +421,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-6 sm:p-7 border border-[rgba(0,0,102,0.08)] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+              <div className="bg-white rounded-2xl p-6 sm:p-7 border border-[#0F766E]/15 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
                 <div>
                   <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-2xl mb-5">
                     🎓
@@ -436,7 +436,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-6 sm:p-7 border border-[rgba(0,0,102,0.08)] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+              <div className="bg-white rounded-2xl p-6 sm:p-7 border border-[#0F766E]/15 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
                 <div>
                   <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl mb-5">
                     🌍
@@ -453,14 +453,14 @@ export default function HomePage() {
             </div>
 
             {/* Bottom Callout banner */}
-            <div className="mt-12 rounded-2xl bg-gradient-to-r from-[rgba(0,0,102)] to-[rgba(51,102,153)] p-6 sm:p-8 text-white shadow-lg flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="mt-12 rounded-2xl bg-gradient-to-r from-[#0F766E] to-[#115E59] p-6 sm:p-8 text-white shadow-lg flex flex-col sm:flex-row items-center justify-between gap-6">
               <div>
                 <h4 className="text-xl sm:text-2xl font-bold">Ready to Start Learning Quran with Tajweed?</h4>
                 <p className="text-sm sm:text-base text-white/85 mt-1">Book your free 1-on-1 trial class today with our certified teachers.</p>
               </div>
               <Link
                 href="/free-trial"
-                className="inline-flex items-center justify-center rounded-xl bg-white px-7 py-3.5 text-base font-bold text-[rgba(0,0,102)] shadow-md hover:bg-gray-100 whitespace-nowrap transition-transform hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center rounded-xl bg-white px-7 py-3.5 text-base font-bold text-[#0F766E] shadow-md hover:bg-gray-100 whitespace-nowrap transition-transform hover:-translate-y-0.5"
               >
                 Book Free Trial Class
               </Link>
@@ -472,13 +472,13 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-gray-900 mb-3">Quran Classes Online with Certified Teachers</h2>
-              <div className="w-20 h-1 bg-[rgba(0,0,102)] rounded-full mx-auto mb-6" />
+              <div className="w-20 h-1 bg-[#0F766E] rounded-full mx-auto mb-6" />
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
                 Ajwa Academy provides authentic online Quran classes for kids and adults worldwide. Our
                 mission is to help students learn Quran online with proper{' '}
                 <Link
                   href="/blog/how-to-learn-quran-online-with-tajweed-at-home"
-                  className="text-[rgba(0,0,102)] no-underline hover:text-[rgba(51,102,153)]"
+                  className="text-[#0F766E] no-underline hover:text-[#115E59]"
                 >
                   Tajweed, Hifz, Noorani Qaida
                 </Link>
@@ -489,7 +489,7 @@ export default function HomePage() {
                   Students from the{' '}
                   <Link
                     href="/blog/how-to-choose-the-best-online-quran-teacher"
-                    className="text-[rgba(0,0,102)] no-underline hover:text-[rgba(51,102,153)]"
+                    className="text-[#0F766E] no-underline hover:text-[#115E59]"
                   >
                     UK, USA, Canada, Australia, UAE, and Europe
                   </Link>{' '}
@@ -505,17 +505,17 @@ export default function HomePage() {
               <div className="my-14 sm:my-20">
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 sm:mb-12 gap-4">
                   <div>
-                    <span className="inline-block text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-[rgba(0,0,102)] bg-blue-50 px-3.5 py-1 rounded-full mb-3">
+                    <span className="inline-block text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-[#0F766E] bg-teal-50 px-3.5 py-1 rounded-full mb-3">
                       Featured Courses
                     </span>
                     <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 tracking-tight">
                       Explore Online Quran Courses
                     </h3>
-                    <div className="w-16 h-1 bg-[rgba(0,0,102)] rounded-full mt-3" />
+                    <div className="w-16 h-1 bg-[#0F766E] rounded-full mt-3" />
                   </div>
                   <Link
                     href="/courses"
-                    className="inline-flex items-center gap-2 font-bold text-[rgba(0,0,102)] hover:text-[rgba(51,102,153)] text-sm sm:text-base group"
+                    className="inline-flex items-center gap-2 font-bold text-[#0F766E] hover:text-[#115E59] text-sm sm:text-base group"
                   >
                     <span>View All {courses.length} Courses</span>
                     <span className="transition-transform group-hover:translate-x-1">→</span>
@@ -533,7 +533,7 @@ export default function HomePage() {
                 <div className="mt-10 text-center">
                   <Link
                     href="/courses"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[rgba(0,0,102)] px-8 py-3.5 text-base font-bold text-white shadow-md hover:bg-[rgba(51,102,153)] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0F766E] px-8 py-3.5 text-base font-bold text-white shadow-md hover:bg-[#115E59] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
                   >
                     <span>Browse All Quran Courses</span>
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

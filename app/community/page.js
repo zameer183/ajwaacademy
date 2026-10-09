@@ -8,7 +8,7 @@ export const metadata = {
 export default function CommunityPage() {
   return (
     <main className="min-h-screen bg-gray-50">
-      <section className="bg-gradient-to-r from-[rgba(0,0,102)] to-[rgba(51,102,153)] text-white py-16">
+      <section className="bg-gradient-to-r from-[#0F766E] to-[#115E59] text-white py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-xs sm:text-sm uppercase tracking-[0.3em] text-white/80 mb-3">Community</p>
           <h1 className="text-3xl sm:text-4xl font-bold mb-3">Coming Soon</h1>
@@ -24,13 +24,13 @@ export default function CommunityPage() {
           <div className="grid gap-3 sm:grid-cols-2">
             <Link
               href="/students"
-              className="inline-flex items-center justify-center rounded-md bg-[rgba(0,0,102)] px-4 py-3 text-sm font-semibold text-white hover:bg-[rgba(51,102,153)] transition-colors duration-200"
+              className="inline-flex items-center justify-center rounded-md bg-[#0F766E] px-4 py-3 text-sm font-semibold text-white hover:bg-[#115E59] transition-colors duration-200"
             >
               Our Students
             </Link>
             <Link
               href="/teachers"
-              className="inline-flex items-center justify-center rounded-md border border-[rgba(0,0,102)] px-4 py-3 text-sm font-semibold text-[rgba(0,0,102)] hover:bg-[rgba(0,0,102)] hover:text-white transition-colors duration-200"
+              className="inline-flex items-center justify-center rounded-md border border-[#0F766E] px-4 py-3 text-sm font-semibold text-[#0F766E] hover:bg-[#0F766E] hover:text-white transition-colors duration-200"
             >
               Our Teachers
             </Link>

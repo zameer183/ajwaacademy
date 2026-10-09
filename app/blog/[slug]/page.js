@@ -119,7 +119,7 @@ export default async function BlogDetailPage({ params }) {
               ) : (
                 <div className="absolute inset-0 bg-gray-200" />
               )}
-              <div className="absolute inset-0 bg-gradient-to-r from-[rgba(0,0,102,0.92)] via-[rgba(0,0,102,0.82)] to-[rgba(0,0,102,0.4)]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0B3B36]/95 via-[#0F766E]/85 to-[#0F766E]/50" />
             </div>
             <div className="relative z-10 h-full flex items-center">
               <div className="w-full px-4 sm:px-6 lg:px-[180px] text-white">
@@ -188,13 +188,13 @@ export default async function BlogDetailPage({ params }) {
               <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Link
                   href="/free-trial"
-                  className="rounded-xl bg-[rgba(0,0,102)] px-5 py-3 text-white font-semibold text-center hover:bg-[rgba(51,102,153)] transition-colors"
+                  className="rounded-xl bg-[#0F766E] px-5 py-3 text-white font-semibold text-center hover:bg-[#115E59] transition-colors"
                 >
                   Book Free Trial
                 </Link>
                 <Link
                   href={relatedCourseHref}
-                  className="rounded-xl border border-[rgba(0,0,102)] px-5 py-3 text-[rgba(0,0,102)] font-semibold text-center hover:bg-[rgba(0,0,102)] hover:text-white transition-colors"
+                  className="rounded-xl border border-[#0F766E] px-5 py-3 text-[#0F766E] font-semibold text-center hover:bg-[#0F766E] hover:text-white transition-colors"
                 >
                   View Related Course
                 </Link>

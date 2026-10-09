@@ -86,7 +86,7 @@ export default function StudentsPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12">
-          <div className="bg-gradient-to-r from-[rgba(0,0,102)] to-[rgba(51,102,153)] text-white p-6 -mx-4 sm:-mx-6 lg:-mx-8">
+          <div className="bg-gradient-to-r from-[#0F766E] to-[#115E59] text-white p-6 -mx-4 sm:-mx-6 lg:-mx-8">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
               <h1 className="text-3xl sm:text-4xl font-bold mb-1">Our Students</h1>
               <p className="text-base sm:text-lg max-w-3xl mx-auto">
@@ -127,14 +127,14 @@ export default function StudentsPage() {
           ))}
         </div>
 
-        <div className="bg-gradient-to-r from-[rgba(0,0,102)] to-[rgba(51,102,153)] text-white rounded-lg shadow-md p-6 sm:p-8 text-center mb-12">
+        <div className="bg-gradient-to-r from-[#0F766E] to-[#115E59] text-white rounded-lg shadow-md p-6 sm:p-8 text-center mb-12">
           <h2 className="text-xl sm:text-2xl font-bold mb-3">Join Our Growing Community</h2>
           <p className="text-green-100 text-sm sm:text-base mb-6 max-w-2xl mx-auto">
             Become part of our diverse student community learning Quranic studies and Islamic education.
           </p>
           <a
             href="/courses"
-            className="bg-white text-[rgba(0,0,102)] px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 inline-block"
+            className="bg-white text-[#0F766E] px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 inline-block"
           >
             Enroll Now
           </a>

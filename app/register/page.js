@@ -83,7 +83,7 @@ export default function RegisterPage() {
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Already have an account?{' '}
-            <Link href="/login" className="font-semibold text-[rgba(0,0,102)] hover:text-[rgba(51,102,153)]">
+            <Link href="/login" className="font-semibold text-[#0F766E] hover:text-[#115E59]">
               Sign in
             </Link>
           </p>
@@ -106,7 +106,7 @@ export default function RegisterPage() {
                   type="text"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[rgba(0,0,102)] focus:border-[rgba(0,0,102)] sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#0F766E] focus:border-[#0F766E] sm:text-sm"
                 />
                 {errors.firstName && <p className="text-sm text-red-600 mt-1">{errors.firstName}</p>}
               </div>
@@ -120,7 +120,7 @@ export default function RegisterPage() {
                   type="text"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[rgba(0,0,102)] focus:border-[rgba(0,0,102)] sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#0F766E] focus:border-[#0F766E] sm:text-sm"
                 />
                 {errors.lastName && <p className="text-sm text-red-600 mt-1">{errors.lastName}</p>}
               </div>
@@ -136,7 +136,7 @@ export default function RegisterPage() {
                 type="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[rgba(0,0,102)] focus:border-[rgba(0,0,102)] sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#0F766E] focus:border-[#0F766E] sm:text-sm"
               />
               {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email}</p>}
             </div>
@@ -151,7 +151,7 @@ export default function RegisterPage() {
                 type="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[rgba(0,0,102)] focus:border-[rgba(0,0,102)] sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#0F766E] focus:border-[#0F766E] sm:text-sm"
               />
               {errors.password && <p className="text-sm text-red-600 mt-1">{errors.password}</p>}
             </div>
@@ -166,7 +166,7 @@ export default function RegisterPage() {
                 type="password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[rgba(0,0,102)] focus:border-[rgba(0,0,102)] sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#0F766E] focus:border-[#0F766E] sm:text-sm"
               />
               {errors.confirmPassword && (
                 <p className="text-sm text-red-600 mt-1">{errors.confirmPassword}</p>
@@ -180,7 +180,7 @@ export default function RegisterPage() {
                 type="checkbox"
                 checked={formData.agreeToTerms}
                 onChange={handleChange}
-                className="h-4 w-4 text-[rgba(0,0,102)] focus:ring-[rgba(0,0,102)] border-gray-300 rounded"
+                className="h-4 w-4 text-[#0F766E] focus:ring-[#0F766E] border-gray-300 rounded"
               />
               <label htmlFor="agreeToTerms" className="ml-2 block text-sm text-gray-900">
                 I agree to the terms and conditions
@@ -191,7 +191,7 @@ export default function RegisterPage() {
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[rgba(0,0,102)] hover:bg-[rgba(51,102,153)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[rgba(0,0,102)]"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#0F766E] hover:bg-[#115E59] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0F766E]"
               >
                 Create Account
               </button>

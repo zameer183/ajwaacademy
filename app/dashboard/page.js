@@ -126,8 +126,8 @@ export default function DashboardPage() {
                     onClick={() => setActiveTab(tab.id)}
                     className={`w-full flex items-center px-4 py-3 rounded-lg text-left transition-colors duration-200 ${
                       activeTab === tab.id
-                        ? 'bg-[rgba(0,0,102)] text-white shadow'
-                        : 'text-gray-700 hover:bg-[rgba(0,0,102,0.08)]'
+                        ? 'bg-[#0F766E] text-white shadow'
+                        : 'text-gray-700 hover:bg-[#0F766E]/10'
                     }`}
                   >
                     {tab.label}
@@ -256,7 +256,7 @@ export default function DashboardPage() {
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2">
                               <div
-                                className="bg-[rgba(0,0,102)] h-2 rounded-full"
+                                className="bg-[#0F766E] h-2 rounded-full"
                                 style={{ width: `${course.progress || 0}%` }}
                               ></div>
                             </div>
@@ -269,7 +269,7 @@ export default function DashboardPage() {
                           </div>
                           <Link
                             href={`/dashboard/course/${course.id}`}
-                            className="w-full bg-[rgba(0,0,102)] text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-[rgba(51,102,153)] transition-colors duration-200"
+                            className="w-full bg-[#0F766E] text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-[#115E59] transition-colors duration-200"
                           >
                             Continue Learning
                           </Link>
@@ -290,7 +290,7 @@ export default function DashboardPage() {
                           <p className="text-gray-600 text-lg">You haven't enrolled in any courses yet.</p>
                           <Link
                             href="/courses"
-                            className="inline-block mt-4 bg-[rgba(0,0,102)] text-white py-2 px-6 rounded-md font-medium hover:bg-[rgba(51,102,153)] transition-colors duration-200"
+                            className="inline-block mt-4 bg-[#0F766E] text-white py-2 px-6 rounded-md font-medium hover:bg-[#115E59] transition-colors duration-200"
                           >
                             Browse Courses
                           </Link>
@@ -339,7 +339,7 @@ export default function DashboardPage() {
                                     100
                                   : 0))
                             }`}
-                            className="text-[rgba(0,0,102)]"
+                            className="text-[#0F766E]"
                           />
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -380,7 +380,7 @@ export default function DashboardPage() {
                               </div>
                               <div className="w-full bg-gray-200 rounded-full h-2">
                                 <div
-                                  className="bg-[rgba(0,0,102)] h-2 rounded-full"
+                                  className="bg-[#0F766E] h-2 rounded-full"
                                   style={{ width: `${course.progress || 0}%` }}
                                 ></div>
                               </div>
@@ -424,7 +424,7 @@ export default function DashboardPage() {
                               href={cert.certificate_url}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-block mt-3 text-sm font-semibold text-[rgba(0,0,102)] hover:text-[rgba(51,102,153)]"
+                              className="inline-block mt-3 text-sm font-semibold text-[#0F766E] hover:text-[#115E59]"
                             >
                               View Certificate
                             </a>

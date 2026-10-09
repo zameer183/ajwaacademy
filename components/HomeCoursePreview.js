@@ -44,7 +44,7 @@ function PreviewButtons() {
     <div className="mt-7 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
       <Link
         href="/free-trial"
-        className="inline-flex items-center justify-center gap-2 bg-[rgba(0,0,102)] text-white px-7 py-3.5 rounded-xl text-base font-bold shadow-md hover:bg-[rgba(51,102,153)] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-center"
+        className="inline-flex items-center justify-center gap-2 bg-[#0F766E] text-white px-7 py-3.5 rounded-xl text-base font-bold shadow-md hover:bg-[#115E59] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-center"
       >
         <span>Book Free Trial</span>
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,7 +53,7 @@ function PreviewButtons() {
       </Link>
       <Link
         href="/courses"
-        className="inline-flex items-center justify-center border-2 border-[rgba(0,0,102)] text-[rgba(0,0,102)] px-7 py-3.5 rounded-xl text-base font-bold hover:bg-[rgba(0,0,102)] hover:text-white transition-all duration-200 text-center"
+        className="inline-flex items-center justify-center border-2 border-[#0F766E] text-[#0F766E] px-7 py-3.5 rounded-xl text-base font-bold hover:bg-[#0F766E] hover:text-white transition-all duration-200 text-center"
       >
         View All Courses
       </Link>
@@ -91,7 +91,7 @@ export default function HomeCoursePreview() {
       {CARDS.map((card, index) => {
         const textBlock = (
           <div className="flex flex-col justify-center">
-            <span className="inline-block text-xs sm:text-sm font-bold uppercase tracking-[0.18em] text-[rgba(0,0,102)] bg-blue-50/80 px-3.5 py-1 rounded-full mb-3 self-start">
+            <span className="inline-block text-xs sm:text-sm font-bold uppercase tracking-[0.18em] text-[#0F766E] bg-teal-50/80 px-3.5 py-1 rounded-full mb-3 self-start">
               {card.tag}
             </span>
             <h3 className="text-2xl sm:text-3xl lg:text-3.5xl font-extrabold text-gray-900 tracking-tight leading-snug mb-4">
@@ -127,7 +127,7 @@ export default function HomeCoursePreview() {
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 sizes="(max-width: 1024px) 100vw, 550px"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[rgba(0,0,102,0.3)] via-transparent to-transparent opacity-60 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0F766E]/30 via-transparent to-transparent opacity-60 pointer-events-none" />
             </div>
           </div>
         );
@@ -157,10 +157,10 @@ export default function HomeCoursePreview() {
 
       {/* Helpful FAQ snippet card */}
       <div
-        className="course-preview-card rounded-2xl bg-gradient-to-r from-blue-50/80 via-white to-blue-50/80 border border-[rgba(0,0,102,0.12)] p-6 sm:p-8 text-center max-w-3xl mx-auto shadow-sm"
+        className="course-preview-card rounded-2xl bg-gradient-to-r from-teal-50/80 via-white to-teal-50/80 border border-[#0F766E]/20 p-6 sm:p-8 text-center max-w-3xl mx-auto shadow-sm"
         style={{ transitionDelay: '240ms' }}
       >
-        <h4 className="text-[rgba(0,0,102)] font-bold text-lg sm:text-xl mb-2">
+        <h4 className="text-[#0F766E] font-bold text-lg sm:text-xl mb-2">
           What can students learn at Ajwa Academy?
         </h4>
         <p className="text-gray-700 text-base sm:text-lg leading-relaxed">

@@ -64,7 +64,7 @@ export default function LoginPage() {
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Or{' '}
-            <Link href="/register" className="font-semibold text-[rgba(0,0,102)] hover:text-[rgba(51,102,153)]">
+            <Link href="/register" className="font-semibold text-[#0F766E] hover:text-[#115E59]">
               create a new account
             </Link>
           </p>
@@ -88,7 +88,7 @@ export default function LoginPage() {
                   value={formData.email}
                   onChange={handleChange}
                   autoComplete="email"
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[rgba(0,0,102)] focus:border-[rgba(0,0,102)] sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#0F766E] focus:border-[#0F766E] sm:text-sm"
                 />
                 {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email}</p>}
               </div>
@@ -105,7 +105,7 @@ export default function LoginPage() {
                   value={formData.password}
                   onChange={handleChange}
                   autoComplete="current-password"
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[rgba(0,0,102)] focus:border-[rgba(0,0,102)] sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#0F766E] focus:border-[#0F766E] sm:text-sm"
                 />
                 {errors.password && <p className="text-sm text-red-600 mt-1">{errors.password}</p>}
               </div>
@@ -118,14 +118,14 @@ export default function LoginPage() {
                   type="checkbox"
                   checked={formData.remember}
                   onChange={handleChange}
-                  className="h-4 w-4 text-[rgba(0,0,102)] focus:ring-[rgba(0,0,102)] border-gray-300 rounded"
+                  className="h-4 w-4 text-[#0F766E] focus:ring-[#0F766E] border-gray-300 rounded"
                 />
                 <label htmlFor="remember" className="ml-2 block text-sm text-gray-900">
                   Remember me
                 </label>
               </div>
               <div className="text-sm">
-                <Link href="/forgot-password" className="font-medium text-[rgba(0,0,102)] hover:text-[rgba(51,102,153)]">
+                <Link href="/forgot-password" className="font-medium text-[#0F766E] hover:text-[#115E59]">
                   Forgot your password?
                 </Link>
               </div>
@@ -133,7 +133,7 @@ export default function LoginPage() {
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[rgba(0,0,102)] hover:bg-[rgba(51,102,153)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[rgba(0,0,102)]"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#0F766E] hover:bg-[#115E59] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0F766E]"
               >
                 Sign in
               </button>

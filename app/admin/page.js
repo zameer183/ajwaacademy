@@ -998,7 +998,7 @@ export default function AdminDashboardPage() {
     <div className="min-h-screen bg-[#F8FAFC] text-[#1F2937] flex flex-col font-sans antialiased">
       {/* Toast Notification */}
       {toast && (
-        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl shadow-2xl text-white font-medium flex items-center gap-2 text-sm transition-all transform animate-bounce ${toast.type === 'error' ? 'bg-rose-600' : 'bg-[#0B3D91]'}`}>
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl shadow-2xl text-white font-medium flex items-center gap-2 text-sm transition-all transform animate-bounce ${toast.type === 'error' ? 'bg-rose-600' : 'bg-[#0F766E]'}`}>
           <span>{toast.type === 'error' ? '⚠️' : '✅'}</span>
           <span>{toast.message}</span>
         </div>
@@ -1013,11 +1013,11 @@ export default function AdminDashboardPage() {
             <div>
               <div className="h-20 flex items-center justify-between px-5 border-b border-[#E2E8F0] bg-white">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0B3D91] to-[#3B82F6] flex items-center justify-center font-bold text-white shadow-md text-xl">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0F766E] to-[#3B82F6] flex items-center justify-center font-bold text-white shadow-md text-xl">
                     ع
                   </div>
                   <div>
-                    <h1 className="font-extrabold text-sm tracking-wide text-[#0B3D91] leading-tight">
+                    <h1 className="font-extrabold text-sm tracking-wide text-[#0F766E] leading-tight">
                       AJWA ACADEMY
                     </h1>
                     <p className="text-[10px] text-[#14B8A6] font-bold tracking-wider uppercase mt-0.5">
@@ -1049,13 +1049,13 @@ export default function AdminDashboardPage() {
                               href="https://www.ajwaacademy.com"
                               target="_blank"
                               rel="noreferrer"
-                              className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-600 hover:text-[#0B3D91] hover:bg-slate-100 rounded-lg transition-colors"
+                              className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-600 hover:text-[#0F766E] hover:bg-slate-100 rounded-lg transition-colors"
                             >
                               <div className="flex items-center gap-2.5">
                                 {renderIcon(item.icon)}
                                 <span>{item.label}</span>
                               </div>
-                              <span className="text-[10px] bg-slate-100 text-[#0B3D91] px-1.5 py-0.5 rounded font-bold border border-slate-200">Live ↗</span>
+                              <span className="text-[10px] bg-slate-100 text-[#0F766E] px-1.5 py-0.5 rounded font-bold border border-slate-200">Live ↗</span>
                             </a>
                           );
                         }
@@ -1067,14 +1067,14 @@ export default function AdminDashboardPage() {
                               setActiveTab(item.id);
                               setMobileMenuOpen(false);
                             }}
-                            className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-lg transition-all ${isActive ? 'bg-[#0B3D91]/10 text-[#0B3D91] border border-[#0B3D91]/20 font-bold shadow-xs' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
+                            className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-lg transition-all ${isActive ? 'bg-[#0F766E]/10 text-[#0F766E] border border-[#0F766E]/20 font-bold shadow-xs' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
                           >
                             <div className="flex items-center gap-2.5">
-                              <span className={isActive ? 'text-[#0B3D91]' : 'text-slate-400'}>{renderIcon(item.icon)}</span>
+                              <span className={isActive ? 'text-[#0F766E]' : 'text-slate-400'}>{renderIcon(item.icon)}</span>
                               <span>{item.label}</span>
                             </div>
                             {count !== null && count > 0 && (
-                              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isActive ? 'bg-[#0B3D91] text-white' : 'bg-slate-200 text-slate-700'}`}>
+                              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isActive ? 'bg-[#0F766E] text-white' : 'bg-slate-200 text-slate-700'}`}>
                                 {count}
                               </span>
                             )}
@@ -1091,11 +1091,11 @@ export default function AdminDashboardPage() {
             <div className="p-3 border-t border-[#E2E8F0] bg-slate-50/80">
               <div className="flex items-center justify-between px-2.5 py-2 rounded-xl bg-white border border-[#E2E8F0] shadow-xs">
                 <div className="flex items-center gap-2 overflow-hidden">
-                  <div className="w-8 h-8 rounded-full bg-[#0B3D91] text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                  <div className="w-8 h-8 rounded-full bg-[#0F766E] text-white flex items-center justify-center font-bold text-xs shadow-xs">
                     A
                   </div>
                   <div className="overflow-hidden">
-                    <p className="text-xs font-bold text-[#0B3D91] truncate">Ajwa Admin</p>
+                    <p className="text-xs font-bold text-[#0F766E] truncate">Ajwa Admin</p>
                     <p className="text-[10px] text-[#14B8A6] font-bold truncate">Super Administrator</p>
                   </div>
                 </div>
@@ -1130,7 +1130,7 @@ export default function AdminDashboardPage() {
                 </svg>
               </button>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-extrabold text-[#0B3D91] capitalize">
+                <h2 className="text-base font-extrabold text-[#0F766E] capitalize">
                   {activeTab.replace('_', ' ')}
                 </h2>
                 <span className="hidden sm:inline-block text-[11px] bg-[#14B8A6]/10 text-[#14B8A6] border border-[#14B8A6]/30 px-2 py-0.5 rounded-full font-bold">
@@ -1147,7 +1147,7 @@ export default function AdminDashboardPage() {
                   placeholder="Search records..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#0B3D91] focus:ring-1 focus:ring-[#0B3D91] transition-all"
+                  className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#0F766E] focus:ring-1 focus:ring-[#0F766E] transition-all"
                 />
                 <span className="absolute left-2.5 top-2 text-slate-400 text-xs">🔍</span>
               </div>
@@ -1156,7 +1156,7 @@ export default function AdminDashboardPage() {
                 href="https://www.ajwaacademy.com"
                 target="_blank"
                 rel="noreferrer"
-                className="hidden sm:flex items-center gap-1.5 text-xs font-bold bg-[#0B3D91] hover:bg-[#1E40AF] text-white px-3.5 py-1.5 rounded-lg shadow-sm transition-colors"
+                className="hidden sm:flex items-center gap-1.5 text-xs font-bold bg-[#0F766E] hover:bg-[#1E40AF] text-white px-3.5 py-1.5 rounded-lg shadow-sm transition-colors"
               >
                 <span>View Public Site</span>
                 <span>↗</span>
@@ -1177,10 +1177,10 @@ export default function AdminDashboardPage() {
                     <div className="flex justify-between items-start">
                       <div>
                         <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Trial Applications</p>
-                        <h3 className="text-3xl font-extrabold text-[#0B3D91] mt-1">{trialRequests.length}</h3>
+                        <h3 className="text-3xl font-extrabold text-[#0F766E] mt-1">{trialRequests.length}</h3>
                         <p className="text-[11px] text-[#14B8A6] font-bold mt-1">📬 Active overseas leads</p>
                       </div>
-                      <div className="p-3 rounded-xl bg-[#0B3D91]/10 text-[#0B3D91] text-xl border border-[#0B3D91]/20">📩</div>
+                      <div className="p-3 rounded-xl bg-[#0F766E]/10 text-[#0F766E] text-xl border border-[#0F766E]/20">📩</div>
                     </div>
                   </div>
 
@@ -1188,7 +1188,7 @@ export default function AdminDashboardPage() {
                     <div className="flex justify-between items-start">
                       <div>
                         <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Published Blogs</p>
-                        <h3 className="text-3xl font-extrabold text-[#0B3D91] mt-1">{blogs.length}</h3>
+                        <h3 className="text-3xl font-extrabold text-[#0F766E] mt-1">{blogs.length}</h3>
                         <p className="text-[11px] text-[#14B8A6] font-bold mt-1">📝 Live SEO articles</p>
                       </div>
                       <div className="p-3 rounded-xl bg-[#14B8A6]/10 text-[#14B8A6] text-xl border border-[#14B8A6]/20">✍️</div>
@@ -1199,7 +1199,7 @@ export default function AdminDashboardPage() {
                     <div className="flex justify-between items-start">
                       <div>
                         <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Courses</p>
-                        <h3 className="text-3xl font-extrabold text-[#0B3D91] mt-1">{courses.length}</h3>
+                        <h3 className="text-3xl font-extrabold text-[#0F766E] mt-1">{courses.length}</h3>
                         <p className="text-[11px] text-[#3B82F6] font-bold mt-1">🎓 Qaida, Nazra, Hifz & more</p>
                       </div>
                       <div className="p-3 rounded-xl bg-[#3B82F6]/10 text-[#3B82F6] text-xl border border-[#3B82F6]/20">📖</div>
@@ -1210,7 +1210,7 @@ export default function AdminDashboardPage() {
                     <div className="flex justify-between items-start">
                       <div>
                         <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Library Items</p>
-                        <h3 className="text-3xl font-extrabold text-[#0B3D91] mt-1">{libraryItems.length}</h3>
+                        <h3 className="text-3xl font-extrabold text-[#0F766E] mt-1">{libraryItems.length}</h3>
                         <p className="text-[11px] text-amber-600 font-bold mt-1">📚 Islamic study guides</p>
                       </div>
                       <div className="p-3 rounded-xl bg-amber-500/10 text-amber-600 text-xl border border-amber-500/20">🗂️</div>
@@ -1221,17 +1221,17 @@ export default function AdminDashboardPage() {
                 {/* Quick Actions Bar */}
                 <div className="bg-white border border-[#E2E8F0] rounded-2xl p-5 flex flex-wrap items-center justify-between gap-3 shadow-sm">
                   <div>
-                    <h4 className="text-sm font-extrabold text-[#0B3D91]">⚡ Fast Management Actions</h4>
+                    <h4 className="text-sm font-extrabold text-[#0F766E]">⚡ Fast Management Actions</h4>
                     <p className="text-xs text-slate-500">Quickly create courses, publish blogs, or add leads</p>
                   </div>
                   <div className="flex flex-wrap gap-2.5">
-                    <button onClick={handleOpenCreateCourse} className="px-4 py-2 rounded-xl bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm">
+                    <button onClick={handleOpenCreateCourse} className="px-4 py-2 rounded-xl bg-[#0F766E] hover:bg-[#1E40AF] text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm">
                       <span>➕ Add New Course</span>
                     </button>
                     <button onClick={handleOpenCreateBlog} className="px-4 py-2 rounded-xl bg-[#14B8A6] hover:bg-[#0f9485] text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm">
                       <span>✍️ Write New Blog</span>
                     </button>
-                    <button onClick={handleOpenCreateLead} className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#0B3D91] text-xs font-bold flex items-center gap-1.5 transition-colors border border-slate-200">
+                    <button onClick={handleOpenCreateLead} className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#0F766E] text-xs font-bold flex items-center gap-1.5 transition-colors border border-slate-200">
                       <span>➕ Add New Lead</span>
                     </button>
                   </div>
@@ -1241,7 +1241,7 @@ export default function AdminDashboardPage() {
                 <div className="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-sm">
                   <div className="p-4 sm:p-5 border-b border-[#E2E8F0] flex justify-between items-center bg-slate-50/50">
                     <div>
-                      <h3 className="text-sm font-extrabold text-[#0B3D91]">Recent Trial Applications</h3>
+                      <h3 className="text-sm font-extrabold text-[#0F766E]">Recent Trial Applications</h3>
                       <p className="text-xs text-slate-500">Latest students who requested a free Quran trial class</p>
                     </div>
                     <button onClick={() => setActiveTab('applications')} className="text-xs text-[#3B82F6] hover:underline font-bold">
@@ -1264,7 +1264,7 @@ export default function AdminDashboardPage() {
                         {trialRequests.slice(0, 6).map((trial) => (
                           <tr key={trial.id} className="hover:bg-slate-50/80 transition-colors">
                             <td className="px-4 py-3.5 font-bold text-slate-900">{trial.name || 'Student'}</td>
-                            <td className="px-4 py-3.5 font-mono font-semibold text-[#0B3D91]">{trial.whatsapp}</td>
+                            <td className="px-4 py-3.5 font-mono font-semibold text-[#0F766E]">{trial.whatsapp}</td>
                             <td className="px-4 py-3.5 text-slate-600">{trial.country || 'Global'}</td>
                             <td className="px-4 py-3.5 text-slate-600">{trial.course_title || 'Quran Reading'}</td>
                             <td className="px-4 py-3.5">
@@ -1302,14 +1302,14 @@ export default function AdminDashboardPage() {
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
                   <div>
-                    <h3 className="text-base font-extrabold text-[#0B3D91]">Trial Applications Pipeline ({filteredTrials.length})</h3>
+                    <h3 className="text-base font-extrabold text-[#0F766E]">Trial Applications Pipeline ({filteredTrials.length})</h3>
                     <p className="text-xs text-slate-500">Manage all student leads, update status, edit details, and contact on WhatsApp</p>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-3">
                     <button
                       onClick={handleOpenCreateLead}
-                      className="px-4 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
+                      className="px-4 py-2 bg-[#0F766E] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
                     >
                       <span>➕ Add New Lead</span>
                     </button>
@@ -1320,7 +1320,7 @@ export default function AdminDashboardPage() {
                         <button
                           key={st}
                           onClick={() => setTrialStatusFilter(st)}
-                          className={`px-3 py-1 rounded-lg capitalize font-bold transition-colors ${trialStatusFilter === st ? 'bg-white text-[#0B3D91] shadow-xs border border-slate-200' : 'text-slate-600 hover:text-slate-900'}`}
+                          className={`px-3 py-1 rounded-lg capitalize font-bold transition-colors ${trialStatusFilter === st ? 'bg-white text-[#0F766E] shadow-xs border border-slate-200' : 'text-slate-600 hover:text-slate-900'}`}
                         >
                           {st}
                         </button>
@@ -1350,7 +1350,7 @@ export default function AdminDashboardPage() {
                           <tr key={trial.id} className="hover:bg-slate-50/80 transition-colors">
                             <td className="px-4 py-3.5 font-mono text-slate-400">#{trial.id}</td>
                             <td className="px-4 py-3.5 font-bold text-slate-900">{trial.name}</td>
-                            <td className="px-4 py-3.5 font-mono font-semibold text-[#0B3D91]">{trial.whatsapp}</td>
+                            <td className="px-4 py-3.5 font-mono font-semibold text-[#0F766E]">{trial.whatsapp}</td>
                             <td className="px-4 py-3.5 text-slate-500">{trial.email || '—'}</td>
                             <td className="px-4 py-3.5 text-slate-700">{trial.country || 'Global'}</td>
                             <td className="px-4 py-3.5 text-slate-700">{trial.course_title || 'General Free Trial'}</td>
@@ -1358,7 +1358,7 @@ export default function AdminDashboardPage() {
                               <select
                                 value={trial.status || 'pending'}
                                 onChange={(e) => handleUpdateTrialStatus(trial.id, e.target.value)}
-                                className="bg-white border border-slate-300 text-slate-800 text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-[#0B3D91] font-semibold cursor-pointer"
+                                className="bg-white border border-slate-300 text-slate-800 text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-[#0F766E] font-semibold cursor-pointer"
                               >
                                 <option value="pending">Pending</option>
                                 <option value="contacted">Contacted</option>
@@ -1405,12 +1405,12 @@ export default function AdminDashboardPage() {
               <div className="space-y-4">
                 <div className="flex flex-wrap justify-between items-center gap-3 bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
                   <div>
-                    <h3 className="text-base font-extrabold text-[#0B3D91]">Active Student Directory ({students.length})</h3>
+                    <h3 className="text-base font-extrabold text-[#0F766E]">Active Student Directory ({students.length})</h3>
                     <p className="text-xs text-slate-500">Regular enrolled students currently attending Quran classes</p>
                   </div>
                   <button
                     onClick={handleOpenCreateLead}
-                    className="px-4 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
+                    className="px-4 py-2 bg-[#0F766E] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
                   >
                     <span>➕ Enroll New Student</span>
                   </button>
@@ -1433,7 +1433,7 @@ export default function AdminDashboardPage() {
                         {students.map((st, idx) => (
                           <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
                             <td className="px-4 py-3.5 font-bold text-slate-900">{st.name || 'Student'}</td>
-                            <td className="px-4 py-3.5 font-mono font-semibold text-[#0B3D91]">{st.whatsapp || '—'}</td>
+                            <td className="px-4 py-3.5 font-mono font-semibold text-[#0F766E]">{st.whatsapp || '—'}</td>
                             <td className="px-4 py-3.5 text-slate-700">{st.course_title || 'Online Quran Recitation'}</td>
                             <td className="px-4 py-3.5 text-slate-500">{st.country || 'United Kingdom'}</td>
                             <td className="px-4 py-3.5">
@@ -1471,12 +1471,12 @@ export default function AdminDashboardPage() {
               <div className="space-y-4">
                 <div className="flex flex-wrap justify-between items-center gap-3 bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
                   <div>
-                    <h3 className="text-base font-extrabold text-[#0B3D91]">Courses Catalog ({filteredCourses.length})</h3>
+                    <h3 className="text-base font-extrabold text-[#0F766E]">Courses Catalog ({filteredCourses.length})</h3>
                     <p className="text-xs text-slate-500">Create, edit, and manage all academy courses, duration, pricing, and curriculum</p>
                   </div>
                   <button
                     onClick={handleOpenCreateCourse}
-                    className="px-4 py-2.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
+                    className="px-4 py-2.5 bg-[#0F766E] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
                   >
                     <span>➕ Add New Course</span>
                   </button>
@@ -1492,10 +1492,10 @@ export default function AdminDashboardPage() {
                           </div>
                         )}
                         <div className="flex justify-between items-start gap-2">
-                          <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-[#0B3D91]/10 text-[#0B3D91] border border-[#0B3D91]/20">
+                          <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-[#0F766E]/10 text-[#0F766E] border border-[#0F766E]/20">
                             {c.category || 'Quran'}
                           </span>
-                          <span className="text-xs font-bold text-[#0B3D91] font-mono">
+                          <span className="text-xs font-bold text-[#0F766E] font-mono">
                             £{c.price || 45}/mo
                           </span>
                         </div>
@@ -1512,7 +1512,7 @@ export default function AdminDashboardPage() {
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => handleOpenEditCourse(c)}
-                            className="px-2.5 py-1 bg-[#0B3D91]/10 hover:bg-[#0B3D91] text-[#0B3D91] hover:text-white rounded-lg text-xs font-bold transition-colors"
+                            className="px-2.5 py-1 bg-[#0F766E]/10 hover:bg-[#0F766E] text-[#0F766E] hover:text-white rounded-lg text-xs font-bold transition-colors"
                           >
                             ✏️ Edit
                           </button>
@@ -1546,12 +1546,12 @@ export default function AdminDashboardPage() {
               <div className="space-y-4">
                 <div className="flex flex-wrap justify-between items-center gap-3 bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
                   <div>
-                    <h3 className="text-base font-extrabold text-[#0B3D91]">Faculty & Teachers ({teachers.length})</h3>
+                    <h3 className="text-base font-extrabold text-[#0F766E]">Faculty & Teachers ({teachers.length})</h3>
                     <p className="text-xs text-slate-500">Certified Male & Female Quran scholars and instructors</p>
                   </div>
                   <button
                     onClick={handleOpenCreateTeacher}
-                    className="px-4 py-2.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
+                    className="px-4 py-2.5 bg-[#0F766E] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
                   >
                     <span>➕ Add New Teacher</span>
                   </button>
@@ -1561,7 +1561,7 @@ export default function AdminDashboardPage() {
                   {teachers.map((t) => (
                     <div key={t.id} className="bg-white border border-[#E2E8F0] rounded-2xl p-6 text-center shadow-xs flex flex-col justify-between">
                       <div>
-                        <div className="w-16 h-16 rounded-full bg-[#0B3D91]/10 border-2 border-[#0B3D91] mx-auto flex items-center justify-center text-xl text-[#0B3D91] font-extrabold mb-3">
+                        <div className="w-16 h-16 rounded-full bg-[#0F766E]/10 border-2 border-[#0F766E] mx-auto flex items-center justify-center text-xl text-[#0F766E] font-extrabold mb-3">
                           {t.name[0]}
                         </div>
                         <h4 className="text-sm font-bold text-slate-900">{t.name}</h4>
@@ -1599,12 +1599,12 @@ export default function AdminDashboardPage() {
               <div className="space-y-4">
                 <div className="flex flex-wrap justify-between items-center gap-3 bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
                   <div>
-                    <h3 className="text-base font-extrabold text-[#0B3D91]">Blog Articles & SEO Posts ({filteredBlogs.length})</h3>
+                    <h3 className="text-base font-extrabold text-[#0F766E]">Blog Articles & SEO Posts ({filteredBlogs.length})</h3>
                     <p className="text-xs text-slate-500">Write, edit, and publish SEO blog posts to drive Google traffic</p>
                   </div>
                   <button
                     onClick={handleOpenCreateBlog}
-                    className="px-4 py-2.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
+                    className="px-4 py-2.5 bg-[#0F766E] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
                   >
                     <span>✍️ Write New Blog Post</span>
                   </button>
@@ -1631,7 +1631,7 @@ export default function AdminDashboardPage() {
                               {post.title}
                             </td>
                             <td className="px-4 py-3.5">
-                              <span className="px-2.5 py-0.5 rounded-md text-[10px] bg-[#0B3D91]/10 text-[#0B3D91] font-bold border border-[#0B3D91]/20">
+                              <span className="px-2.5 py-0.5 rounded-md text-[10px] bg-[#0F766E]/10 text-[#0F766E] font-bold border border-[#0F766E]/20">
                                 {post.category || 'General'}
                               </span>
                             </td>
@@ -1640,7 +1640,7 @@ export default function AdminDashboardPage() {
                             <td className="px-4 py-3.5 text-right space-x-1.5">
                               <button
                                 onClick={() => handleOpenEditBlog(post)}
-                                className="px-2.5 py-1.5 bg-[#0B3D91]/10 hover:bg-[#0B3D91] text-[#0B3D91] hover:text-white rounded-lg text-xs font-bold transition-colors"
+                                className="px-2.5 py-1.5 bg-[#0F766E]/10 hover:bg-[#0F766E] text-[#0F766E] hover:text-white rounded-lg text-xs font-bold transition-colors"
                               >
                                 ✏️ Edit
                               </button>
@@ -1675,7 +1675,7 @@ export default function AdminDashboardPage() {
             {activeTab === 'contact_inbox' && (
               <div className="space-y-4">
                 <div className="bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
-                  <h3 className="text-base font-extrabold text-[#0B3D91]">Contact Us Messages & Inquiries ({contactMessages.length})</h3>
+                  <h3 className="text-base font-extrabold text-[#0F766E]">Contact Us Messages & Inquiries ({contactMessages.length})</h3>
                   <p className="text-xs text-slate-500">Direct inquiries sent by visitors via the `/contact` page form</p>
                 </div>
 
@@ -1700,7 +1700,7 @@ export default function AdminDashboardPage() {
                         </a>
                       </div>
                       <div className="mt-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-                        <p className="text-xs font-bold text-[#0B3D91] mb-1">Subject: {msg.subject}</p>
+                        <p className="text-xs font-bold text-[#0F766E] mb-1">Subject: {msg.subject}</p>
                         <p className="text-xs text-slate-700 leading-relaxed">{msg.message}</p>
                       </div>
                     </div>
@@ -1715,7 +1715,7 @@ export default function AdminDashboardPage() {
             {activeTab === 'announcements' && (
               <div className="max-w-2xl bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-sm space-y-4">
                 <div>
-                  <h3 className="text-base font-extrabold text-[#0B3D91]">Website Announcement Bar</h3>
+                  <h3 className="text-base font-extrabold text-[#0F766E]">Website Announcement Bar</h3>
                   <p className="text-xs text-slate-500">Display a top banner notice on the live website for special discounts or events</p>
                 </div>
 
@@ -1726,7 +1726,7 @@ export default function AdminDashboardPage() {
                       type="text"
                       value={settings.liveNotice}
                       onChange={(e) => setSettings({ ...settings, liveNotice: e.target.value })}
-                      className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#0B3D91]"
+                      className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#0F766E]"
                     />
                   </div>
 
@@ -1736,14 +1736,14 @@ export default function AdminDashboardPage() {
                       id="noticeActive"
                       checked={settings.noticeActive}
                       onChange={(e) => setSettings({ ...settings, noticeActive: e.target.checked })}
-                      className="w-4 h-4 text-[#0B3D91] rounded bg-white border-slate-300 cursor-pointer"
+                      className="w-4 h-4 text-[#0F766E] rounded bg-white border-slate-300 cursor-pointer"
                     />
                     <label htmlFor="noticeActive" className="text-xs font-bold text-slate-700 cursor-pointer">Show Announcement Bar on Website</label>
                   </div>
 
                   <button
                     onClick={() => showToast('Announcement banner updated and live!')}
-                    className="px-5 py-2.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl transition-colors shadow-xs"
+                    className="px-5 py-2.5 bg-[#0F766E] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl transition-colors shadow-xs"
                   >
                     Save Announcement
                   </button>
@@ -1757,7 +1757,7 @@ export default function AdminDashboardPage() {
             {activeTab === 'homepage_hero' && (
               <div className="max-w-3xl bg-white p-6 sm:p-7 rounded-2xl border border-[#E2E8F0] shadow-sm space-y-5">
                 <div>
-                  <h3 className="text-base font-extrabold text-[#0B3D91]">Homepage Hero Section Customizer</h3>
+                  <h3 className="text-base font-extrabold text-[#0F766E]">Homepage Hero Section Customizer</h3>
                   <p className="text-xs text-slate-500">Update main headline, description, and trial buttons on the homepage</p>
                 </div>
 
@@ -1815,7 +1815,7 @@ export default function AdminDashboardPage() {
 
                   <button
                     type="submit"
-                    className="px-6 py-2.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl transition-colors shadow-sm"
+                    className="px-6 py-2.5 bg-[#0F766E] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl transition-colors shadow-sm"
                   >
                     Save Homepage Hero Changes
                   </button>
@@ -1830,12 +1830,12 @@ export default function AdminDashboardPage() {
               <div className="space-y-4">
                 <div className="flex flex-wrap justify-between items-center gap-3 bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
                   <div>
-                    <h3 className="text-base font-extrabold text-[#0B3D91]">Frequently Asked Questions ({faqs.length})</h3>
+                    <h3 className="text-base font-extrabold text-[#0F766E]">Frequently Asked Questions ({faqs.length})</h3>
                     <p className="text-xs text-slate-500">Add, edit, or remove questions shown on the `/free-trial` and `/about` pages</p>
                   </div>
                   <button
                     onClick={handleOpenCreateFaq}
-                    className="px-4 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
+                    className="px-4 py-2 bg-[#0F766E] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
                   >
                     <span>➕ Add New FAQ</span>
                   </button>
@@ -1847,12 +1847,12 @@ export default function AdminDashboardPage() {
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex items-center gap-2">
                           <h4 className="text-sm font-bold text-slate-900">{faq.question}</h4>
-                          <span className="text-[10px] px-2.5 py-0.5 rounded-md bg-[#0B3D91]/10 text-[#0B3D91] font-bold border border-[#0B3D91]/20">{faq.category}</span>
+                          <span className="text-[10px] px-2.5 py-0.5 rounded-md bg-[#0F766E]/10 text-[#0F766E] font-bold border border-[#0F766E]/20">{faq.category}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleOpenEditFaq(faq)}
-                            className="text-xs text-[#0B3D91] hover:underline font-bold"
+                            className="text-xs text-[#0F766E] hover:underline font-bold"
                           >
                             ✏️ Edit
                           </button>
@@ -1880,12 +1880,12 @@ export default function AdminDashboardPage() {
               <div className="space-y-4">
                 <div className="flex flex-wrap justify-between items-center gap-3 bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm">
                   <div>
-                    <h3 className="text-base font-extrabold text-[#0B3D91]">Parent & Student Reviews ({testimonials.length})</h3>
+                    <h3 className="text-base font-extrabold text-[#0F766E]">Parent & Student Reviews ({testimonials.length})</h3>
                     <p className="text-xs text-slate-500">5-Star feedback and testimonials displayed on the homepage</p>
                   </div>
                   <button
                     onClick={handleOpenCreateTestimonial}
-                    className="px-4 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
+                    className="px-4 py-2 bg-[#0F766E] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
                   >
                     <span>➕ Add New Review</span>
                   </button>
@@ -1903,7 +1903,7 @@ export default function AdminDashboardPage() {
                         <p className="text-xs text-slate-600 mt-3 italic leading-relaxed">"{test.comment}"</p>
                       </div>
                       <div className="mt-4 pt-3 border-t border-slate-100 flex justify-end gap-2 text-xs">
-                        <button onClick={() => handleOpenEditTestimonial(test)} className="text-[#0B3D91] hover:underline font-bold">
+                        <button onClick={() => handleOpenEditTestimonial(test)} className="text-[#0F766E] hover:underline font-bold">
                           ✏️ Edit
                         </button>
                         <button onClick={() => handleDeleteTestimonial(test)} className="text-rose-600 hover:underline font-bold">
@@ -1922,7 +1922,7 @@ export default function AdminDashboardPage() {
             {activeTab === 'social_links' && (
               <div className="max-w-2xl bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-sm space-y-4">
                 <div>
-                  <h3 className="text-base font-extrabold text-[#0B3D91]">Official Social Media Links</h3>
+                  <h3 className="text-base font-extrabold text-[#0F766E]">Official Social Media Links</h3>
                   <p className="text-xs text-slate-500">Links shown in the website footer and contact icons</p>
                 </div>
 
@@ -1944,7 +1944,7 @@ export default function AdminDashboardPage() {
                     <input type="text" defaultValue="https://instagram.com/ajwaacademy" className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900" />
                   </div>
 
-                  <button onClick={() => showToast('Social links saved successfully!')} className="px-5 py-2.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl transition-colors shadow-xs">
+                  <button onClick={() => showToast('Social links saved successfully!')} className="px-5 py-2.5 bg-[#0F766E] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl transition-colors shadow-xs">
                     Save Social Links
                   </button>
                 </div>
@@ -1957,7 +1957,7 @@ export default function AdminDashboardPage() {
             {activeTab === 'general_settings' && (
               <div className="max-w-3xl bg-white p-6 sm:p-7 rounded-2xl border border-[#E2E8F0] shadow-sm space-y-5">
                 <div>
-                  <h3 className="text-base font-extrabold text-[#0B3D91]">General Academy Settings</h3>
+                  <h3 className="text-base font-extrabold text-[#0F766E]">General Academy Settings</h3>
                   <p className="text-xs text-slate-500">Configure global contact numbers, email, currency, and branding</p>
                 </div>
 
@@ -1989,7 +1989,7 @@ export default function AdminDashboardPage() {
                     <input type="text" value={settings.address} onChange={(e) => setSettings({ ...settings, address: e.target.value })} className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900" />
                   </div>
 
-                  <button type="submit" className="px-6 py-2.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl transition-colors shadow-sm">
+                  <button type="submit" className="px-6 py-2.5 bg-[#0F766E] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl transition-colors shadow-sm">
                     Save General Settings
                   </button>
                 </form>
@@ -2002,24 +2002,24 @@ export default function AdminDashboardPage() {
             {activeTab === 'admin_profile' && (
               <div className="max-w-xl bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-sm space-y-4">
                 <div>
-                  <h3 className="text-base font-extrabold text-[#0B3D91]">Administrator Profile</h3>
+                  <h3 className="text-base font-extrabold text-[#0F766E]">Administrator Profile</h3>
                   <p className="text-xs text-slate-500">Current active administrator credentials and status</p>
                 </div>
 
                 <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-[#0B3D91] text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                    <div className="w-12 h-12 rounded-full bg-[#0F766E] text-white flex items-center justify-center font-bold text-lg shadow-sm">
                       A
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-slate-900">Ajwa Academy Admin</h4>
-                      <p className="text-xs text-[#0B3D91] font-mono font-bold">ajwaacademyofficial@gmail.com</p>
+                      <p className="text-xs text-[#0F766E] font-mono font-bold">ajwaacademyofficial@gmail.com</p>
                     </div>
                   </div>
 
                   <div className="pt-3 border-t border-slate-200 flex justify-between items-center text-xs">
                     <span className="text-slate-500 font-medium">Role:</span>
-                    <span className="px-2.5 py-0.5 rounded bg-[#0B3D91]/10 text-[#0B3D91] font-bold border border-[#0B3D91]/20">Super Administrator</span>
+                    <span className="px-2.5 py-0.5 rounded bg-[#0F766E]/10 text-[#0F766E] font-bold border border-[#0F766E]/20">Super Administrator</span>
                   </div>
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-500 font-medium">Database Access:</span>
@@ -2035,7 +2035,7 @@ export default function AdminDashboardPage() {
             {activeTab === 'security' && (
               <div className="max-w-xl bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-sm space-y-4">
                 <div>
-                  <h3 className="text-base font-extrabold text-[#0B3D91]">Security & Password Management</h3>
+                  <h3 className="text-base font-extrabold text-[#0F766E]">Security & Password Management</h3>
                   <p className="text-xs text-slate-500">Manage admin login password and database security</p>
                 </div>
 
@@ -2049,7 +2049,7 @@ export default function AdminDashboardPage() {
                     <input type="password" placeholder="••••••••••••" className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900" />
                   </div>
 
-                  <button onClick={() => showToast('Password updated securely!')} className="px-5 py-2.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl transition-colors shadow-xs">
+                  <button onClick={() => showToast('Password updated securely!')} className="px-5 py-2.5 bg-[#0F766E] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl transition-colors shadow-xs">
                     Update Admin Password
                   </button>
                 </div>
@@ -2063,7 +2063,7 @@ export default function AdminDashboardPage() {
               <div className="space-y-4">
                 <div className="bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-sm flex justify-between items-center">
                   <div>
-                    <h3 className="text-base font-extrabold text-[#0B3D91]">System Activity Logs</h3>
+                    <h3 className="text-base font-extrabold text-[#0F766E]">System Activity Logs</h3>
                     <p className="text-xs text-slate-500">Real-time audit trail of all administrative actions and updates</p>
                   </div>
                   <span className="text-xs text-[#14B8A6] font-mono font-bold">● Live Audit Active</span>
@@ -2071,14 +2071,14 @@ export default function AdminDashboardPage() {
 
                 <div className="bg-white border border-[#E2E8F0] rounded-2xl p-5 divide-y divide-slate-100 space-y-3.5 shadow-xs">
                   {(activityLogs.length > 0 ? activityLogs : [
-                    { id: 1, action: 'Brand Style Applied', details: 'Applied official Ajwa Academy brand guidelines and colors (#0B3D91, #3B82F6, #14B8A6)', timestamp: 'Just now' },
+                    { id: 1, action: 'Brand Style Applied', details: 'Applied official Ajwa Academy brand guidelines and colors (#0F766E, #3B82F6, #14B8A6)', timestamp: 'Just now' },
                     { id: 2, action: 'Light Mode Implemented', details: 'Clean standalone full-screen dashboard without public navbar/footer', timestamp: 'Recent' },
                     { id: 3, action: '57 Blogs Live', details: 'SEO articles synced with Supabase', timestamp: 'Recent' },
                     { id: 4, action: '15 Courses Live', details: 'Courses catalog active and manageable', timestamp: 'Recent' },
                   ]).map((log, idx) => (
                     <div key={idx} className="pt-3.5 first:pt-0 flex items-start justify-between gap-3">
                       <div className="flex items-start gap-2.5">
-                        <span className="w-2 h-2 rounded-full bg-[#0B3D91] mt-1.5" />
+                        <span className="w-2 h-2 rounded-full bg-[#0F766E] mt-1.5" />
                         <div>
                           <p className="text-xs font-bold text-slate-900">{log.action}</p>
                           <p className="text-[11px] text-slate-500">{log.details}</p>
@@ -2103,7 +2103,7 @@ export default function AdminDashboardPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
           <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 my-8">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
-              <h3 className="text-base font-extrabold text-[#0B3D91]">
+              <h3 className="text-base font-extrabold text-[#0F766E]">
                 {courseModal.mode === 'create' ? '➕ Add New Course' : '✏️ Edit Course'}
               </h3>
               <button
@@ -2136,7 +2136,7 @@ export default function AdminDashboardPage() {
                       }));
                     }}
                     placeholder="e.g. Noorani Qaida Course"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0F766E]"
                   />
                 </div>
                 <div>
@@ -2146,7 +2146,7 @@ export default function AdminDashboardPage() {
                     value={courseModal.data.slug}
                     onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, slug: generateCleanSlug(e.target.value) } }))}
                     placeholder="e.g. noorani-qaida-course"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0F766E]"
                   />
                 </div>
               </div>
@@ -2157,7 +2157,7 @@ export default function AdminDashboardPage() {
                   <select
                     value={courseModal.data.category}
                     onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, category: e.target.value } }))}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0F766E]"
                   >
                     <option value="Quran Reading">Quran Reading</option>
                     <option value="Tajweed & Tarteel">Tajweed & Tarteel</option>
@@ -2173,7 +2173,7 @@ export default function AdminDashboardPage() {
                   <select
                     value={courseModal.data.level}
                     onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, level: e.target.value } }))}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0F766E]"
                   >
                     <option value="Beginner">Beginner</option>
                     <option value="Intermediate">Intermediate</option>
@@ -2187,7 +2187,7 @@ export default function AdminDashboardPage() {
                     type="number"
                     value={courseModal.data.price}
                     onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, price: e.target.value } }))}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0F766E]"
                   />
                 </div>
               </div>
@@ -2200,7 +2200,7 @@ export default function AdminDashboardPage() {
                     value={courseModal.data.duration}
                     onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, duration: e.target.value } }))}
                     placeholder="e.g. 3 Months"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0F766E]"
                   />
                 </div>
                 <div>
@@ -2210,7 +2210,7 @@ export default function AdminDashboardPage() {
                     value={courseModal.data.lesson_count}
                     onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, lesson_count: e.target.value } }))}
                     placeholder="24"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0F766E]"
                   />
                 </div>
                 <div>
@@ -2220,7 +2220,7 @@ export default function AdminDashboardPage() {
                     value={courseModal.data.instructor_name}
                     onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, instructor_name: e.target.value } }))}
                     placeholder="e.g. Certified Quran Scholar"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0F766E]"
                   />
                 </div>
               </div>
@@ -2231,7 +2231,7 @@ export default function AdminDashboardPage() {
                     🖼️ Course Cover Image
                   </label>
                   {uploadingCourseImage && (
-                    <span className="text-[11px] font-bold text-[#0B3D91] animate-pulse">
+                    <span className="text-[11px] font-bold text-[#0F766E] animate-pulse">
                       ⏳ Uploading to Supabase...
                     </span>
                   )}
@@ -2249,7 +2249,7 @@ export default function AdminDashboardPage() {
                       <p className="text-[10px] text-slate-500 truncate">{courseModal.data.image}</p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      <label className="px-3 py-1.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white rounded-lg text-xs font-bold cursor-pointer transition-colors shadow-xs">
+                      <label className="px-3 py-1.5 bg-[#0F766E] hover:bg-[#1E40AF] text-white rounded-lg text-xs font-bold cursor-pointer transition-colors shadow-xs">
                         <span>{uploadingCourseImage ? 'Uploading...' : '🔄 Change Image'}</span>
                         <input
                           type="file"
@@ -2283,8 +2283,8 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center p-5 bg-white rounded-xl border-2 border-dashed border-[#0B3D91]/30 hover:border-[#0B3D91] transition-colors text-center">
-                    <div className="w-10 h-10 rounded-full bg-[#0B3D91]/10 text-[#0B3D91] flex items-center justify-center text-xl font-bold mb-2">
+                  <div className="flex flex-col items-center justify-center p-5 bg-white rounded-xl border-2 border-dashed border-[#0F766E]/30 hover:border-[#0F766E] transition-colors text-center">
+                    <div className="w-10 h-10 rounded-full bg-[#0F766E]/10 text-[#0F766E] flex items-center justify-center text-xl font-bold mb-2">
                       📸
                     </div>
                     <p className="text-xs font-bold text-slate-800 mb-1">
@@ -2293,7 +2293,7 @@ export default function AdminDashboardPage() {
                     <p className="text-[11px] text-slate-400 mb-3">
                       Upload from your laptop or mobile (JPG, PNG, WebP)
                     </p>
-                    <label className="px-4 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-sm inline-flex items-center gap-1.5">
+                    <label className="px-4 py-2 bg-[#0F766E] hover:bg-[#1E40AF] text-white rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-sm inline-flex items-center gap-1.5">
                       <span>📁 Choose Image File from Device</span>
                       <input
                         type="file"
@@ -2328,7 +2328,7 @@ export default function AdminDashboardPage() {
                     value={courseModal.data.image}
                     onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, image: e.target.value } }))}
                     placeholder="https://..."
-                    className="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-700 focus:outline-none focus:border-[#0B3D91]"
+                    className="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-700 focus:outline-none focus:border-[#0F766E]"
                   />
                 </div>
               </div>
@@ -2340,7 +2340,7 @@ export default function AdminDashboardPage() {
                   value={courseModal.data.description}
                   onChange={(e) => setCourseModal(prev => ({ ...prev, data: { ...prev.data, description: e.target.value } }))}
                   placeholder="Detailed course overview, learning outcomes, syllabus..."
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0F766E]"
                 />
               </div>
 
@@ -2355,7 +2355,7 @@ export default function AdminDashboardPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-xl shadow-xs transition-colors disabled:opacity-50"
+                  className="px-5 py-2 bg-[#0F766E] hover:bg-[#1E40AF] text-white font-bold rounded-xl shadow-xs transition-colors disabled:opacity-50"
                 >
                   {isSubmitting ? 'Saving...' : courseModal.mode === 'create' ? 'Create Course' : 'Save Changes'}
                 </button>
@@ -2373,7 +2373,7 @@ export default function AdminDashboardPage() {
             {/* STICKY TOP HEADER */}
             <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 border-b border-slate-200 bg-white shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#0B3D91]/10 text-[#0B3D91] flex items-center justify-center text-lg font-black shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-[#0F766E]/10 text-[#0F766E] flex items-center justify-center text-lg font-black shrink-0">
                   ✍️
                 </div>
                 <div>
@@ -2408,7 +2408,7 @@ export default function AdminDashboardPage() {
                   type="button"
                   onClick={handleSaveBlog}
                   disabled={isSubmitting}
-                  className="px-4.5 py-1.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-xl text-xs shadow-sm transition-all flex items-center gap-1.5 disabled:opacity-50"
+                  className="px-4.5 py-1.5 bg-[#0F766E] hover:bg-[#1E40AF] text-white font-bold rounded-xl text-xs shadow-sm transition-all flex items-center gap-1.5 disabled:opacity-50"
                 >
                   <span>{isSubmitting ? '⏳ Saving...' : blogModal.mode === 'create' ? '🚀 Publish Article' : '💾 Save Changes'}</span>
                 </button>
@@ -2453,7 +2453,7 @@ export default function AdminDashboardPage() {
                           }));
                         }}
                         placeholder="e.g. 10 Proven Benefits of Learning Quran with Tajweed Online"
-                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm sm:text-base font-bold text-slate-900 focus:bg-white focus:border-[#0B3D91] focus:outline-none transition-all placeholder:font-normal placeholder:text-slate-400"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm sm:text-base font-bold text-slate-900 focus:bg-white focus:border-[#0F766E] focus:outline-none transition-all placeholder:font-normal placeholder:text-slate-400"
                       />
                     </div>
 
@@ -2465,7 +2465,7 @@ export default function AdminDashboardPage() {
                         value={blogModal.data.slug}
                         onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, slug: generateCleanSlug(e.target.value) } }))}
                         placeholder="article-slug"
-                        className="flex-1 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg font-mono text-xs text-slate-700 focus:bg-white focus:border-[#0B3D91] focus:outline-none"
+                        className="flex-1 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg font-mono text-xs text-slate-700 focus:bg-white focus:border-[#0F766E] focus:outline-none"
                       />
                       <button
                         type="button"
@@ -2510,7 +2510,7 @@ export default function AdminDashboardPage() {
                       value={blogModal.data.excerpt}
                       onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, excerpt: e.target.value } }))}
                       placeholder="e.g. Discover why learning Quran with Tajweed is essential for every Muslim child and beginner..."
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-700 focus:bg-white focus:border-[#0B3D91] focus:outline-none"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-700 focus:bg-white focus:border-[#0F766E] focus:outline-none"
                     />
                   </div>
                 </div>
@@ -2540,7 +2540,7 @@ export default function AdminDashboardPage() {
                           setBlogModal(prev => ({ ...prev, data: { ...prev.data, category: e.target.value } }));
                         }
                       }}
-                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91] font-semibold text-xs text-slate-800 cursor-pointer"
+                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0F766E] font-semibold text-xs text-slate-800 cursor-pointer"
                     >
                       {BLOG_CATEGORIES.map((cat) => (
                         <option key={cat} value={cat}>
@@ -2559,7 +2559,7 @@ export default function AdminDashboardPage() {
                         value={blogModal.data.category}
                         onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, category: e.target.value } }))}
                         placeholder="Type custom category name..."
-                        className="w-full px-3 py-2 bg-white border-2 border-[#0B3D91] rounded-xl text-xs font-semibold focus:outline-none"
+                        className="w-full px-3 py-2 bg-white border-2 border-[#0F766E] rounded-xl text-xs font-semibold focus:outline-none"
                       />
                     )}
 
@@ -2574,7 +2574,7 @@ export default function AdminDashboardPage() {
                             onClick={() => setBlogModal(prev => ({ ...prev, data: { ...prev.data, category: quickCat } }))}
                             className={`px-2 py-1 rounded-lg text-[10px] font-semibold transition-all ${
                               blogModal.data.category === quickCat
-                                ? 'bg-[#0B3D91] text-white shadow-xs'
+                                ? 'bg-[#0F766E] text-white shadow-xs'
                                 : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                             }`}
                           >
@@ -2592,7 +2592,7 @@ export default function AdminDashboardPage() {
                         🖼️ Featured Cover Image
                       </label>
                       {uploadingBlogImage && (
-                        <span className="text-[10px] font-bold text-[#0B3D91] animate-pulse">
+                        <span className="text-[10px] font-bold text-[#0F766E] animate-pulse">
                           ⏳ Uploading...
                         </span>
                       )}
@@ -2608,7 +2608,7 @@ export default function AdminDashboardPage() {
                           />
                         </div>
                         <div className="flex items-center justify-between gap-2 pt-1">
-                          <label className="flex-1 text-center px-3 py-1.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-xs">
+                          <label className="flex-1 text-center px-3 py-1.5 bg-[#0F766E] hover:bg-[#1E40AF] text-white rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-xs">
                             <span>{uploadingBlogImage ? 'Uploading...' : '🔄 Replace Image'}</span>
                             <input
                               type="file"
@@ -2642,8 +2642,8 @@ export default function AdminDashboardPage() {
                         </div>
                       </div>
                     ) : (
-                      <div className="p-4 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 hover:border-[#0B3D91] transition-colors text-center">
-                        <div className="w-10 h-10 rounded-full bg-[#0B3D91]/10 text-[#0B3D91] flex items-center justify-center text-lg font-bold mx-auto mb-1.5">
+                      <div className="p-4 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 hover:border-[#0F766E] transition-colors text-center">
+                        <div className="w-10 h-10 rounded-full bg-[#0F766E]/10 text-[#0F766E] flex items-center justify-center text-lg font-bold mx-auto mb-1.5">
                           📸
                         </div>
                         <p className="text-xs font-bold text-slate-800 mb-0.5">
@@ -2652,7 +2652,7 @@ export default function AdminDashboardPage() {
                         <p className="text-[10px] text-slate-400 mb-2.5">
                           JPG, PNG or WebP from your device
                         </p>
-                        <label className="px-3.5 py-1.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-xs inline-flex items-center gap-1">
+                        <label className="px-3.5 py-1.5 bg-[#0F766E] hover:bg-[#1E40AF] text-white rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-xs inline-flex items-center gap-1">
                           <span>📁 Select Image File</span>
                           <input
                             type="file"
@@ -2687,7 +2687,7 @@ export default function AdminDashboardPage() {
                         value={blogModal.data.image}
                         onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, image: e.target.value } }))}
                         placeholder="https://..."
-                        className="flex-1 px-2.5 py-1 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-700 focus:bg-white focus:border-[#0B3D91] focus:outline-none"
+                        className="flex-1 px-2.5 py-1 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-700 focus:bg-white focus:border-[#0F766E] focus:outline-none"
                       />
                     </div>
                   </div>
@@ -2705,7 +2705,7 @@ export default function AdminDashboardPage() {
                         value={blogModal.data.author}
                         onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, author: e.target.value } }))}
                         placeholder="Ajwa Academy Scholar"
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:border-[#0B3D91] focus:outline-none font-medium"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:border-[#0F766E] focus:outline-none font-medium"
                       />
                     </div>
 
@@ -2720,7 +2720,7 @@ export default function AdminDashboardPage() {
                             const minutes = Math.max(1, Math.ceil(words / 180));
                             setBlogModal(prev => ({ ...prev, data: { ...prev.data, read_time: `${minutes} min read` } }));
                           }}
-                          className="text-[10px] font-bold text-[#0B3D91] hover:underline"
+                          className="text-[10px] font-bold text-[#0F766E] hover:underline"
                         >
                           ⚡ Auto-Calculate
                         </button>
@@ -2730,7 +2730,7 @@ export default function AdminDashboardPage() {
                         value={blogModal.data.read_time}
                         onChange={(e) => setBlogModal(prev => ({ ...prev, data: { ...prev.data, read_time: e.target.value } }))}
                         placeholder="5 min read"
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:border-[#0B3D91] focus:outline-none font-medium"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:bg-white focus:border-[#0F766E] focus:outline-none font-medium"
                       />
                     </div>
                   </div>
@@ -2755,7 +2755,7 @@ export default function AdminDashboardPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-5 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-xl text-xs shadow-md transition-all flex items-center gap-1.5 disabled:opacity-50"
+                    className="px-5 py-2 bg-[#0F766E] hover:bg-[#1E40AF] text-white font-bold rounded-xl text-xs shadow-md transition-all flex items-center gap-1.5 disabled:opacity-50"
                   >
                     <span>{isSubmitting ? '⏳ Saving...' : blogModal.mode === 'create' ? '🚀 Publish Article' : '💾 Save Changes'}</span>
                   </button>
@@ -2771,7 +2771,7 @@ export default function AdminDashboardPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 my-8">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
-              <h3 className="text-base font-extrabold text-[#0B3D91]">
+              <h3 className="text-base font-extrabold text-[#0F766E]">
                 {trialModal.mode === 'create' ? '➕ Add New Lead / Application' : '✏️ Edit Student Lead'}
               </h3>
               <button
@@ -2791,7 +2791,7 @@ export default function AdminDashboardPage() {
                   value={trialModal.data.name}
                   onChange={(e) => setTrialModal(prev => ({ ...prev, data: { ...prev.data, name: e.target.value } }))}
                   placeholder="e.g. Maryam Khan"
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B3D91]"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0F766E]"
                 />
               </div>
 
@@ -2879,7 +2879,7 @@ export default function AdminDashboardPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-xl shadow-xs transition-colors disabled:opacity-50"
+                  className="px-5 py-2 bg-[#0F766E] hover:bg-[#1E40AF] text-white font-bold rounded-xl shadow-xs transition-colors disabled:opacity-50"
                 >
                   {isSubmitting ? 'Saving...' : trialModal.mode === 'create' ? 'Save Lead' : 'Update Lead'}
                 </button>
@@ -2894,7 +2894,7 @@ export default function AdminDashboardPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 my-8">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
-              <h3 className="text-base font-extrabold text-[#0B3D91]">
+              <h3 className="text-base font-extrabold text-[#0F766E]">
                 {teacherModal.mode === 'create' ? '➕ Add Faculty Instructor' : '✏️ Edit Teacher Details'}
               </h3>
               <button
@@ -2986,7 +2986,7 @@ export default function AdminDashboardPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-xl shadow-xs transition-colors"
+                  className="px-5 py-2 bg-[#0F766E] hover:bg-[#1E40AF] text-white font-bold rounded-xl shadow-xs transition-colors"
                 >
                   Save Teacher
                 </button>
@@ -3001,7 +3001,7 @@ export default function AdminDashboardPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
-              <h3 className="text-base font-extrabold text-[#0B3D91]">
+              <h3 className="text-base font-extrabold text-[#0F766E]">
                 {faqModal.mode === 'create' ? '➕ Add New FAQ' : '✏️ Edit FAQ'}
               </h3>
               <button
@@ -3053,7 +3053,7 @@ export default function AdminDashboardPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-xl shadow-xs transition-colors"
+                  className="px-5 py-2 bg-[#0F766E] hover:bg-[#1E40AF] text-white font-bold rounded-xl shadow-xs transition-colors"
                 >
                   Save FAQ
                 </button>
@@ -3068,7 +3068,7 @@ export default function AdminDashboardPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
-              <h3 className="text-base font-extrabold text-[#0B3D91]">
+              <h3 className="text-base font-extrabold text-[#0F766E]">
                 {testimonialModal.mode === 'create' ? '➕ Add Review' : '✏️ Edit Review'}
               </h3>
               <button
@@ -3131,7 +3131,7 @@ export default function AdminDashboardPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white font-bold rounded-xl shadow-xs transition-colors"
+                  className="px-5 py-2 bg-[#0F766E] hover:bg-[#1E40AF] text-white font-bold rounded-xl shadow-xs transition-colors"
                 >
                   Save Testimonial
                 </button>
@@ -3175,7 +3175,7 @@ export default function AdminDashboardPage() {
       {/* --- OFFICIAL BRAND BANNER FOOTER --- */}
       <footer className="h-10 border-t border-[#E2E8F0] bg-white px-6 flex items-center justify-between text-[11px] text-slate-500">
         <div className="flex items-center gap-2">
-          <span className="font-bold text-[#0B3D91]">Ajwa Academy</span>
+          <span className="font-bold text-[#0F766E]">Ajwa Academy</span>
           <span>•</span>
           <span className="font-semibold text-slate-500">Learn Quran • Build A Better You</span>
         </div>

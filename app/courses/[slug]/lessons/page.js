@@ -92,7 +92,7 @@ export default function CourseLessonsPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Course Not Found</h1>
-          <Link href="/courses" className="text-[rgba(0,0,102)] hover:underline">
+          <Link href="/courses" className="text-[#0F766E] hover:underline">
             Browse Courses
           </Link>
         </div>
@@ -112,7 +112,7 @@ export default function CourseLessonsPage() {
           </p>
           <Link
             href={`/enroll/${course.id}`}
-            className="inline-flex items-center justify-center rounded-md bg-[rgba(0,0,102)] px-4 py-2 text-white font-semibold hover:bg-[rgba(51,102,153)]"
+            className="inline-flex items-center justify-center rounded-md bg-[#0F766E] px-4 py-2 text-white font-semibold hover:bg-[#115E59]"
           >
             {paymentStatus === 'rejected' ? 'Submit Again' : 'Enroll Now'}
           </Link>
@@ -131,7 +131,7 @@ export default function CourseLessonsPage() {
           </div>
           <Link
             href={`/courses/${course.slug || course.id}`}
-            className="text-[rgba(0,0,102)] font-semibold hover:underline"
+            className="text-[#0F766E] font-semibold hover:underline"
           >
             Back to Course
           </Link>
@@ -190,7 +190,7 @@ export default function CourseLessonsPage() {
                     onClick={() => setCurrentLessonId(lesson.id)}
                     className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium border ${
                       lesson.id === currentLessonId
-                        ? 'border-[rgba(0,0,102)] bg-[rgba(0,0,102,0.08)] text-[rgba(0,0,102)]'
+                        ? 'border-[#0F766E] bg-[#0F766E]/10 text-[#0F766E]'
                         : 'border-gray-200 hover:bg-gray-50 text-gray-700'
                     }`}
                   >

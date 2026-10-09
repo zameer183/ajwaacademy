@@ -207,7 +207,7 @@ export default function CoursePlayerPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-[rgba(0,0,102,0.92)] to-slate-950 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-[#0F766E]/90 to-slate-950 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 py-8">
           {/* Video Player */}
@@ -234,7 +234,7 @@ export default function CoursePlayerPage() {
                 ) : (
                   <div className="absolute inset-0 bg-slate-950 flex items-center justify-center">
                     <div className="text-center">
-                      <div className="w-24 h-24 bg-[rgba(51,102,153)] rounded-full flex items-center justify-center mx-auto mb-4">
+                      <div className="w-24 h-24 bg-[#115E59] rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h1m4 0h1m-6-8h1m4 0h1M9 18h6" />
                         </svg>
@@ -248,7 +248,7 @@ export default function CoursePlayerPage() {
                 {/* Play/Pause Overlay */}
                 {isPlaying && (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-24 h-24 bg-[rgba(0,0,102)] bg-opacity-80 rounded-full flex items-center justify-center">
+                    <div className="w-24 h-24 bg-[#0F766E] bg-opacity-80 rounded-full flex items-center justify-center">
                       <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
@@ -265,7 +265,7 @@ export default function CoursePlayerPage() {
                   onClick={handleSeek}
                 >
                   <div 
-                    className="h-full bg-[rgba(51,102,153)] rounded-full"
+                    className="h-full bg-[#115E59] rounded-full"
                     style={{ width: `${(currentTime / 300) * 100}%` }}
                   ></div>
                 </div>
@@ -275,7 +275,7 @@ export default function CoursePlayerPage() {
                   <div className="flex items-center space-x-4">
                     <button 
                       onClick={togglePlay}
-                      className="p-2 rounded-full hover:bg-[rgba(51,102,153)] hover:text-[rgba(0,0,102)] transition-colors"
+                      className="p-2 rounded-full hover:bg-[#115E59] hover:text-[#0F766E] transition-colors"
                     >
                       {isPlaying ? (
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -292,7 +292,7 @@ export default function CoursePlayerPage() {
                     <button 
                       onClick={goToPrevLesson}
                       disabled={currentLesson === 0}
-                      className={`p-2 rounded-full transition-colors ${currentLesson === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[rgba(51,102,153)] hover:text-[rgba(0,0,102)]'}`}
+                      className={`p-2 rounded-full transition-colors ${currentLesson === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#115E59] hover:text-[#0F766E]'}`}
                     >
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z" />
@@ -302,7 +302,7 @@ export default function CoursePlayerPage() {
                     <button 
                       onClick={goToNextLesson}
                       disabled={currentLesson === allLessons.length - 1}
-                      className={`p-2 rounded-full transition-colors ${currentLesson === allLessons.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[rgba(51,102,153)] hover:text-[rgba(0,0,102)]'}`}
+                      className={`p-2 rounded-full transition-colors ${currentLesson === allLessons.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#115E59] hover:text-[#0F766E]'}`}
                     >
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z" />
@@ -321,7 +321,7 @@ export default function CoursePlayerPage() {
                     <div className="relative">
                       <button 
                         onClick={() => setShowSpeedMenu(!showSpeedMenu)}
-                      className="px-3 py-1 bg-[rgba(51,102,153)] text-[rgba(0,0,102)] rounded hover:bg-white transition-colors text-sm"
+                      className="px-3 py-1 bg-[#115E59] text-[#0F766E] rounded hover:bg-white transition-colors text-sm"
                       >
                         {playbackRate}x
                       </button>
@@ -334,7 +334,7 @@ export default function CoursePlayerPage() {
                                 setPlaybackRate(rate);
                                 setShowSpeedMenu(false);
                               }}
-                            className={`block w-full px-3 py-2 text-left text-sm hover:bg-[rgba(51,102,153)] hover:text-[rgba(0,0,102)] ${rate === playbackRate ? 'bg-[rgba(51,102,153)] text-[rgba(0,0,102)]' : 'bg-slate-900'}`}
+                            className={`block w-full px-3 py-2 text-left text-sm hover:bg-[#115E59] hover:text-[#0F766E] ${rate === playbackRate ? 'bg-[#115E59] text-[#0F766E]' : 'bg-slate-900'}`}
                             >
                               {rate}x
                             </button>
@@ -355,14 +355,14 @@ export default function CoursePlayerPage() {
                         step="0.1"
                         value={volume}
                         onChange={handleVolumeChange}
-                        className="w-20 accent-[rgba(51,102,153)]"
+                        className="w-20 accent-[#115E59]"
                       />
                     </div>
                     
                     {/* Notes Button */}
                     <button 
                       onClick={() => setShowNotes(!showNotes)}
-                      className={`p-2 rounded-full transition-colors ${showNotes ? 'bg-[rgba(51,102,153)] text-[rgba(0,0,102)]' : 'hover:bg-[rgba(51,102,153)] hover:text-[rgba(0,0,102)]'}`}
+                      className={`p-2 rounded-full transition-colors ${showNotes ? 'bg-[#115E59] text-[#0F766E]' : 'hover:bg-[#115E59] hover:text-[#0F766E]'}`}
                     >
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -376,7 +376,7 @@ export default function CoursePlayerPage() {
             {/* Lesson Info */}
             <div className="bg-slate-900 rounded-lg p-6 shadow-lg">
               <h1 className="text-2xl font-bold text-white mb-2">{currentLessonData?.title}</h1>
-              <p className="text-[rgba(51,102,153)] mb-4">{course.title}</p>
+              <p className="text-[#115E59] mb-4">{course.title}</p>
               
               <div className="flex items-center text-sm text-gray-400">
                 <span className="mr-4">Section: {currentLessonData?.section}</span>
@@ -390,9 +390,9 @@ export default function CoursePlayerPage() {
                 <h2 className="text-xl font-bold text-white mb-4">Lesson Notes</h2>
                 <textarea
                   placeholder="Add your notes here..."
-                  className="w-full h-32 p-3 bg-slate-950 text-white rounded border border-[rgba(51,102,153)] focus:outline-none focus:ring-2 focus:ring-[rgba(51,102,153)] resize-none"
+                  className="w-full h-32 p-3 bg-slate-950 text-white rounded border border-[#115E59] focus:outline-none focus:ring-2 focus:ring-[#115E59] resize-none"
                 />
-                <button className="mt-2 bg-[rgba(51,102,153)] text-[rgba(0,0,102)] px-4 py-2 rounded hover:bg-white transition-colors">
+                <button className="mt-2 bg-[#115E59] text-[#0F766E] px-4 py-2 rounded hover:bg-white transition-colors">
                   Save Notes
                 </button>
               </div>
@@ -402,7 +402,7 @@ export default function CoursePlayerPage() {
           {/* Course Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-slate-900 rounded-lg shadow-md p-4 sticky top-8">
-              <h2 className="text-lg font-bold text-[rgba(51,102,153)] mb-4">Course Content</h2>
+              <h2 className="text-lg font-bold text-[#115E59] mb-4">Course Content</h2>
                         
               <div className="space-y-2 max-h-96 overflow-y-auto">
               {curriculum.map((section, sectionIndex) => (
@@ -416,8 +416,8 @@ export default function CoursePlayerPage() {
                             <button
                               onClick={() => changeLesson(lessonIndexInFlatList)}
                               className={`w-full text-left p-2 rounded transition-colors ${currentLesson === lessonIndexInFlatList
-                                  ? 'bg-[rgba(51,102,153)] text-[rgba(0,0,102)]'
-                                  : 'text-gray-200 hover:bg-[rgba(51,102,153)] hover:text-[rgba(0,0,102)]'}`}
+                                  ? 'bg-[#115E59] text-[#0F766E]'
+                                  : 'text-gray-200 hover:bg-[#115E59] hover:text-[#0F766E]'}`}
                             >
                               <div className="flex items-center">
                                 <div className="mr-2">
@@ -455,7 +455,7 @@ export default function CoursePlayerPage() {
                 </div>
                 <div className="w-full bg-[rgba(255,255,255,0.2)] rounded-full h-2">
                   <div
-                    className="bg-[rgba(51,102,153)] h-2 rounded-full"
+                    className="bg-[#115E59] h-2 rounded-full"
                     style={{ width: `${(currentLesson / totalLessons) * 100}%` }}
                   ></div>
                 </div>

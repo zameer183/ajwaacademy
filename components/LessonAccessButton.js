@@ -50,7 +50,7 @@ export default function LessonAccessButton({ courseId, slug }) {
   return (
     <Link
       href={lessonsHref}
-      className="mt-3 inline-flex w-full items-center justify-center rounded-md border border-[rgba(0,0,102)] px-4 py-2.5 text-sm font-semibold text-[rgba(0,0,102)] hover:bg-[rgba(0,0,102)] hover:text-white transition-colors"
+      className="mt-3 inline-flex w-full items-center justify-center rounded-md border border-[#0F766E] px-4 py-2.5 text-sm font-semibold text-[#0F766E] hover:bg-[#0F766E] hover:text-white transition-colors"
     >
       📚 View My Lessons
     </Link>

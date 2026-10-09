@@ -55,7 +55,7 @@ export default function BlogCard({ post }) {
         <div className="flex items-center justify-end">
           <Link
             href={href}
-            className="text-sm font-medium text-[rgba(0,0,102)] hover:text-[rgba(51,102,153)]"
+            className="text-sm font-medium text-[#0F766E] hover:text-[#115E59]"
           >
             Read More
           </Link>

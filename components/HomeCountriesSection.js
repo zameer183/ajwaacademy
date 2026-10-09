@@ -18,7 +18,7 @@ const COUNTRIES = [
 
 function CountryCard({ country }) {
   return (
-    <article className="country-card group flex w-[160px] sm:w-[180px] shrink-0 flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm hover:shadow-lg hover:border-[rgba(0,0,102,0.3)] hover:-translate-y-1 transition-all duration-300">
+    <article className="country-card group flex w-[160px] sm:w-[180px] shrink-0 flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm hover:shadow-lg hover:border-[#0F766E]/30 hover:-translate-y-1 transition-all duration-300">
       <div className="h-10 w-14 rounded-lg overflow-hidden flex items-center justify-center bg-slate-50 border border-slate-100 shadow-sm">
         {country.code ? (
           <img
@@ -37,7 +37,7 @@ function CountryCard({ country }) {
         )}
       </div>
       <div className="text-center">
-        <span className="text-sm sm:text-base font-bold text-gray-900 group-hover:text-[rgba(0,0,102)] transition-colors block">
+        <span className="text-sm sm:text-base font-bold text-gray-900 group-hover:text-[#0F766E] transition-colors block">
           {country.short}
         </span>
         <span className="text-[11px] text-gray-500 font-medium block">
@@ -181,13 +181,13 @@ export default function HomeCountriesSection() {
     <section className="overflow-hidden bg-slate-50 py-16 sm:py-24 border-b border-slate-200/60">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 text-center sm:mb-14">
-          <span className="inline-block text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-[rgba(0,0,102)] bg-blue-50 px-3.5 py-1 rounded-full mb-3">
+          <span className="inline-block text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-[#0F766E] bg-teal-50 px-3.5 py-1 rounded-full mb-3">
             Global Community
           </span>
           <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl lg:text-5xl tracking-tight">
             Countries We Serve
           </h2>
-          <div className="mx-auto mt-4 h-1.5 w-20 rounded-full bg-[rgba(0,0,102)]" />
+          <div className="mx-auto mt-4 h-1.5 w-20 rounded-full bg-[#0F766E]" />
           <p className="mx-auto mt-4 max-w-3xl text-base sm:text-lg leading-relaxed text-gray-700 font-medium">
             Students from the UK, USA, Canada, Australia, UAE, Saudi Arabia, Germany, France, and across the globe learn Quran online with certified teachers through flexible schedules.
           </p>

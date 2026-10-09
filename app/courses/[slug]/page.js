@@ -376,7 +376,7 @@ export default async function CourseDetailPage({ params }) {
           <nav aria-label="Breadcrumb" className="mb-5">
             <ol className="flex flex-wrap items-center gap-1.5 text-sm text-gray-500">
               <li>
-                <Link href="/" className="transition-colors hover:text-[rgba(0,0,102)]">
+                <Link href="/" className="transition-colors hover:text-[#0F766E]">
                   Home
                 </Link>
               </li>
@@ -384,21 +384,21 @@ export default async function CourseDetailPage({ params }) {
                 /
               </li>
               <li>
-                <Link href="/courses" className="transition-colors hover:text-[rgba(0,0,102)]">
+                <Link href="/courses" className="transition-colors hover:text-[#0F766E]">
                   Courses
                 </Link>
               </li>
               <li aria-hidden="true" className="text-gray-400">
                 /
               </li>
-              <li className="font-medium text-[rgba(0,0,102)]" aria-current="page">
+              <li className="font-medium text-[#0F766E]" aria-current="page">
                 {course.title}
               </li>
             </ol>
           </nav>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:grid-rows-[auto_1fr] lg:gap-8">
-            <RevealOnScroll className="overflow-hidden rounded-2xl border border-[rgba(0,0,102,0.08)] bg-white shadow-sm lg:col-span-2 lg:row-start-1">
+            <RevealOnScroll className="overflow-hidden rounded-2xl border border-[#0F766E]/15 bg-white shadow-sm lg:col-span-2 lg:row-start-1">
                 <div className="relative h-56 sm:h-72">
                   <Image
                     src={course.image}
@@ -411,7 +411,7 @@ export default async function CourseDetailPage({ params }) {
                 </div>
                 <div className="p-6 sm:p-8">
                   <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-[rgba(0,0,102,0.07)] px-3 py-1 text-xs font-semibold text-[rgba(0,0,102)]">
+                    <span className="rounded-full bg-[#0F766E]/10 px-3 py-1 text-xs font-semibold text-[#0F766E]">
                       {course.category}
                     </span>
                     <span className="rounded-full border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600">
@@ -429,7 +429,7 @@ export default async function CourseDetailPage({ params }) {
               </RevealOnScroll>
 
             <RevealOnScroll className="lg:col-start-3 lg:row-span-2 lg:row-start-1">
-              <div className="rounded-2xl border border-[rgba(0,0,102,0.08)] bg-white p-6 shadow-sm lg:sticky lg:top-24">
+              <div className="rounded-2xl border border-[#0F766E]/15 bg-white p-6 shadow-sm lg:sticky lg:top-24">
                 {course.price ? (
                   <div className="mb-6 text-center">
                     <div className="text-3xl font-bold text-gray-900">${course.price}</div>
@@ -459,7 +459,7 @@ export default async function CourseDetailPage({ params }) {
 
                 <Link
                   href="/free-trial"
-                  className="mt-3 inline-flex w-full items-center justify-center rounded-md border border-[rgba(0,0,102)] px-4 py-3 text-sm font-semibold text-[rgba(0,0,102)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[rgba(0,0,102)] hover:text-white"
+                  className="mt-3 inline-flex w-full items-center justify-center rounded-md border border-[#0F766E] px-4 py-3 text-sm font-semibold text-[#0F766E] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#0F766E] hover:text-white"
                 >
                   Book Free Trial
                 </Link>
@@ -467,7 +467,7 @@ export default async function CourseDetailPage({ params }) {
             </RevealOnScroll>
 
             <div className="space-y-6 lg:col-span-2 lg:row-start-2">
-              <RevealOnScroll className="rounded-2xl border border-[rgba(0,0,102,0.08)] bg-white p-6 shadow-sm sm:p-8">
+              <RevealOnScroll className="rounded-2xl border border-[#0F766E]/15 bg-white p-6 shadow-sm sm:p-8">
                 <h2 className="text-2xl font-bold text-gray-900">About This Course</h2>
                 <div className="mt-4 space-y-4 text-sm leading-relaxed text-gray-600 sm:text-base">
                   {descriptionParagraphs.map((paragraph) => (
@@ -477,14 +477,14 @@ export default async function CourseDetailPage({ params }) {
                     Every student learns through personal lessons, so nothing is rushed. You can{' '}
                     <Link
                       href="/courses"
-                      className="font-semibold text-[rgba(0,0,102)] no-underline hover:text-[rgba(51,102,153)]"
+                      className="font-semibold text-[#0F766E] no-underline hover:text-[#115E59]"
                     >
                       browse all Quran courses
                     </Link>{' '}
                     or{' '}
                     <Link
                       href="/free-trial"
-                      className="font-semibold text-[rgba(0,0,102)] no-underline hover:text-[rgba(51,102,153)]"
+                      className="font-semibold text-[#0F766E] no-underline hover:text-[#115E59]"
                     >
                       book a free trial class
                     </Link>{' '}
@@ -498,7 +498,7 @@ export default async function CourseDetailPage({ params }) {
                     <ul className="mt-4 space-y-2.5">
                       {course.features.map((feature) => (
                         <li key={feature} className="flex items-start gap-3 text-sm text-gray-600 sm:text-base">
-                          <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[rgba(0,0,102)]" />
+                          <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#0F766E]" />
                           <span>{feature}</span>
                         </li>
                       ))}
@@ -513,7 +513,7 @@ export default async function CourseDetailPage({ params }) {
                   families receive monthly progress reports. Helpful reading:{' '}
                   <Link
                     href="/blog/how-to-learn-quran-online-with-tajweed-at-home"
-                    className="font-semibold text-[rgba(0,0,102)] no-underline hover:text-[rgba(51,102,153)]"
+                    className="font-semibold text-[#0F766E] no-underline hover:text-[#115E59]"
                   >
                     how to learn Quran online with Tajweed at home
                   </Link>
@@ -521,15 +521,15 @@ export default async function CourseDetailPage({ params }) {
                 </p>
               </RevealOnScroll>
 
-              <RevealOnScroll className="rounded-2xl border border-[rgba(0,0,102,0.08)] bg-white p-6 shadow-sm sm:p-8">
+              <RevealOnScroll className="rounded-2xl border border-[#0F766E]/15 bg-white p-6 shadow-sm sm:p-8">
                 <h2 className="text-2xl font-bold text-gray-900">Why Choose Ajwa Academy</h2>
                 <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {WHY_CHOOSE.map((item) => (
                     <div
                       key={item.title}
-                      className="course-card-hover rounded-xl border border-[rgba(0,0,102,0.08)] bg-gray-50 p-5"
+                      className="course-card-hover rounded-xl border border-[#0F766E]/15 bg-gray-50 p-5"
                     >
-                      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[rgba(0,0,102,0.07)] text-[rgba(0,0,102)]">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0F766E]/10 text-[#0F766E]">
                         <svg
                           className="h-5 w-5"
                           fill="none"
@@ -547,7 +547,7 @@ export default async function CourseDetailPage({ params }) {
                 </div>
               </RevealOnScroll>
 
-              <RevealOnScroll className="rounded-2xl border border-[rgba(0,0,102,0.08)] bg-white p-6 shadow-sm sm:p-8">
+              <RevealOnScroll className="rounded-2xl border border-[#0F766E]/15 bg-white p-6 shadow-sm sm:p-8">
                 <h2 className="text-2xl font-bold text-gray-900">Trusted by Students Worldwide</h2>
                 <p className="mt-2 text-sm text-gray-600 sm:text-base">
                   Families join our online Quran classes from these countries and beyond.
@@ -556,7 +556,7 @@ export default async function CourseDetailPage({ params }) {
                   {TRUST_COUNTRIES.map((country) => (
                     <div
                       key={country.name}
-                      className="course-flag inline-flex items-center gap-2 rounded-full border border-[rgba(0,0,102,0.1)] bg-gray-50 px-4 py-2 text-sm font-medium text-gray-800"
+                      className="course-flag inline-flex items-center gap-2 rounded-full border border-[#0F766E]/15 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-800"
                     >
                       {country.code ? (
                         <img
@@ -583,16 +583,16 @@ export default async function CourseDetailPage({ params }) {
               </RevealOnScroll>
 
               {relatedBlogPosts.length > 0 && (
-                <RevealOnScroll className="rounded-2xl border border-[rgba(0,0,102,0.08)] bg-white p-6 shadow-sm sm:p-8">
+                <RevealOnScroll className="rounded-2xl border border-[#0F766E]/15 bg-white p-6 shadow-sm sm:p-8">
                   <h2 className="text-2xl font-bold text-gray-900">Related Blog Posts</h2>
                   <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
                     {relatedBlogPosts.map((post) => (
                       <Link
                         key={post.id}
                         href={post.slug ? `/blog/${post.slug}` : '/blog'}
-                        className="course-card-hover rounded-xl border border-[rgba(0,0,102,0.08)] bg-gray-50 p-5"
+                        className="course-card-hover rounded-xl border border-[#0F766E]/15 bg-gray-50 p-5"
                       >
-                        <p className="text-xs font-semibold uppercase tracking-wide text-[rgba(0,0,102)]">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-[#0F766E]">
                           Blog
                         </p>
                         <h3 className="mt-2 text-base font-semibold leading-snug text-gray-900">
@@ -606,7 +606,7 @@ export default async function CourseDetailPage({ params }) {
             </div>
           </div>
 
-          <RevealOnScroll className="mt-10 overflow-hidden rounded-2xl bg-gradient-to-r from-[rgba(0,0,102)] to-[rgba(51,102,153)] px-6 py-12 text-center text-white sm:px-10 sm:py-14">
+          <RevealOnScroll className="mt-10 overflow-hidden rounded-2xl bg-gradient-to-r from-[#0F766E] to-[#115E59] px-6 py-12 text-center text-white sm:px-10 sm:py-14">
             <h2 className="text-2xl font-bold leading-tight sm:text-3xl">
               Start Your Online Quran Learning Journey Today
             </h2>
@@ -617,13 +617,13 @@ export default async function CourseDetailPage({ params }) {
             <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link
                 href="/free-trial"
-                className="inline-flex w-full items-center justify-center rounded-xl bg-white px-8 py-3.5 text-sm font-semibold text-[rgba(0,0,102)] shadow-lg shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:bg-gray-50 sm:w-auto sm:text-base"
+                className="inline-flex w-full items-center justify-center rounded-xl bg-white px-8 py-3.5 text-sm font-semibold text-[#0F766E] shadow-lg shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:bg-gray-50 sm:w-auto sm:text-base"
               >
                 Book Free Trial
               </Link>
               <Link
                 href={`/enroll/${course.id}`}
-                className="inline-flex w-full items-center justify-center rounded-xl border-2 border-white px-8 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:text-[rgba(0,0,102)] sm:w-auto sm:text-base"
+                className="inline-flex w-full items-center justify-center rounded-xl border-2 border-white px-8 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:text-[#0F766E] sm:w-auto sm:text-base"
               >
                 Enroll Now
               </Link>

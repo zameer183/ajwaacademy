@@ -117,7 +117,7 @@ export default function ContactPage() {
     <div className="min-h-screen bg-slate-50 py-10 sm:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
-          <span className="inline-block text-xs font-bold uppercase tracking-wider text-[rgba(0,0,102)] bg-blue-50 px-3.5 py-1 rounded-full mb-3">
+          <span className="inline-block text-xs font-bold uppercase tracking-wider text-[#0F766E] bg-teal-50 px-3.5 py-1 rounded-full mb-3">
             Contact Support
           </span>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
@@ -150,7 +150,7 @@ export default function ContactPage() {
                   type="text"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full h-12 rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 focus:border-[rgba(0,0,102)] focus:ring-2 focus:ring-[rgba(0,0,102,0.12)] focus:outline-none transition-all"
+                  className="w-full h-12 rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 focus:outline-none transition-all"
                   placeholder="Your Full Name"
                 />
                 {errors.name && <p className="mt-1 text-xs text-red-600 font-semibold">{errors.name}</p>}
@@ -166,7 +166,7 @@ export default function ContactPage() {
                   type="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full h-12 rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 focus:border-[rgba(0,0,102)] focus:ring-2 focus:ring-[rgba(0,0,102,0.12)] focus:outline-none transition-all"
+                  className="w-full h-12 rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 focus:outline-none transition-all"
                   placeholder="your@email.com"
                 />
                 {errors.email && <p className="mt-1 text-xs text-red-600 font-semibold">{errors.email}</p>}
@@ -182,7 +182,7 @@ export default function ContactPage() {
                   name="country"
                   value={formData.country}
                   onChange={handleChange}
-                  className="w-full h-12 rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 focus:border-[rgba(0,0,102)] focus:ring-2 focus:ring-[rgba(0,0,102,0.12)] focus:outline-none transition-all cursor-pointer"
+                  className="w-full h-12 rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 focus:outline-none transition-all cursor-pointer"
                 >
                   {COUNTRIES_DATA.map((c) => (
                     <option key={c.name} value={c.name}>
@@ -217,7 +217,7 @@ export default function ContactPage() {
                   name="subject"
                   value={formData.subject}
                   onChange={handleChange}
-                  className="w-full h-12 rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 focus:border-[rgba(0,0,102)] focus:ring-2 focus:ring-[rgba(0,0,102,0.12)] focus:outline-none transition-all cursor-pointer"
+                  className="w-full h-12 rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 focus:outline-none transition-all cursor-pointer"
                 >
                   <option value="Free Trial Class">Free Trial Class Inquiry</option>
                   <option value="Course Information">Course Curriculum & Details</option>
@@ -237,7 +237,7 @@ export default function ContactPage() {
                   rows={4}
                   value={formData.message}
                   onChange={handleChange}
-                  className="w-full rounded-xl border border-gray-300 bg-white p-3.5 text-sm text-gray-900 focus:border-[rgba(0,0,102)] focus:ring-2 focus:ring-[rgba(0,0,102,0.12)] focus:outline-none transition-all resize-none"
+                  className="w-full rounded-xl border border-gray-300 bg-white p-3.5 text-sm text-gray-900 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 focus:outline-none transition-all resize-none"
                   placeholder="Please write your inquiry or message here..."
                 />
                 {errors.message && <p className="mt-1 text-xs text-red-600 font-semibold">{errors.message}</p>}
@@ -246,7 +246,7 @@ export default function ContactPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full h-13 py-3.5 px-6 rounded-xl bg-[rgba(0,0,102)] text-white font-bold text-base hover:bg-[rgba(51,102,153)] shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full h-13 py-3.5 px-6 rounded-xl bg-[#0F766E] text-white font-bold text-base hover:bg-[#115E59] shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 <span>Send Message via WhatsApp</span>
               </button>
@@ -255,7 +255,7 @@ export default function ContactPage() {
 
           {/* Contact Details Sidebar */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="bg-gradient-to-br from-[rgba(0,0,102)] to-[rgba(51,102,153)] rounded-3xl p-6 sm:p-8 text-white shadow-xl">
+            <div className="bg-gradient-to-br from-[#0F766E] to-[#115E59] rounded-3xl p-6 sm:p-8 text-white shadow-xl">
               <h2 className="text-2xl font-bold mb-4">Direct Contact</h2>
               <p className="text-sm sm:text-base text-white/85 mb-6 leading-relaxed">
                 Connect with our academic coordinator directly on WhatsApp or Email for instant support.

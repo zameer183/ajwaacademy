@@ -45,7 +45,7 @@ export default function CourseCard({ course }) {
       </div>
       <div className="p-6 flex flex-col flex-1">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-[rgba(0,0,102)] text-white">
+          <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-[#0F766E] text-white">
             {category}
           </span>
           <span className="text-xs font-medium text-gray-500">{level}</span>
@@ -67,7 +67,7 @@ export default function CourseCard({ course }) {
           </div>
           <Link
             href={courseHref}
-            className="bg-[rgba(0,0,102)] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-[rgba(51,102,153)] transition-colors duration-200"
+            className="bg-[#0F766E] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-[#115E59] transition-colors duration-200"
           >
             View Details
           </Link>

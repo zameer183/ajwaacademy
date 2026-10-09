@@ -292,7 +292,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full transition-shadow duration-200">
       {/* 1. TOP UTILITY BAR */}
-      <div className="bg-[rgba(0,0,102)] text-white text-xs border-b border-white/10">
+      <div className="bg-[#0F766E] text-white text-xs border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-2">
             {/* Left Contact Items */}
@@ -416,14 +416,14 @@ export default function Navbar() {
                         onClick={() => setOpenMenu(openMenu === link.name ? null : link.name)}
                         className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
                           active
-                            ? 'text-[rgba(0,0,102)] bg-blue-50/80 font-bold'
-                            : 'text-gray-700 hover:text-[rgba(0,0,102)] hover:bg-slate-50'
+                            ? 'text-[#0F766E] bg-teal-50/80 font-bold'
+                            : 'text-gray-700 hover:text-[#0F766E] hover:bg-slate-50'
                         }`}
                       >
                         <span>{link.name}</span>
                         <svg
                           className={`w-4 h-4 transition-transform duration-200 ${
-                            openMenu === link.name ? 'rotate-180 text-[rgba(0,0,102)]' : 'text-gray-400'
+                            openMenu === link.name ? 'rotate-180 text-[#0F766E]' : 'text-gray-400'
                           }`}
                           fill="none"
                           stroke="currentColor"
@@ -439,10 +439,10 @@ export default function Navbar() {
                           <div className="bg-white rounded-xl shadow-2xl border border-gray-100 py-2.5 overflow-visible">
                             <Link
                               href="/courses"
-                              className="flex items-center justify-between px-4 py-2.5 text-sm font-bold text-[rgba(0,0,102)] bg-blue-50/60 hover:bg-blue-50 border-b border-gray-100 transition-colors"
+                              className="flex items-center justify-between px-4 py-2.5 text-sm font-bold text-[#0F766E] bg-teal-50/60 hover:bg-teal-50 border-b border-gray-100 transition-colors"
                             >
                               <span>Browse All Courses</span>
-                              <span className="text-xs font-semibold bg-[rgba(0,0,102)] text-white px-2 py-0.5 rounded-full">
+                              <span className="text-xs font-semibold bg-[#0F766E] text-white px-2 py-0.5 rounded-full">
                                 View
                               </span>
                             </Link>
@@ -456,7 +456,7 @@ export default function Navbar() {
                                 >
                                   <button
                                     type="button"
-                                    className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50/70 hover:text-[rgba(0,0,102)] transition-colors text-left font-medium"
+                                    className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50/70 hover:text-[#0F766E] transition-colors text-left font-medium"
                                   >
                                     <span>{group.name}</span>
                                     {group.children.length > 0 && (
@@ -487,7 +487,7 @@ export default function Navbar() {
                                           <Link
                                             key={sub.name}
                                             href={sub.path}
-                                            className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50/70 hover:text-[rgba(0,0,102)] transition-colors border-b border-gray-50 last:border-b-0"
+                                            className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50/70 hover:text-[#0F766E] transition-colors border-b border-gray-50 last:border-b-0"
                                           >
                                             {sub.name}
                                           </Link>
@@ -519,14 +519,14 @@ export default function Navbar() {
                         onClick={() => setOpenMenu(openMenu === link.name ? null : link.name)}
                         className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
                           active
-                            ? 'text-[rgba(0,0,102)] bg-blue-50/80 font-bold'
-                            : 'text-gray-700 hover:text-[rgba(0,0,102)] hover:bg-slate-50'
+                            ? 'text-[#0F766E] bg-teal-50/80 font-bold'
+                            : 'text-gray-700 hover:text-[#0F766E] hover:bg-slate-50'
                         }`}
                       >
                         <span>{link.name}</span>
                         <svg
                           className={`w-4 h-4 transition-transform duration-200 ${
-                            openMenu === link.name ? 'rotate-180 text-[rgba(0,0,102)]' : 'text-gray-400'
+                            openMenu === link.name ? 'rotate-180 text-[#0F766E]' : 'text-gray-400'
                           }`}
                           fill="none"
                           stroke="currentColor"
@@ -541,10 +541,10 @@ export default function Navbar() {
                           <div className="bg-white rounded-xl shadow-2xl border border-gray-100 py-2.5">
                             <Link
                               href="/blog"
-                              className="flex items-center justify-between px-4 py-2.5 text-sm font-bold text-[rgba(0,0,102)] bg-blue-50/60 hover:bg-blue-50 border-b border-gray-100 transition-colors"
+                              className="flex items-center justify-between px-4 py-2.5 text-sm font-bold text-[#0F766E] bg-teal-50/60 hover:bg-teal-50 border-b border-gray-100 transition-colors"
                             >
                               <span>All Islamic Guides & Blogs</span>
-                              <span className="text-xs font-semibold bg-[rgba(0,0,102)] text-white px-2 py-0.5 rounded-full">
+                              <span className="text-xs font-semibold bg-[#0F766E] text-white px-2 py-0.5 rounded-full">
                                 Read
                               </span>
                             </Link>
@@ -558,7 +558,7 @@ export default function Navbar() {
                                 >
                                   <button
                                     type="button"
-                                    className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50/70 hover:text-[rgba(0,0,102)] transition-colors text-left font-medium"
+                                    className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50/70 hover:text-[#0F766E] transition-colors text-left font-medium"
                                   >
                                     <span>{cat.name}</span>
                                     {cat.posts.length > 0 && (
@@ -588,7 +588,7 @@ export default function Navbar() {
                                           <Link
                                             key={post.name}
                                             href={post.path}
-                                            className="block px-4 py-2 text-xs leading-snug text-gray-700 hover:bg-blue-50/70 hover:text-[rgba(0,0,102)] transition-colors border-b border-gray-50 last:border-b-0"
+                                            className="block px-4 py-2 text-xs leading-snug text-gray-700 hover:bg-teal-50/70 hover:text-[#0F766E] transition-colors border-b border-gray-50 last:border-b-0"
                                           >
                                             {post.name}
                                           </Link>
@@ -620,14 +620,14 @@ export default function Navbar() {
                         onClick={() => setOpenMenu(openMenu === link.name ? null : link.name)}
                         className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
                           active
-                            ? 'text-[rgba(0,0,102)] bg-blue-50/80 font-bold'
-                            : 'text-gray-700 hover:text-[rgba(0,0,102)] hover:bg-slate-50'
+                            ? 'text-[#0F766E] bg-teal-50/80 font-bold'
+                            : 'text-gray-700 hover:text-[#0F766E] hover:bg-slate-50'
                         }`}
                       >
                         <span>{link.name}</span>
                         <svg
                           className={`w-4 h-4 transition-transform duration-200 ${
-                            openMenu === link.name ? 'rotate-180 text-[rgba(0,0,102)]' : 'text-gray-400'
+                            openMenu === link.name ? 'rotate-180 text-[#0F766E]' : 'text-gray-400'
                           }`}
                           fill="none"
                           stroke="currentColor"
@@ -644,9 +644,9 @@ export default function Navbar() {
                               <Link
                                 key={child.name}
                                 href={child.path}
-                                className="block px-4 py-2.5 hover:bg-blue-50/70 transition-colors border-b border-gray-50 last:border-b-0 group"
+                                className="block px-4 py-2.5 hover:bg-teal-50/70 transition-colors border-b border-gray-50 last:border-b-0 group"
                               >
-                                <div className="text-sm font-semibold text-gray-800 group-hover:text-[rgba(0,0,102)]">
+                                <div className="text-sm font-semibold text-gray-800 group-hover:text-[#0F766E]">
                                   {child.name}
                                 </div>
                                 {child.desc && (
@@ -668,8 +668,8 @@ export default function Navbar() {
                     href={link.path}
                     className={`px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
                       active
-                        ? 'text-[rgba(0,0,102)] bg-blue-50/80 font-bold'
-                        : 'text-gray-700 hover:text-[rgba(0,0,102)] hover:bg-slate-50'
+                        ? 'text-[#0F766E] bg-teal-50/80 font-bold'
+                        : 'text-gray-700 hover:text-[#0F766E] hover:bg-slate-50'
                     }`}
                   >
                     {link.name}
@@ -683,9 +683,9 @@ export default function Navbar() {
               {profileInfo ? (
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-2.5 rounded-full border border-gray-200 bg-white pl-2 pr-4 py-1.5 text-sm font-semibold text-gray-700 shadow-sm hover:border-[rgba(0,0,102)] hover:text-[rgba(0,0,102)] transition-all"
+                  className="inline-flex items-center gap-2.5 rounded-full border border-gray-200 bg-white pl-2 pr-4 py-1.5 text-sm font-semibold text-gray-700 shadow-sm hover:border-[#0F766E] hover:text-[#0F766E] transition-all"
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(0,0,102)] text-white text-xs font-bold">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0F766E] text-white text-xs font-bold">
                     {profileInfo.name?.[0]?.toUpperCase() || 'A'}
                   </span>
                   <span className="text-xs font-medium">Dashboard</span>
@@ -693,7 +693,7 @@ export default function Navbar() {
               ) : (
                 <Link
                   href="/login"
-                  className="text-xs font-semibold text-gray-600 hover:text-[rgba(0,0,102)] px-3 py-2 rounded-md hover:bg-slate-50 transition-colors"
+                  className="text-xs font-semibold text-gray-600 hover:text-[#0F766E] px-3 py-2 rounded-md hover:bg-slate-50 transition-colors"
                 >
                   Student Login
                 </Link>
@@ -701,7 +701,7 @@ export default function Navbar() {
 
               <Link
                 href="/free-trial"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[rgba(0,0,102)] px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-[rgba(0,0,102,0.2)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[rgba(51,102,153)] hover:shadow-lg"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0F766E] px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-[rgba(15,118,110,0.2)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#115E59] hover:shadow-lg"
               >
                 <span>Free Trial Class</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -714,7 +714,7 @@ export default function Navbar() {
             <div className="lg:hidden flex items-center gap-2">
               <Link
                 href="/free-trial"
-                className="inline-flex items-center rounded-lg bg-[rgba(0,0,102)] px-3 py-1.5 text-xs font-bold text-white shadow-sm"
+                className="inline-flex items-center rounded-lg bg-[#0F766E] px-3 py-1.5 text-xs font-bold text-white shadow-sm"
               >
                 Free Trial
               </Link>
@@ -722,7 +722,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="inline-flex items-center justify-center p-2 rounded-lg text-gray-700 hover:text-[rgba(0,0,102)] hover:bg-gray-100 transition-colors focus:outline-none"
+                className="inline-flex items-center justify-center p-2 rounded-lg text-gray-700 hover:text-[#0F766E] hover:bg-gray-100 transition-colors focus:outline-none"
                 aria-label="Toggle navigation menu"
               >
                 {isMobileMenuOpen ? (
@@ -748,7 +748,7 @@ export default function Navbar() {
                 href="/"
                 className={`block px-4 py-3.5 rounded-xl text-base font-bold transition-colors ${
                   pathname === '/'
-                    ? 'bg-blue-50 text-[rgba(0,0,102)] border-l-4 border-[rgba(0,0,102)]'
+                    ? 'bg-teal-50 text-[#0F766E] border-l-4 border-[#0F766E]'
                     : 'text-gray-800 hover:bg-gray-50'
                 }`}
               >
@@ -762,14 +762,14 @@ export default function Navbar() {
                   onClick={() => toggleMobileMenu('Courses')}
                   className={`w-full flex items-center justify-between px-4 py-3.5 text-base font-bold rounded-xl transition-colors ${
                     pathname.startsWith('/courses')
-                      ? 'bg-blue-50 text-[rgba(0,0,102)]'
+                      ? 'bg-teal-50 text-[#0F766E]'
                       : 'text-gray-800 hover:bg-gray-50'
                   }`}
                 >
                   <span>Courses</span>
                   <svg
                     className={`w-5 h-5 transition-transform duration-200 ${
-                      mobileOpenMenus['Courses'] ? 'rotate-180 text-[rgba(0,0,102)]' : 'text-gray-400'
+                      mobileOpenMenus['Courses'] ? 'rotate-180 text-[#0F766E]' : 'text-gray-400'
                     }`}
                     fill="none"
                     stroke="currentColor"
@@ -783,7 +783,7 @@ export default function Navbar() {
                   <div className="pl-3 pr-2 py-2 space-y-1.5 bg-slate-50 rounded-xl mt-1">
                     <Link
                       href="/courses"
-                      className="block px-3.5 py-2.5 text-sm font-bold text-[rgba(0,0,102)] bg-white rounded-lg shadow-sm"
+                      className="block px-3.5 py-2.5 text-sm font-bold text-[#0F766E] bg-white rounded-lg shadow-sm"
                     >
                       View All Courses →
                     </Link>
@@ -792,7 +792,7 @@ export default function Navbar() {
                         <button
                           type="button"
                           onClick={() => toggleMobileSubmenu(group.name)}
-                          className="w-full flex items-center justify-between px-3.5 py-2 text-sm font-semibold text-gray-700 hover:text-[rgba(0,0,102)] text-left"
+                          className="w-full flex items-center justify-between px-3.5 py-2 text-sm font-semibold text-gray-700 hover:text-[#0F766E] text-left"
                         >
                           <span>{group.name}</span>
                           <span className="text-gray-400 font-bold">{mobileOpenSubmenus[group.name] ? '−' : '+'}</span>
@@ -803,7 +803,7 @@ export default function Navbar() {
                               <Link
                                 key={sub.name}
                                 href={sub.path}
-                                className="block px-2.5 py-2 text-sm text-gray-600 hover:text-[rgba(0,0,102)]"
+                                className="block px-2.5 py-2 text-sm text-gray-600 hover:text-[#0F766E]"
                               >
                                 {sub.name}
                               </Link>
@@ -823,14 +823,14 @@ export default function Navbar() {
                   onClick={() => toggleMobileMenu('Community')}
                   className={`w-full flex items-center justify-between px-4 py-3.5 text-base font-bold rounded-xl transition-colors ${
                     pathname.startsWith('/students') || pathname.startsWith('/teachers')
-                      ? 'bg-blue-50 text-[rgba(0,0,102)]'
+                      ? 'bg-teal-50 text-[#0F766E]'
                       : 'text-gray-800 hover:bg-gray-50'
                   }`}
                 >
                   <span>Community</span>
                   <svg
                     className={`w-5 h-5 transition-transform duration-200 ${
-                      mobileOpenMenus['Community'] ? 'rotate-180 text-[rgba(0,0,102)]' : 'text-gray-400'
+                      mobileOpenMenus['Community'] ? 'rotate-180 text-[#0F766E]' : 'text-gray-400'
                     }`}
                     fill="none"
                     stroke="currentColor"
@@ -844,13 +844,13 @@ export default function Navbar() {
                   <div className="pl-4 pr-2 py-2 space-y-1.5 bg-slate-50 rounded-xl mt-1">
                     <Link
                       href="/students"
-                      className="block px-3.5 py-2.5 text-sm font-semibold text-gray-700 hover:text-[rgba(0,0,102)]"
+                      className="block px-3.5 py-2.5 text-sm font-semibold text-gray-700 hover:text-[#0F766E]"
                     >
                       Our Students (Reviews & Stories)
                     </Link>
                     <Link
                       href="/teachers"
-                      className="block px-3.5 py-2.5 text-sm font-semibold text-gray-700 hover:text-[rgba(0,0,102)]"
+                      className="block px-3.5 py-2.5 text-sm font-semibold text-gray-700 hover:text-[#0F766E]"
                     >
                       Our Teachers (Faculty & Scholars)
                     </Link>
@@ -863,7 +863,7 @@ export default function Navbar() {
                 href="/library"
                 className={`block px-4 py-3.5 rounded-xl text-base font-bold transition-colors ${
                   pathname.startsWith('/library')
-                    ? 'bg-blue-50 text-[rgba(0,0,102)] border-l-4 border-[rgba(0,0,102)]'
+                    ? 'bg-teal-50 text-[#0F766E] border-l-4 border-[#0F766E]'
                     : 'text-gray-800 hover:bg-gray-50'
                 }`}
               >
@@ -875,7 +875,7 @@ export default function Navbar() {
                 href="/fee-structure"
                 className={`block px-4 py-3.5 rounded-xl text-base font-bold transition-colors ${
                   pathname === '/fee-structure'
-                    ? 'bg-blue-50 text-[rgba(0,0,102)] border-l-4 border-[rgba(0,0,102)]'
+                    ? 'bg-teal-50 text-[#0F766E] border-l-4 border-[#0F766E]'
                     : 'text-gray-800 hover:bg-gray-50'
                 }`}
               >
@@ -889,14 +889,14 @@ export default function Navbar() {
                   onClick={() => toggleMobileMenu('Contact')}
                   className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-lg transition-colors ${
                     pathname.startsWith('/contact') || pathname.startsWith('/about')
-                      ? 'bg-blue-50 text-[rgba(0,0,102)] font-bold'
+                      ? 'bg-teal-50 text-[#0F766E] font-bold'
                       : 'text-gray-800 hover:bg-gray-50'
                   }`}
                 >
                   <span>Contact & About</span>
                   <svg
                     className={`w-4 h-4 transition-transform duration-200 ${
-                      mobileOpenMenus['Contact'] ? 'rotate-180 text-[rgba(0,0,102)]' : 'text-gray-400'
+                      mobileOpenMenus['Contact'] ? 'rotate-180 text-[#0F766E]' : 'text-gray-400'
                     }`}
                     fill="none"
                     stroke="currentColor"
@@ -910,13 +910,13 @@ export default function Navbar() {
                   <div className="pl-4 pr-2 py-2 space-y-1 bg-slate-50 rounded-lg mt-1">
                     <Link
                       href="/contact"
-                      className="block px-3 py-2 text-xs font-semibold text-gray-700 hover:text-[rgba(0,0,102)]"
+                      className="block px-3 py-2 text-xs font-semibold text-gray-700 hover:text-[#0F766E]"
                     >
                       Contact Us
                     </Link>
                     <Link
                       href="/about"
-                      className="block px-3 py-2 text-xs font-semibold text-gray-700 hover:text-[rgba(0,0,102)]"
+                      className="block px-3 py-2 text-xs font-semibold text-gray-700 hover:text-[#0F766E]"
                     >
                       About Us
                     </Link>
@@ -929,7 +929,7 @@ export default function Navbar() {
                 href="/blog"
                 className={`block px-4 py-3 rounded-lg text-sm font-semibold transition-colors ${
                   pathname.startsWith('/blog')
-                    ? 'bg-blue-50 text-[rgba(0,0,102)] font-bold border-l-4 border-[rgba(0,0,102)]'
+                    ? 'bg-teal-50 text-[#0F766E] font-bold border-l-4 border-[#0F766E]'
                     : 'text-gray-800 hover:bg-gray-50'
                 }`}
               >
@@ -940,7 +940,7 @@ export default function Navbar() {
               <div className="pt-4 mt-4 border-t border-gray-100 space-y-2">
                 <Link
                   href="/free-trial"
-                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-[rgba(0,0,102)] py-3 text-sm font-bold text-white shadow-md"
+                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#0F766E] py-3 text-sm font-bold text-white shadow-md"
                 >
                   <span>Book Free Trial Class</span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -967,7 +967,7 @@ export default function Navbar() {
                 ) : (
                   <Link
                     href="/login"
-                    className="w-full flex items-center justify-center py-2.5 text-sm font-semibold text-gray-700 hover:text-[rgba(0,0,102)]"
+                    className="w-full flex items-center justify-center py-2.5 text-sm font-semibold text-gray-700 hover:text-[#0F766E]"
                   >
                     Student Login
                   </Link>

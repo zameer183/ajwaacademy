@@ -18,7 +18,7 @@ export default function PhoneInputWithCountry({
 
   return (
     <div>
-      <div className="flex rounded-xl overflow-hidden shadow-sm transition-all focus-within:ring-2 focus-within:ring-[rgba(0,0,102,0.3)]">
+      <div className="flex rounded-xl overflow-hidden shadow-sm transition-all focus-within:ring-2 focus-within:ring-[rgba(15,118,110,0.3)]">
         {/* Country Dial Code Dropdown */}
         <div
           className={`relative flex items-center border-y border-l rounded-l-xl ${
@@ -65,7 +65,7 @@ export default function PhoneInputWithCountry({
           className={`flex-1 min-w-0 w-full border-y border-r rounded-r-xl px-4 py-3 text-sm font-medium focus:outline-none transition-all ${
             isDark
               ? 'bg-white/10 border-white/20 text-white placeholder-white/40 focus:bg-white/15'
-              : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-[rgba(0,0,102)]'
+              : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-[#0F766E]'
           } ${error ? (isDark ? 'border-red-400 ring-1 ring-red-400' : 'border-red-500 ring-1 ring-red-500') : ''}`}
         />
       </div>

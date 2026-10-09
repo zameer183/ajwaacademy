@@ -56,7 +56,7 @@ export default function LibraryClient({ initialItems = [] }) {
               onClick={() => setSelectedCategory(cat)}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 selectedCategory === cat
-                  ? 'bg-[#0B3D91] text-white shadow-xs'
+                  ? 'bg-[#0F766E] text-white shadow-xs'
                   : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
               }`}
             >
@@ -72,7 +72,7 @@ export default function LibraryClient({ initialItems = [] }) {
             placeholder="Search books, Duas, Qaida..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-[#0B3D91] focus:ring-1 focus:ring-[#0B3D91] outline-none"
+            className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-[#0F766E] focus:ring-1 focus:ring-[#0F766E] outline-none"
           />
           <span className="absolute left-3 top-2.5 text-slate-400 text-xs">🔍</span>
           {searchQuery && (
@@ -96,7 +96,7 @@ export default function LibraryClient({ initialItems = [] }) {
           </p>
           <button
             onClick={() => { setSelectedCategory('All'); setSearchQuery(''); }}
-            className="px-4 py-2 bg-[#0B3D91] text-white rounded-xl text-xs font-bold"
+            className="px-4 py-2 bg-[#0F766E] text-white rounded-xl text-xs font-bold"
           >
             Clear Filters
           </button>
@@ -131,14 +131,14 @@ export default function LibraryClient({ initialItems = [] }) {
 
                   {/* Hover Overlay */}
                   <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-2xs">
-                    <span className="px-4 py-2 bg-white text-[#0B3D91] rounded-xl text-xs font-black shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                    <span className="px-4 py-2 bg-white text-[#0F766E] rounded-xl text-xs font-black shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
                       📖 Open in Web Reader
                     </span>
                   </div>
 
                   {/* Category Tag */}
                   <div className="absolute top-3 left-3">
-                    <span className="px-2.5 py-1 rounded-lg text-[10px] font-black bg-[#0B3D91] text-white shadow-md">
+                    <span className="px-2.5 py-1 rounded-lg text-[10px] font-black bg-[#0F766E] text-white shadow-md">
                       {item.category || 'Islamic Studies'}
                     </span>
                   </div>
@@ -153,7 +153,7 @@ export default function LibraryClient({ initialItems = [] }) {
 
                   <h3
                     onClick={() => setActiveReaderItem(item)}
-                    className="text-base sm:text-lg font-black text-slate-900 group-hover:text-[#0B3D91] transition-colors line-clamp-2 leading-snug cursor-pointer"
+                    className="text-base sm:text-lg font-black text-slate-900 group-hover:text-[#0F766E] transition-colors line-clamp-2 leading-snug cursor-pointer"
                   >
                     {item.title || 'Islamic Book'}
                   </h3>
@@ -169,7 +169,7 @@ export default function LibraryClient({ initialItems = [] }) {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setActiveReaderItem(item)}
-                    className="flex-1 bg-[#0B3D91] hover:bg-[#1E40AF] text-white py-2.5 px-3 rounded-xl text-xs font-extrabold text-center transition-all shadow-xs flex items-center justify-center gap-1.5"
+                    className="flex-1 bg-[#0F766E] hover:bg-[#1E40AF] text-white py-2.5 px-3 rounded-xl text-xs font-extrabold text-center transition-all shadow-xs flex items-center justify-center gap-1.5"
                   >
                     <span>📖 Read Online</span>
                   </button>
@@ -213,12 +213,12 @@ export default function LibraryClient({ initialItems = [] }) {
           {/* Reader Top Bar */}
           <div className="bg-slate-900 text-white rounded-2xl p-3 sm:p-4 flex items-center justify-between shadow-2xl border border-slate-800 shrink-0 mb-3">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-blue-600/30 border border-blue-500/40 flex items-center justify-center text-lg shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-teal-600/30 border border-teal-500/40 flex items-center justify-center text-lg shrink-0">
                 📖
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 text-[10px] font-bold border border-blue-500/30">
+                  <span className="px-2 py-0.5 rounded bg-teal-500/20 text-blue-400 text-[10px] font-bold border border-teal-500/30">
                     {activeReaderItem.category || 'Islamic Book'}
                   </span>
                   <span className="text-slate-400 text-[11px] hidden sm:inline">

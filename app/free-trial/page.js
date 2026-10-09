@@ -206,7 +206,7 @@ export default function FreeTrialPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }} />
 
       {/* Hero Header Banner */}
-      <div className="relative bg-gradient-to-r from-[rgba(0,0,102)] via-[rgba(0,0,102,0.95)] to-[rgba(51,102,153)] text-white py-14 sm:py-18 overflow-hidden">
+      <div className="relative bg-gradient-to-r from-[#0F766E] via-[#0F766E]/95 to-[#115E59] text-white py-14 sm:py-18 overflow-hidden">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute -top-24 -right-16 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
           <div className="absolute -bottom-20 -left-10 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
@@ -247,7 +247,7 @@ export default function FreeTrialPage() {
             <div className="lg:col-span-7">
               <div className="bg-white rounded-3xl shadow-xl border border-slate-200/80 p-6 sm:p-10">
                 <div className="mb-8">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[rgba(0,0,102)] bg-blue-50 px-3 py-1 rounded-full">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#0F766E] bg-teal-50 px-3 py-1 rounded-full">
                     Step 1 of 1 • Instant Booking
                   </span>
                   <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight mt-3">
@@ -307,7 +307,7 @@ export default function FreeTrialPage() {
                       placeholder="e.g. Abdullah Khan"
                       value={formData.firstName}
                       onChange={handleChange}
-                      className="w-full h-12 rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 placeholder-gray-400 focus:border-[rgba(0,0,102)] focus:ring-2 focus:ring-[rgba(0,0,102,0.12)] focus:outline-none transition-all"
+                      className="w-full h-12 rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 placeholder-gray-400 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 focus:outline-none transition-all"
                     />
                     {errors.firstName && <p className="text-xs text-red-600 mt-1 font-semibold">{errors.firstName}</p>}
                   </div>
@@ -327,7 +327,7 @@ export default function FreeTrialPage() {
                         placeholder="e.g. 8 (or adult age)"
                         value={formData.age}
                         onChange={handleChange}
-                        className="w-full h-12 rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 placeholder-gray-400 focus:border-[rgba(0,0,102)] focus:ring-2 focus:ring-[rgba(0,0,102,0.12)] focus:outline-none transition-all"
+                        className="w-full h-12 rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 placeholder-gray-400 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 focus:outline-none transition-all"
                       />
                       {errors.age && <p className="text-xs text-red-600 mt-1 font-semibold">{errors.age}</p>}
                     </div>
@@ -342,7 +342,7 @@ export default function FreeTrialPage() {
                           onClick={() => setFormData((p) => ({ ...p, gender: 'Male' }))}
                           className={`flex items-center justify-center gap-1.5 rounded-xl border text-sm font-bold transition-all ${
                             formData.gender === 'Male'
-                              ? 'border-[rgba(0,0,102)] bg-blue-50/80 text-[rgba(0,0,102)] shadow-sm'
+                              ? 'border-[#0F766E] bg-teal-50/80 text-[#0F766E] shadow-sm'
                               : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                           }`}
                         >
@@ -354,7 +354,7 @@ export default function FreeTrialPage() {
                           onClick={() => setFormData((p) => ({ ...p, gender: 'Female' }))}
                           className={`flex items-center justify-center gap-1.5 rounded-xl border text-sm font-bold transition-all ${
                             formData.gender === 'Female'
-                              ? 'border-[rgba(0,0,102)] bg-blue-50/80 text-[rgba(0,0,102)] shadow-sm'
+                              ? 'border-[#0F766E] bg-teal-50/80 text-[#0F766E] shadow-sm'
                               : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                           }`}
                         >
@@ -375,7 +375,7 @@ export default function FreeTrialPage() {
                       name="course_title"
                       value={formData.course_title}
                       onChange={handleChange}
-                      className="w-full h-12 rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 focus:border-[rgba(0,0,102)] focus:ring-2 focus:ring-[rgba(0,0,102,0.12)] focus:outline-none transition-all cursor-pointer font-medium"
+                      className="w-full h-12 rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 focus:outline-none transition-all cursor-pointer font-medium"
                     >
                       {courses.map((c) => (
                         <option key={c.id || c.title} value={c.title}>
@@ -395,7 +395,7 @@ export default function FreeTrialPage() {
                       name="country"
                       value={formData.country}
                       onChange={handleChange}
-                      className="w-full h-12 rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 focus:border-[rgba(0,0,102)] focus:ring-2 focus:ring-[rgba(0,0,102,0.12)] focus:outline-none transition-all cursor-pointer font-medium"
+                      className="w-full h-12 rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 focus:outline-none transition-all cursor-pointer font-medium"
                     >
                       {COUNTRIES_DATA.map((c) => (
                         <option key={c.name} value={c.name}>
@@ -423,7 +423,7 @@ export default function FreeTrialPage() {
                     />
                     <div className="mt-1.5 flex items-center justify-between text-[11px] text-gray-500">
                       <span>
-                        Full Number: <strong className="text-[rgba(0,0,102)]">{formatInternationalPhone(formData.phone, formData.dialCode) || formData.dialCode}</strong>
+                        Full Number: <strong className="text-[#0F766E]">{formatInternationalPhone(formData.phone, formData.dialCode) || formData.dialCode}</strong>
                       </span>
                       <span className="text-emerald-700 font-semibold">🔒 Used for class scheduling only</span>
                     </div>
@@ -441,7 +441,7 @@ export default function FreeTrialPage() {
                       placeholder="parent@example.com"
                       value={formData.email}
                       onChange={handleChange}
-                      className="w-full h-12 rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 placeholder-gray-400 focus:border-[rgba(0,0,102)] focus:ring-2 focus:ring-[rgba(0,0,102,0.12)] focus:outline-none transition-all"
+                      className="w-full h-12 rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 placeholder-gray-400 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 focus:outline-none transition-all"
                     />
                     {errors.email && <p className="text-xs text-red-600 mt-1 font-semibold">{errors.email}</p>}
                   </div>
@@ -456,7 +456,7 @@ export default function FreeTrialPage() {
                       name="preferredTime"
                       value={formData.preferredTime}
                       onChange={handleChange}
-                      className="w-full h-12 rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 focus:border-[rgba(0,0,102)] focus:ring-2 focus:ring-[rgba(0,0,102,0.12)] focus:outline-none transition-all cursor-pointer font-medium"
+                      className="w-full h-12 rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 focus:outline-none transition-all cursor-pointer font-medium"
                     >
                       <option value="Morning (Before School/Work)">Morning (Before School/Work)</option>
                       <option value="Afternoon (12 PM - 4 PM)">Afternoon (12 PM - 4 PM)</option>
@@ -479,7 +479,7 @@ export default function FreeTrialPage() {
                       placeholder="e.g. Beginner child starting from Alif Baa, needs patient female teacher..."
                       value={formData.message}
                       onChange={handleChange}
-                      className="w-full rounded-xl border border-gray-300 bg-white p-3 text-sm text-gray-900 placeholder-gray-400 focus:border-[rgba(0,0,102)] focus:ring-2 focus:ring-[rgba(0,0,102,0.12)] focus:outline-none transition-all resize-none"
+                      className="w-full rounded-xl border border-gray-300 bg-white p-3 text-sm text-gray-900 placeholder-gray-400 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 focus:outline-none transition-all resize-none"
                     />
                   </div>
 
@@ -487,7 +487,7 @@ export default function FreeTrialPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full h-14 py-4 px-8 rounded-2xl bg-gradient-to-r from-[rgba(0,0,102)] to-[rgba(51,102,153)] text-white font-extrabold text-base sm:text-lg hover:from-[rgba(0,0,102,0.9)] hover:to-[rgba(51,102,153,0.9)] shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 disabled:opacity-60 flex items-center justify-center gap-3 mt-4 group"
+                    className="w-full h-14 py-4 px-8 rounded-2xl bg-gradient-to-r from-[#0F766E] to-[#115E59] text-white font-extrabold text-base sm:text-lg hover:from-[#0B3B36]/90 hover:to-[#115E59]/90 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 disabled:opacity-60 flex items-center justify-center gap-3 mt-4 group"
                   >
                     {isSubmitting ? (
                       <>
@@ -521,7 +521,7 @@ export default function FreeTrialPage() {
                 </h3>
                 <ul className="space-y-4 text-sm text-gray-700">
                   <li className="flex items-start gap-3">
-                    <span className="h-6 w-6 rounded-full bg-blue-100 text-[rgba(0,0,102)] font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">
+                    <span className="h-6 w-6 rounded-full bg-teal-100 text-[#0F766E] font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">
                       1
                     </span>
                     <div>
@@ -530,7 +530,7 @@ export default function FreeTrialPage() {
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
-                    <span className="h-6 w-6 rounded-full bg-blue-100 text-[rgba(0,0,102)] font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">
+                    <span className="h-6 w-6 rounded-full bg-teal-100 text-[#0F766E] font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">
                       2
                     </span>
                     <div>
@@ -539,7 +539,7 @@ export default function FreeTrialPage() {
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
-                    <span className="h-6 w-6 rounded-full bg-blue-100 text-[rgba(0,0,102)] font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">
+                    <span className="h-6 w-6 rounded-full bg-teal-100 text-[#0F766E] font-bold flex items-center justify-center text-xs flex-shrink-0 mt-0.5">
                       3
                     </span>
                     <div>
@@ -551,7 +551,7 @@ export default function FreeTrialPage() {
               </div>
 
               {/* Student Review Highlight */}
-              <div className="rounded-3xl bg-gradient-to-br from-slate-900 via-[rgba(0,0,102,0.95)] to-slate-950 p-6 sm:p-8 text-white shadow-xl border border-white/10">
+              <div className="rounded-3xl bg-gradient-to-br from-slate-900 via-[#0F766E]/95 to-slate-950 p-6 sm:p-8 text-white shadow-xl border border-white/10">
                 <div className="flex items-center gap-1 text-amber-400 mb-3 text-sm">
                   ★★★★★ <span className="text-white/80 font-bold ml-1 text-xs">5.0 / 5.0 Rating</span>
                 </div>

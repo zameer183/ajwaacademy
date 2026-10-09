@@ -26,10 +26,10 @@ export default function HomeCtaPopup() {
   return (
     <div className="fixed inset-0 z-[9990] pointer-events-none">
       <div className="pointer-events-auto absolute right-3 left-3 bottom-20 sm:left-auto sm:right-6 sm:bottom-6 sm:w-[360px] animate-in fade-in slide-in-from-bottom-5 duration-300">
-        <div className="rounded-2xl border border-[rgba(0,0,102,0.15)] bg-white shadow-2xl overflow-hidden">
+        <div className="rounded-2xl border border-[#0F766E]/20 bg-white shadow-2xl overflow-hidden">
           <div className="flex items-start justify-between gap-3 px-4 py-3 border-b border-gray-100">
             <div>
-              <p className="text-sm font-semibold text-[rgba(0,0,102)]">Need Help Getting Started?</p>
+              <p className="text-sm font-semibold text-[#0F766E]">Need Help Getting Started?</p>
               <p className="text-xs text-gray-600 mt-0.5">Talk to Ajwa Academy instantly.</p>
             </div>
             <button
@@ -56,14 +56,14 @@ export default function HomeCtaPopup() {
 
             <a
               href="mailto:ajwaacademyofficial@gmail.com"
-              className="w-full inline-flex items-center justify-center rounded-lg border border-[rgba(0,0,102,0.25)] px-4 py-2.5 text-sm font-semibold text-[rgba(0,0,102)] hover:bg-[rgba(0,0,102,0.04)] transition-colors"
+              className="w-full inline-flex items-center justify-center rounded-lg border border-[#0F766E]/30 px-4 py-2.5 text-sm font-semibold text-[#0F766E] hover:bg-[#0F766E]/5 transition-colors"
             >
               Send Email
             </a>
 
             <Link
               href="/free-trial"
-              className="w-full inline-flex items-center justify-center rounded-lg bg-[rgba(0,0,102)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[rgba(51,102,153)] transition-colors"
+              className="w-full inline-flex items-center justify-center rounded-lg bg-[#0F766E] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#115E59] transition-colors"
             >
               Book Free Demo Class
             </Link>

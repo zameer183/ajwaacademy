@@ -14,7 +14,7 @@ export const FAQ_LINK_MAP = {
 };
 
 const linkClass =
-  'text-[rgba(0,0,102)] font-semibold no-underline hover:text-[rgba(51,102,153)] underline-offset-2 hover:underline';
+  'text-[#0F766E] font-semibold no-underline hover:text-[#115E59] underline-offset-2 hover:underline';
 
 function FaqLink({ hrefKey, children }) {
   const href = FAQ_LINK_MAP[hrefKey];
@@ -111,7 +111,7 @@ export default function HomeFaqSection() {
   return (
     <div id="faqs">
       <div className="mb-8 text-left">
-        <span className="inline-block text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-[rgba(0,0,102)] bg-blue-50 px-3.5 py-1 rounded-full mb-3">
+        <span className="inline-block text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-[#0F766E] bg-teal-50 px-3.5 py-1 rounded-full mb-3">
           FAQS
         </span>
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 tracking-tight">
@@ -134,7 +134,7 @@ export default function HomeFaqSection() {
               key={faq.question}
               className={`rounded-2xl border transition-all duration-300 overflow-hidden ${
                 isOpen
-                  ? 'border-[rgba(0,0,102,0.25)] bg-blue-50/30 shadow-md'
+                  ? 'border-[#0F766E]/30 bg-teal-50/30 shadow-md'
                   : 'border-slate-200/80 bg-white hover:border-slate-300'
               }`}
             >
@@ -152,7 +152,7 @@ export default function HomeFaqSection() {
                 <span
                   className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-transform duration-300 ${
                     isOpen
-                      ? 'bg-[rgba(0,0,102)] text-white rotate-180'
+                      ? 'bg-[#0F766E] text-white rotate-180'
                       : 'bg-slate-100 text-gray-600'
                   }`}
                 >
@@ -167,7 +167,7 @@ export default function HomeFaqSection() {
                   id={panelId}
                   role="region"
                   aria-labelledby={buttonId}
-                  className="px-5 sm:px-6 pb-6 pt-1 border-t border-blue-100/60 text-sm sm:text-base leading-relaxed text-gray-700 font-normal"
+                  className="px-5 sm:px-6 pb-6 pt-1 border-t border-teal-100/60 text-sm sm:text-base leading-relaxed text-gray-700 font-normal"
                 >
                   {faq.answer}
                 </div>

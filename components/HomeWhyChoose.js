@@ -73,13 +73,13 @@ export default function HomeWhyChoose() {
         }`}
       >
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-          <span className="inline-block text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-[rgba(0,0,102)] bg-blue-50 px-3.5 py-1 rounded-full mb-3">
+          <span className="inline-block text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-[#0F766E] bg-teal-50 px-3.5 py-1 rounded-full mb-3">
             Why Choose Us
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight">
             Why Choose Our Online Quran Classes
           </h2>
-          <div className="w-20 h-1.5 bg-[rgba(0,0,102)] mx-auto mt-4 mb-4 rounded-full" />
+          <div className="w-20 h-1.5 bg-[#0F766E] mx-auto mt-4 mb-4 rounded-full" />
           <p className="text-base sm:text-lg text-gray-700 leading-relaxed font-medium">
             Trusted online Quran academy providing authentic Islamic education, certified teachers, and flexible one-to-one classes for students worldwide.
           </p>
@@ -95,14 +95,14 @@ export default function HomeWhyChoose() {
             >
               <div>
                 <div className="flex items-center justify-between mb-5">
-                  <span className="text-3xl sm:text-4xl p-3 rounded-2xl bg-blue-50/80 group-hover:bg-[rgba(0,0,102,0.08)] transition-colors">
+                  <span className="text-3xl sm:text-4xl p-3 rounded-2xl bg-teal-50/80 group-hover:bg-[#0F766E]/10 transition-colors">
                     {feature.icon}
                   </span>
                   <span className="text-emerald-600 font-bold text-xs bg-emerald-50 px-2.5 py-1 rounded-full">
                     ✓ Feature
                   </span>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-[rgba(0,0,102)] transition-colors">
+                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-[#0F766E] transition-colors">
                   {feature.title}
                 </h3>
                 <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
@@ -110,7 +110,7 @@ export default function HomeWhyChoose() {
                 </p>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-slate-100 flex items-center text-xs font-bold text-[rgba(0,0,102)] group-hover:translate-x-1 transition-transform">
+              <div className="mt-6 pt-4 border-t border-slate-100 flex items-center text-xs font-bold text-[#0F766E] group-hover:translate-x-1 transition-transform">
                 <span>Learn more →</span>
               </div>
             </article>
@@ -119,10 +119,10 @@ export default function HomeWhyChoose() {
 
         {/* Bottom CTA bar */}
         <div
-          className="why-choose-card mt-12 sm:mt-16 rounded-2xl bg-white border border-[rgba(0,0,102,0.12)] p-6 sm:p-8 shadow-md text-center max-w-3xl mx-auto"
+          className="why-choose-card mt-12 sm:mt-16 rounded-2xl bg-white border border-[#0F766E]/20 p-6 sm:p-8 shadow-md text-center max-w-3xl mx-auto"
           style={{ transitionDelay: '400ms' }}
         >
-          <h4 className="text-[rgba(0,0,102)] font-bold text-lg sm:text-xl mb-2">
+          <h4 className="text-[#0F766E] font-bold text-lg sm:text-xl mb-2">
             Who can join Ajwa Online Academy?
           </h4>
           <p className="text-gray-700 text-sm sm:text-base leading-relaxed mb-5">
@@ -130,7 +130,7 @@ export default function HomeWhyChoose() {
           </p>
           <Link
             href="/free-trial"
-            className="inline-flex items-center justify-center bg-[rgba(0,0,102)] text-white px-7 py-3 rounded-xl text-sm sm:text-base font-bold shadow-md hover:bg-[rgba(51,102,153)] hover:shadow-lg transition-all hover:-translate-y-0.5"
+            className="inline-flex items-center justify-center bg-[#0F766E] text-white px-7 py-3 rounded-xl text-sm sm:text-base font-bold shadow-md hover:bg-[#115E59] hover:shadow-lg transition-all hover:-translate-y-0.5"
           >
             Start Your Free Trial Class
           </Link>

@@ -9,7 +9,7 @@ export default function CourseFaqSection({ faqs = [] }) {
   if (!faqs.length) return null;
 
   return (
-    <section className="rounded-2xl border border-[rgba(0,0,102,0.08)] bg-white p-6 shadow-sm sm:p-8">
+    <section className="rounded-2xl border border-[#0F766E]/15 bg-white p-6 shadow-sm sm:p-8">
       <h2 className="text-2xl font-bold text-gray-900">Frequently Asked Questions</h2>
       <p className="mt-2 text-sm text-gray-600 sm:text-base">
         Quick answers about joining this online Quran course at Ajwa Academy.
@@ -35,7 +35,7 @@ export default function CourseFaqSection({ faqs = [] }) {
                   <span>{item.question}</span>
                   <span
                     aria-hidden="true"
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[rgba(0,0,102,0.15)] text-lg leading-none text-[rgba(0,0,102)]"
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#0F766E]/20 text-lg leading-none text-[#0F766E]"
                   >
                     {isOpen ? '−' : '+'}
                   </span>

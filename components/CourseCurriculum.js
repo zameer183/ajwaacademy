@@ -23,7 +23,7 @@ export default function CourseCurriculum({ curriculum }) {
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-[rgba(0,0,102)]">Course Curriculum</h2>
+        <h2 className="text-xl font-bold text-[#0F766E]">Course Curriculum</h2>
         {curriculum.length > 0 && (
           <div className="text-sm text-gray-600">
             {curriculum.length} sections • {getTotalLessons()} lectures • {getTotalDuration()}
@@ -66,7 +66,7 @@ export default function CourseCurriculum({ curriculum }) {
                         <div className="mr-3">
                           {lesson.type === 'video' ? (
                             <svg
-                              className="w-5 h-5 text-[rgba(0,0,102)]"
+                              className="w-5 h-5 text-[#0F766E]"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -80,7 +80,7 @@ export default function CourseCurriculum({ curriculum }) {
                             </svg>
                           ) : lesson.type === 'quiz' ? (
                             <svg
-                              className="w-5 h-5 text-[rgba(0,0,102)]"
+                              className="w-5 h-5 text-[#0F766E]"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -94,7 +94,7 @@ export default function CourseCurriculum({ curriculum }) {
                             </svg>
                           ) : (
                             <svg
-                              className="w-5 h-5 text-[rgba(0,0,102)]"
+                              className="w-5 h-5 text-[#0F766E]"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"

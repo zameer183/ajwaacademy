@@ -31,7 +31,7 @@ export default async function BlogPage({ searchParams }) {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <div className="bg-gradient-to-r from-[rgba(0,0,102)] to-[rgba(51,102,153)] text-white p-6 -mx-4 sm:-mx-6 lg:-mx-8">
+          <div className="bg-gradient-to-r from-[#0F766E] to-[#115E59] text-white p-6 -mx-4 sm:-mx-6 lg:-mx-8">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
               <h1 className="text-2xl sm:text-3xl font-bold mb-1">Our Blog</h1>
               <p className="text-base sm:text-lg max-w-3xl mx-auto">

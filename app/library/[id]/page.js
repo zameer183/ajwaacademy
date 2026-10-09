@@ -32,7 +32,7 @@ export default async function LibraryDetailPage({ params }) {
           </p>
           <Link
             href="/library"
-            className="inline-block px-5 py-2.5 bg-[#0B3D91] hover:bg-[#1E40AF] text-white rounded-xl text-xs font-bold transition-colors"
+            className="inline-block px-5 py-2.5 bg-[#0F766E] hover:bg-[#1E40AF] text-white rounded-xl text-xs font-bold transition-colors"
           >
             ← Back to Library
           </Link>
@@ -91,7 +91,7 @@ export default async function LibraryDetailPage({ params }) {
               href={getDownloadUrl(item.file_url)}
               target="_blank"
               rel="noreferrer"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors shadow-xs"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#0F766E] hover:bg-[#115E59] text-white rounded-xl text-xs font-bold transition-colors shadow-xs"
             >
               <span>📥 Download PDF</span>
             </a>

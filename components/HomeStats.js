@@ -121,7 +121,7 @@ export default function HomeStats() {
             style={{ transitionDelay: `${index * 80}ms` }}
           >
             <div className="flex items-center justify-between mb-3">
-              <span className="text-2xl sm:text-3xl p-2.5 rounded-xl bg-blue-50/80 group-hover:bg-[rgba(0,0,102,0.08)] transition-colors">
+              <span className="text-2xl sm:text-3xl p-2.5 rounded-xl bg-teal-50/80 group-hover:bg-[#0F766E]/10 transition-colors">
                 {stat.icon}
               </span>
               <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
@@ -130,7 +130,7 @@ export default function HomeStats() {
             </div>
 
             <div>
-              <div className="text-3xl sm:text-4xl lg:text-4.5xl font-extrabold text-[rgba(0,0,102)] tracking-tight tabular-nums">
+              <div className="text-3xl sm:text-4xl lg:text-4.5xl font-extrabold text-[#0F766E] tracking-tight tabular-nums">
                 {display}
               </div>
               <div className="text-base sm:text-lg font-bold text-gray-900 mt-1.5">

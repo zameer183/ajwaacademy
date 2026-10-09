@@ -66,7 +66,7 @@ export default function CoursesPageClient({ initialCourses = [], initialCategori
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <div className="bg-gradient-to-r from-[rgba(0,0,102)] to-[rgba(51,102,153)] text-white p-6 -mx-4 sm:-mx-6 lg:-mx-8">
+          <div className="bg-gradient-to-r from-[#0F766E] to-[#115E59] text-white p-6 -mx-4 sm:-mx-6 lg:-mx-8">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
               <h1 className="text-2xl sm:text-3xl font-bold mb-1">Quranic Courses</h1>
               <p className="text-base sm:text-lg max-w-3xl mx-auto">
@@ -91,7 +91,7 @@ export default function CoursesPageClient({ initialCourses = [], initialCategori
                   placeholder="Search courses..."
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgba(0,0,102)] focus:border-transparent bg-white text-gray-900"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:border-transparent bg-white text-gray-900"
                 />
               </div>
 
@@ -107,7 +107,7 @@ export default function CoursesPageClient({ initialCourses = [], initialCategori
                         onChange={() =>
                           setSelectedCategory(category?.name === 'All Courses' ? '' : category?.name || '')
                         }
-                        className="rounded border-gray-300 text-[rgba(0,0,102)] focus:ring-[rgba(0,0,102)]"
+                        className="rounded border-gray-300 text-[#0F766E] focus:ring-[#0F766E]"
                       />
                       <span className="ml-2 text-sm text-gray-700">
                         {category?.name || 'General'}{' '}
@@ -128,7 +128,7 @@ export default function CoursesPageClient({ initialCourses = [], initialCategori
                         name="level"
                         checked={selectedLevel === level}
                         onChange={() => setSelectedLevel(level === 'All Levels' ? '' : level)}
-                        className="rounded border-gray-300 text-[rgba(0,0,102)] focus:ring-[rgba(0,0,102)]"
+                        className="rounded border-gray-300 text-[#0F766E] focus:ring-[#0F766E]"
                       />
                       <span className="ml-2 text-sm text-gray-700">{level}</span>
                     </label>
@@ -147,7 +147,7 @@ export default function CoursesPageClient({ initialCourses = [], initialCategori
               <select
                 value={sortBy}
                 onChange={(event) => setSortBy(event.target.value)}
-                className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[rgba(0,0,102)] focus:border-transparent bg-white text-gray-900"
+                className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:border-transparent bg-white text-gray-900"
               >
                 <option>Newest</option>
                 <option>Popular</option>

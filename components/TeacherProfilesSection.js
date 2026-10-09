@@ -35,14 +35,14 @@ export default function TeacherProfilesSection({ className = '' }) {
           Makharij, and Quran recitation with monthly progress reports.
         </p>
       </div>
-      <h3 className="text-center text-xl font-semibold text-[rgba(0,0,102)] mb-6">
+      <h3 className="text-center text-xl font-semibold text-[#0F766E] mb-6">
         Online Tajweed Course and Hifz Mentors
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {teacherProfiles.map((teacher) => (
           <article
             key={teacher.name}
-            className="bg-white border border-[rgba(0,0,102,0.08)] rounded-2xl shadow-sm overflow-hidden"
+            className="bg-white border border-[#0F766E]/15 rounded-2xl shadow-sm overflow-hidden"
           >
             <div className="relative aspect-[4/3] bg-gray-100">
               <Image
@@ -55,7 +55,7 @@ export default function TeacherProfilesSection({ className = '' }) {
             </div>
             <div className="p-6 space-y-3">
               <h3 className="text-2xl font-bold text-gray-900">{teacher.name}</h3>
-              <p className="text-sm font-semibold text-[rgba(0,0,102)]">{teacher.qualification}</p>
+              <p className="text-sm font-semibold text-[#0F766E]">{teacher.qualification}</p>
               <p className="text-sm text-gray-600">{teacher.years}</p>
               <p className="text-sm text-gray-700">{teacher.subject}</p>
             </div>
@@ -65,13 +65,13 @@ export default function TeacherProfilesSection({ className = '' }) {
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link
           href="/courses"
-          className="bg-[rgba(0,0,102)] text-white px-5 py-3 rounded-lg text-sm font-semibold hover:bg-[rgba(51,102,153)] transition-colors"
+          className="bg-[#0F766E] text-white px-5 py-3 rounded-lg text-sm font-semibold hover:bg-[#115E59] transition-colors"
         >
           View Courses
         </Link>
         <Link
           href="/free-trial"
-          className="border border-[rgba(0,0,102)] text-[rgba(0,0,102)] px-5 py-3 rounded-lg text-sm font-semibold hover:bg-[rgba(0,0,102)] hover:text-white transition-colors"
+          className="border border-[#0F766E] text-[#0F766E] px-5 py-3 rounded-lg text-sm font-semibold hover:bg-[#0F766E] hover:text-white transition-colors"
         >
           Book Free Trial
         </Link>

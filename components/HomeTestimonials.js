@@ -81,13 +81,13 @@ export default function HomeTestimonials() {
     <section className="bg-white py-16 sm:py-24 border-b border-slate-200/60 overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-12 sm:mb-16 text-center max-w-3xl mx-auto">
-          <span className="inline-block text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-[rgba(0,0,102)] bg-blue-50 px-3.5 py-1 rounded-full mb-3">
+          <span className="inline-block text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-[#0F766E] bg-teal-50 px-3.5 py-1 rounded-full mb-3">
             Real Student Reviews
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight">
             Student & Parent Testimonials
           </h2>
-          <div className="mx-auto mt-4 mb-4 h-1.5 w-20 rounded-full bg-[rgba(0,0,102)]" />
+          <div className="mx-auto mt-4 mb-4 h-1.5 w-20 rounded-full bg-[#0F766E]" />
           <p className="text-base sm:text-lg text-gray-700 leading-relaxed font-medium">
             Hear from parents and adult students learning Quran online with Ajwa Academy across the UK, USA, Canada, UAE, and Australia.
           </p>
@@ -95,7 +95,7 @@ export default function HomeTestimonials() {
 
         {/* Featured Testimonial Carousel Card */}
         <div className="max-w-4xl mx-auto">
-          <div className="relative rounded-3xl bg-gradient-to-br from-slate-50 via-white to-blue-50/40 border border-[rgba(0,0,102,0.1)] p-8 sm:p-12 shadow-xl">
+          <div className="relative rounded-3xl bg-gradient-to-br from-slate-50 via-white to-teal-50/40 border border-[#0F766E]/15 p-8 sm:p-12 shadow-xl">
             {/* 5 Stars */}
             <div className="flex items-center gap-1.5 mb-6 text-amber-400">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -117,7 +117,7 @@ export default function HomeTestimonials() {
             {/* Author Info */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-6 border-t border-slate-200">
               <div className="flex items-center gap-3.5">
-                <div className="h-12 w-12 rounded-full bg-[rgba(0,0,102)] text-white flex items-center justify-center font-bold text-lg shadow-md">
+                <div className="h-12 w-12 rounded-full bg-[#0F766E] text-white flex items-center justify-center font-bold text-lg shadow-md">
                   {TESTIMONIALS[currentIndex].name[0]}
                 </div>
                 <div>
@@ -149,7 +149,7 @@ export default function HomeTestimonials() {
               <button
                 type="button"
                 onClick={next}
-                className="h-10 w-10 rounded-full bg-[rgba(0,0,102)] hover:bg-[rgba(51,102,153)] text-white flex items-center justify-center shadow-sm transition-all hover:scale-105"
+                className="h-10 w-10 rounded-full bg-[#0F766E] hover:bg-[#115E59] text-white flex items-center justify-center shadow-sm transition-all hover:scale-105"
                 aria-label="Next testimonial"
               >
                 →
@@ -165,7 +165,7 @@ export default function HomeTestimonials() {
                 onClick={() => setCurrentIndex(idx)}
                 className={`transition-all duration-300 rounded-full ${
                   currentIndex === idx
-                    ? 'w-7 h-2.5 bg-[rgba(0,0,102)]'
+                    ? 'w-7 h-2.5 bg-[#0F766E]'
                     : 'w-2.5 h-2.5 bg-slate-300 hover:bg-slate-400'
                 }`}
                 aria-label={`Go to testimonial ${idx + 1}`}

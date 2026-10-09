@@ -72,7 +72,7 @@ export default function AdminRegisterPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
         <div className="text-center mb-6">
-          <div className="mx-auto h-12 w-12 rounded-full bg-[rgba(0,0,102)] flex items-center justify-center">
+          <div className="mx-auto h-12 w-12 rounded-full bg-[#0F766E] flex items-center justify-center">
             <span className="text-white font-bold text-xl">AA</span>
           </div>
           <h1 className="mt-4 text-2xl font-bold text-gray-900">Admin Signup</h1>
@@ -126,14 +126,14 @@ export default function AdminRegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[rgba(0,0,102)] text-white py-2 rounded-md font-semibold hover:bg-[rgba(51,102,153)] disabled:opacity-60"
+            className="w-full bg-[#0F766E] text-white py-2 rounded-md font-semibold hover:bg-[#115E59] disabled:opacity-60"
           >
             {loading ? 'Creating...' : 'Create Admin'}
           </button>
         </form>
         <div className="mt-6 text-center text-sm text-gray-600">
           Already have an admin account?{' '}
-          <Link href="/admin/login" className="text-[rgba(0,0,102)] hover:underline">
+          <Link href="/admin/login" className="text-[#0F766E] hover:underline">
             Admin Login
           </Link>
         </div>

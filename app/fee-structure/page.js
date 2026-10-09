@@ -72,20 +72,20 @@ const renderPackageGrid = (title, items) => (
   <section className="py-10">
     <div className="text-center mb-8">
       <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{title}</h2>
-      <div className="w-20 h-1 bg-[rgba(0,0,102)] rounded-full mx-auto" />
+      <div className="w-20 h-1 bg-[#0F766E] rounded-full mx-auto" />
     </div>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
       {items.map((pkg) => (
         <div
           key={`${title}-${pkg.name}`}
-          className="relative bg-white rounded-2xl shadow-lg border border-[rgba(0,0,102,0.15)] overflow-hidden"
+          className="relative bg-white rounded-2xl shadow-lg border border-[#0F766E]/20 overflow-hidden"
         >
           {pkg.popular && (
-            <span className="absolute right-4 top-4 bg-[rgba(0,0,102)] text-white text-xs font-semibold px-3 py-1 rounded-full">
+            <span className="absolute right-4 top-4 bg-[#0F766E] text-white text-xs font-semibold px-3 py-1 rounded-full">
               Popular
             </span>
           )}
-          <div className="bg-gradient-to-r from-[rgba(0,0,102)] to-[rgba(51,102,153)] text-white px-6 py-6 text-center">
+          <div className="bg-gradient-to-r from-[#0F766E] to-[#115E59] text-white px-6 py-6 text-center">
             <h3 className="text-xl font-semibold">{pkg.name}</h3>
             <p className="text-sm opacity-90 mt-2">
               {pkg.sub.split(' · ').map((part) => (
@@ -96,7 +96,7 @@ const renderPackageGrid = (title, items) => (
             </p>
           </div>
           <div className="p-8 text-center">
-            <div className="text-5xl font-bold text-[rgba(0,0,102)]">
+            <div className="text-5xl font-bold text-[#0F766E]">
               <span className="text-xl align-top">{pkg.currency}</span>
               {pkg.price}
             </div>
@@ -104,14 +104,14 @@ const renderPackageGrid = (title, items) => (
             <ul className="mt-6 space-y-2 text-sm text-gray-700">
               {pkg.features.map((feature) => (
                 <li key={feature} className="flex items-start gap-2">
-                  <span className="text-[rgba(0,0,102)]">*</span>
+                  <span className="text-[#0F766E]">*</span>
                   <span>{feature}</span>
                 </li>
               ))}
             </ul>
             <a
               href="/free-trial"
-              className="mt-6 inline-flex items-center justify-center bg-[rgba(0,0,102)] text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-[rgba(51,102,153)] transition-colors"
+              className="mt-6 inline-flex items-center justify-center bg-[#0F766E] text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-[#115E59] transition-colors"
             >
               Order Now
             </a>
@@ -127,7 +127,7 @@ export default function FeeStructurePage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12">
-          <div className="bg-gradient-to-r from-[rgba(0,0,102)] to-[rgba(51,102,153)] text-white p-6 -mx-4 sm:-mx-6 lg:-mx-8">
+          <div className="bg-gradient-to-r from-[#0F766E] to-[#115E59] text-white p-6 -mx-4 sm:-mx-6 lg:-mx-8">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
               <h1 className="text-3xl sm:text-4xl font-bold mb-1">Fee Structure</h1>
               <p className="text-base sm:text-lg max-w-3xl mx-auto">
@@ -140,7 +140,7 @@ export default function FeeStructurePage() {
         {renderPackageGrid('Global Packages (USD)', globalPackages)}
         {renderPackageGrid('UAE Packages (AED)', uaePackages)}
 
-        <div className="bg-gradient-to-r from-[rgba(0,0,102)] to-[rgba(51,102,153)] text-white rounded-lg shadow-md p-8 text-center mb-12">
+        <div className="bg-gradient-to-r from-[#0F766E] to-[#115E59] text-white rounded-lg shadow-md p-8 text-center mb-12">
           <h2 className="text-xl sm:text-2xl font-bold mb-4">Need Help Choosing a Package?</h2>
           <p className="text-white/90 mb-6 max-w-2xl mx-auto">
             Contact us to discuss the best package for your child and get a free trial class.
@@ -148,13 +148,13 @@ export default function FeeStructurePage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
               href="/contact"
-              className="bg-white text-[rgba(0,0,102)] px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 text-center"
+              className="bg-white text-[#0F766E] px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 text-center"
             >
               Contact Us
             </a>
             <a
               href="/free-trial"
-              className="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-[rgba(0,0,102)] transition-colors duration-200 text-center"
+              className="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-[#0F766E] transition-colors duration-200 text-center"
             >
               Free Trial Class
             </a>

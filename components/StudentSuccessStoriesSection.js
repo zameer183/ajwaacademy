@@ -38,16 +38,16 @@ export default function StudentSuccessStoriesSection({ className = '' }) {
           recitation, Tajweed, and Hifz through one-to-one classes.
         </p>
       </div>
-      <h3 className="text-center text-xl font-semibold text-[rgba(0,0,102)] mb-6">
+      <h3 className="text-center text-xl font-semibold text-[#0F766E] mb-6">
         Online Quran Classes for Kids Success Stories
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {studentSuccessStories.map((story) => (
           <article
             key={`${story.name}-${story.country}`}
-            className="rounded-2xl border border-[rgba(0,0,102,0.08)] bg-white p-6 shadow-sm"
+            className="rounded-2xl border border-[#0F766E]/15 bg-white p-6 shadow-sm"
           >
-            <p className="text-sm font-semibold text-[rgba(0,0,102)]">
+            <p className="text-sm font-semibold text-[#0F766E]">
               {story.name} — {story.country}
             </p>
             <h3 className="text-xl font-bold text-gray-900 mt-3">{story.joined}</h3>

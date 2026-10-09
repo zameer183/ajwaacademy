@@ -28,7 +28,7 @@ export default function HomeCtaSection() {
   return (
     <section
       ref={sectionRef}
-      className={`home-cta relative overflow-hidden py-16 sm:py-24 bg-gradient-to-r from-[rgba(0,0,102)] via-[rgba(0,0,102,0.95)] to-[rgba(51,102,153)] text-white ${
+      className={`home-cta relative overflow-hidden py-16 sm:py-24 bg-gradient-to-r from-[#0F766E] via-[#0F766E]/95 to-[#115E59] text-white ${
         visible ? 'is-visible' : ''
       }`}
     >
@@ -68,7 +68,7 @@ export default function HomeCtaSection() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             href="/free-trial"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-base sm:text-lg font-bold text-[rgba(0,0,102)] shadow-xl hover:bg-gray-100 hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-200"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-base sm:text-lg font-bold text-[#0F766E] shadow-xl hover:bg-gray-100 hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-200"
           >
             <span>Book Free Trial</span>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,7 +78,7 @@ export default function HomeCtaSection() {
 
           <Link
             href="/courses"
-            className="w-full sm:w-auto inline-flex items-center justify-center rounded-xl border-2 border-white bg-white/10 px-8 py-4 text-base sm:text-lg font-bold text-white hover:bg-white hover:text-[rgba(0,0,102)] backdrop-blur-sm transition-all duration-200"
+            className="w-full sm:w-auto inline-flex items-center justify-center rounded-xl border-2 border-white bg-white/10 px-8 py-4 text-base sm:text-lg font-bold text-white hover:bg-white hover:text-[#0F766E] backdrop-blur-sm transition-all duration-200"
           >
             View Quran Courses
           </Link>

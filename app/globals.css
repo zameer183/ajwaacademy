@@ -3,29 +3,39 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F8FAFC;
+  --foreground: #1E293B;
   color-scheme: light;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-arabic: var(--font-amiri);
-  --brand-navy: #000066;
-  --brand-blue: #336699;
+  --brand-navy: #0F766E;
+  --brand-blue: #115E59;
+  --brand-teal: #0F766E;
+  --brand-teal-hover: #115E59;
+  --brand-teal-light: #0D9488;
+  --brand-teal-dark: #0B3B36;
+  --brand-gold: #C5A253;
+  --brand-gold-hover: #B48F3F;
+  --brand-mint: #DDF4EC;
+  --brand-soft-blue: #E8F1FA;
+  --brand-bg: #F8FAFC;
+  --brand-text: #1E293B;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #ffffff;
-    --foreground: #171717;
+    --background: #F8FAFC;
+    --foreground: #1E293B;
   }
 }
 
 html,
 body {
-  background: #ffffff;
-  color: #171717;
+  background: #F8FAFC;
+  color: #1E293B;
   font-family: var(--font-sans);
   scroll-behavior: smooth;
   color-scheme: light;
@@ -42,8 +52,8 @@ html {
 
 html.dark,
 body.dark {
-  background: #ffffff;
-  color: #171717;
+  background: #F8FAFC;
+  color: #1E293B;
   color-scheme: light;
 }
 
@@ -128,7 +138,7 @@ body.dark {
   font-size: clamp(1.85rem, 3vw, 2.5rem);
   font-weight: 800;
   line-height: 1.25;
-  color: #000066;
+  color: #0F766E;
   margin: 2.25rem 0 1.25rem;
   letter-spacing: -0.02em;
 }
@@ -138,7 +148,7 @@ body.dark {
   font-size: clamp(1.45rem, 2.2vw, 1.85rem);
   font-weight: 700;
   line-height: 1.35;
-  color: #0f172a;
+  color: #1E293B;
   margin: 2rem 0 1rem;
   padding-bottom: 0.35rem;
   border-bottom: 2px solid #f1f5f9;
@@ -149,7 +159,7 @@ body.dark {
   font-size: clamp(1.2rem, 1.8vw, 1.45rem);
   font-weight: 700;
   line-height: 1.4;
-  color: #1e3a8a;
+  color: #0F766E;
   margin: 1.65rem 0 0.75rem;
 }
 
@@ -182,18 +192,18 @@ body.dark {
 /* Hyperlinks */
 .blog-detail-content a,
 .prose-blog a {
-  color: #000066;
+  color: #0F766E;
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 3px;
-  text-decoration-color: #93c5fd;
+  text-decoration-color: #99F6E4;
   transition: color 0.15s ease, text-decoration-color 0.15s ease;
 }
 
 .blog-detail-content a:hover,
 .prose-blog a:hover {
-  color: #2563eb;
-  text-decoration-color: #2563eb;
+  color: #0D9488;
+  text-decoration-color: #0D9488;
 }
 
 /* Unordered & Ordered Lists */
@@ -227,7 +237,7 @@ body.dark {
 /* Blockquotes & Quotes */
 .blog-detail-content blockquote,
 .prose-blog blockquote {
-  border-left: 4px solid #000066;
+  border-left: 4px solid #0F766E;
   background: #f8fafc;
   padding: 1rem 1.35rem;
   border-radius: 0 12px 12px 0;
@@ -348,7 +358,7 @@ body.dark {
   right: 0;
   bottom: -2px;
   height: 2px;
-  background: rgba(0, 0, 102, 1);
+  background: rgba(15, 118, 110, 1);
   opacity: 0;
   transform: scaleX(0);
   transform-origin: center;
@@ -361,7 +371,7 @@ body.dark {
   right: 0;
   top: -2px;
   height: 2px;
-  background: rgba(0, 0, 102, 1);
+  background: rgba(15, 118, 110, 1);
   opacity: 0;
   transform: scaleX(0);
   transform-origin: center;
@@ -444,9 +454,9 @@ body.dark {
 .why-choose-card:hover {
   transform: translateY(-6px);
   box-shadow:
-    0 16px 32px -12px rgba(0, 0, 102, 0.16),
+    0 16px 32px -12px rgba(15, 118, 110, 0.16),
     0 4px 12px rgba(0, 0, 0, 0.05);
-  border-color: rgba(0, 0, 102, 0.12);
+  border-color: rgba(15, 118, 110, 0.2);
 }
 
 .course-preview-card {
@@ -467,9 +477,9 @@ body.dark {
 .course-preview-card:hover {
   transform: translateY(-6px);
   box-shadow:
-    0 16px 32px -12px rgba(0, 0, 102, 0.18),
+    0 16px 32px -12px rgba(15, 118, 110, 0.18),
     0 4px 12px rgba(0, 0, 0, 0.06);
-  border-color: rgba(0, 0, 102, 0.12);
+  border-color: rgba(15, 118, 110, 0.2);
 }
 
 .course-preview-image {
@@ -547,9 +557,9 @@ body.dark {
 .testimonial-card:hover {
   transform: translateY(-6px);
   box-shadow:
-    0 16px 32px -12px rgba(0, 0, 102, 0.16),
+    0 16px 32px -12px rgba(15, 118, 110, 0.16),
     0 4px 12px rgba(0, 0, 0, 0.05);
-  border-color: rgba(0, 0, 102, 0.14);
+  border-color: rgba(15, 118, 110, 0.2);
 }
 
 .country-card {
@@ -563,9 +573,9 @@ body.dark {
 
 .country-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(0, 0, 102, 0.45);
+  border-color: rgba(15, 118, 110, 0.45);
   box-shadow:
-    0 12px 24px -10px rgba(0, 0, 102, 0.18),
+    0 12px 24px -10px rgba(15, 118, 110, 0.18),
     0 4px 10px rgba(0, 0, 0, 0.04);
 }
 
@@ -596,8 +606,8 @@ body.dark {
 
 .course-flag:hover {
   transform: translateY(-3px);
-  border-color: rgba(0, 0, 102, 0.4);
-  box-shadow: 0 10px 20px -10px rgba(0, 0, 102, 0.22);
+  border-color: rgba(15, 118, 110, 0.4);
+  box-shadow: 0 10px 20px -10px rgba(15, 118, 110, 0.22);
 }
 
 .course-card-hover {
@@ -609,8 +619,8 @@ body.dark {
 
 .course-card-hover:hover {
   transform: translateY(-4px);
-  border-color: rgba(0, 0, 102, 0.16);
-  box-shadow: 0 14px 28px -14px rgba(0, 0, 102, 0.18);
+  border-color: rgba(15, 118, 110, 0.2);
+  box-shadow: 0 14px 28px -14px rgba(15, 118, 110, 0.18);
 }
 
 @media (prefers-reduced-motion: reduce) {

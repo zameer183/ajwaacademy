@@ -17,7 +17,7 @@ export default function EnrollButton({ courseTitle, courseId }) {
 
   return (
     <button 
-      className={`w-full bg-[rgba(0,0,102)] text-white py-3 px-4 rounded-md font-semibold hover:bg-[rgba(51,102,153)] transition-colors duration-200 mb-4 ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
+      className={`w-full bg-[#0F766E] text-white py-3 px-4 rounded-md font-semibold hover:bg-[#115E59] transition-colors duration-200 mb-4 ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
       onClick={handleEnroll}
       disabled={isLoading}
     >

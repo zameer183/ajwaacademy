@@ -142,7 +142,7 @@ export default function EnrollmentPaymentPage() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
         <div className="text-center space-y-3">
-          <div className="w-10 h-10 border-4 border-[#0B3D91] border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="w-10 h-10 border-4 border-[#0F766E] border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-sm font-bold text-slate-600">Loading enrollment details...</p>
         </div>
       </div>
@@ -159,7 +159,7 @@ export default function EnrollmentPaymentPage() {
           <div className="space-y-2">
             <h1 className="text-2xl font-black text-slate-900">Enrollment Submitted!</h1>
             <p className="text-sm text-slate-600 leading-relaxed">
-              JazakAllah Khair <span className="font-bold text-slate-800">{formData.name}</span>. Your payment receipt for <span className="font-bold text-[#0B3D91]">{course?.title || 'the course'}</span> has been received.
+              JazakAllah Khair <span className="font-bold text-slate-800">{formData.name}</span>. Your payment receipt for <span className="font-bold text-[#0F766E]">{course?.title || 'the course'}</span> has been received.
             </p>
             <p className="text-xs text-slate-500">
               Our academic coordinator will verify your payment and message you on WhatsApp within 1–2 hours to assign your teacher and schedule.
@@ -193,7 +193,7 @@ export default function EnrollmentPaymentPage() {
         <div className="flex items-center justify-between">
           <Link
             href={course?.slug ? `/courses/${course.slug}` : '/courses'}
-            className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-[#0B3D91] transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-[#0F766E] transition-colors"
           >
             ← Back to {course?.title ? 'Course Details' : 'Courses'}
           </Link>
@@ -209,7 +209,7 @@ export default function EnrollmentPaymentPage() {
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 sm:p-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
             <div className="space-y-2">
-              <span className="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-extrabold bg-[#0B3D91]/10 text-[#0B3D91]">
+              <span className="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-extrabold bg-[#0F766E]/10 text-[#0F766E]">
                 {course?.category || 'Online Quran Course'}
               </span>
               <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
@@ -223,7 +223,7 @@ export default function EnrollmentPaymentPage() {
             {course && (
               <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-center shrink-0 min-w-[160px]">
                 <span className="text-[11px] font-bold text-slate-400 block uppercase tracking-wider">Fee / Month</span>
-                <span className="text-2xl sm:text-3xl font-black text-[#0B3D91] font-mono">
+                <span className="text-2xl sm:text-3xl font-black text-[#0F766E] font-mono">
                   £{course.price || 45}
                 </span>
                 <span className="text-[10px] text-slate-500 block mt-0.5">1-on-1 Live Classes</span>
@@ -232,18 +232,18 @@ export default function EnrollmentPaymentPage() {
           </div>
 
           {/* Bank / Wallet Details */}
-          <div className="mt-6 rounded-2xl border border-blue-100 bg-blue-50/50 p-5 space-y-4">
+          <div className="mt-6 rounded-2xl border border-teal-100 bg-teal-50/50 p-5 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs sm:text-sm font-extrabold text-[#0B3D91] flex items-center gap-2">
+              <h2 className="text-xs sm:text-sm font-extrabold text-[#0F766E] flex items-center gap-2">
                 💳 Official Payment Accounts
               </h2>
-              <span className="text-[10px] font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
+              <span className="text-[10px] font-bold bg-teal-100 text-[#0F766E] px-2 py-0.5 rounded">
                 Verified Academy Accounts
               </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-              <div className="bg-white p-3.5 rounded-xl border border-blue-100 shadow-2xs space-y-1">
+              <div className="bg-white p-3.5 rounded-xl border border-teal-100 shadow-2xs space-y-1">
                 <p className="font-extrabold text-slate-900 flex items-center justify-between">
                   <span>Meezan Bank Ltd</span>
                   <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">Direct Transfer</span>
@@ -253,10 +253,10 @@ export default function EnrollmentPaymentPage() {
                 <p><span className="text-slate-400">IBAN:</span> <strong className="text-slate-800 font-mono text-[11px]">PK88MEZN0020010111647110</strong></p>
               </div>
 
-              <div className="bg-white p-3.5 rounded-xl border border-blue-100 shadow-2xs space-y-1">
+              <div className="bg-white p-3.5 rounded-xl border border-teal-100 shadow-2xs space-y-1">
                 <p className="font-extrabold text-slate-900 flex items-center justify-between">
                   <span>SadaPay / International</span>
-                  <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Instant</span>
+                  <span className="text-[10px] font-bold text-[#0F766E] bg-teal-50 px-2 py-0.5 rounded">Instant</span>
                 </p>
                 <p><span className="text-slate-400">Account Title:</span> <strong className="text-slate-800">Muhammad Ibrahim</strong></p>
                 <p><span className="text-slate-400">SadaPay Card:</span> <strong className="text-slate-800 font-mono">5590 4902 6091 7503</strong></p>
@@ -284,7 +284,7 @@ export default function EnrollmentPaymentPage() {
                   type="text"
                   required
                   placeholder="e.g. Zainab Ahmed"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs text-slate-900 focus:border-[#0B3D91] focus:ring-1 focus:ring-[#0B3D91] outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs text-slate-900 focus:border-[#0F766E] focus:ring-1 focus:ring-[#0F766E] outline-none"
                   value={formData.name}
                   onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
                 />
@@ -298,7 +298,7 @@ export default function EnrollmentPaymentPage() {
                   type="email"
                   required
                   placeholder="e.g. zainab@gmail.com"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs text-slate-900 focus:border-[#0B3D91] focus:ring-1 focus:ring-[#0B3D91] outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs text-slate-900 focus:border-[#0F766E] focus:ring-1 focus:ring-[#0F766E] outline-none"
                   value={formData.email}
                   onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
                 />
@@ -314,7 +314,7 @@ export default function EnrollmentPaymentPage() {
                   type="tel"
                   required
                   placeholder="e.g. +44 7123 456789"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs text-slate-900 focus:border-[#0B3D91] focus:ring-1 focus:ring-[#0B3D91] outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs text-slate-900 focus:border-[#0F766E] focus:ring-1 focus:ring-[#0F766E] outline-none"
                   value={formData.whatsapp}
                   onChange={(e) => setFormData((p) => ({ ...p, whatsapp: e.target.value }))}
                 />
@@ -328,7 +328,7 @@ export default function EnrollmentPaymentPage() {
                   type="text"
                   required
                   placeholder="e.g. £45"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs text-slate-900 focus:border-[#0B3D91] focus:ring-1 focus:ring-[#0B3D91] outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs text-slate-900 focus:border-[#0F766E] focus:ring-1 focus:ring-[#0F766E] outline-none"
                   value={formData.amount}
                   onChange={(e) => setFormData((p) => ({ ...p, amount: e.target.value }))}
                 />
@@ -344,7 +344,7 @@ export default function EnrollmentPaymentPage() {
                   type="text"
                   required
                   placeholder="e.g. TRX-9874523"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs text-slate-900 focus:border-[#0B3D91] focus:ring-1 focus:ring-[#0B3D91] outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs text-slate-900 focus:border-[#0F766E] focus:ring-1 focus:ring-[#0F766E] outline-none"
                   value={formData.transaction_id}
                   onChange={(e) => setFormData((p) => ({ ...p, transaction_id: e.target.value }))}
                 />
@@ -357,7 +357,7 @@ export default function EnrollmentPaymentPage() {
                 <input
                   type="text"
                   placeholder="e.g. Mon-Thu evenings UK time"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs text-slate-900 focus:border-[#0B3D91] focus:ring-1 focus:ring-[#0B3D91] outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs text-slate-900 focus:border-[#0F766E] focus:ring-1 focus:ring-[#0F766E] outline-none"
                   value={formData.note}
                   onChange={(e) => setFormData((p) => ({ ...p, note: e.target.value }))}
                 />
@@ -371,7 +371,7 @@ export default function EnrollmentPaymentPage() {
               </label>
 
               <div className="flex flex-wrap items-center gap-3">
-                <label className="px-4 py-2 bg-[#0B3D91] hover:bg-[#1E40AF] text-white rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-xs">
+                <label className="px-4 py-2 bg-[#0F766E] hover:bg-[#1E40AF] text-white rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-xs">
                   <span>{submitting ? 'Uploading...' : 'Upload Slip Image / PDF'}</span>
                   <input
                     type="file"
@@ -402,7 +402,7 @@ export default function EnrollmentPaymentPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex-1 bg-[#0B3D91] hover:bg-[#1E40AF] text-white py-3.5 rounded-xl font-extrabold text-xs sm:text-sm transition-all shadow-md hover:shadow-lg disabled:opacity-60 flex items-center justify-center gap-2"
+                className="flex-1 bg-[#0F766E] hover:bg-[#1E40AF] text-white py-3.5 rounded-xl font-extrabold text-xs sm:text-sm transition-all shadow-md hover:shadow-lg disabled:opacity-60 flex items-center justify-center gap-2"
               >
                 {submitting ? 'Processing...' : 'Submit Enrollment & Payment'}
               </button>

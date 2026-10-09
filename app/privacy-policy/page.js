@@ -5,7 +5,7 @@ export default function PrivacyPolicyPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12">
-          <div className="bg-gradient-to-r from-[rgba(0,0,102)] to-[rgba(51,102,153)] text-white p-6 -mx-4 sm:-mx-6 lg:-mx-8">
+          <div className="bg-gradient-to-r from-[#0F766E] to-[#115E59] text-white p-6 -mx-4 sm:-mx-6 lg:-mx-8">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
               <h1 className="text-3xl font-bold mb-1">Privacy Policy & Course Policies</h1>
               <p className="text-lg max-w-3xl mx-auto">
@@ -19,7 +19,7 @@ export default function PrivacyPolicyPage() {
         <div className="grid grid-cols-1 gap-10 mb-16">
           <div className="bg-white rounded-lg shadow-md p-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-3">Ajwa Academy Course Policies (English)</h2>
-            <div className="w-20 h-1 bg-[rgba(0,0,102)] rounded-full mb-6"></div>
+            <div className="w-20 h-1 bg-[#0F766E] rounded-full mb-6"></div>
             <div className="space-y-6 text-gray-700">
               <div>
                 <h3 className="font-semibold text-gray-900">1) Admission & Trial Policy</h3>
