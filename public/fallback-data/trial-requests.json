@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "name": "Amina Siddiqua",
+    "email": "amina.s@gmail.com",
+    "whatsapp": "+44 7912 345678",
+    "country": "United Kingdom",
+    "course_title": "Noorani Qaida Course",
+    "status": "pending",
+    "message": "Looking for female teacher for 7-year-old daughter in UK evening time.",
+    "timezone": "Europe/London",
+    "created_at": "2026-10-20T16:28:06.413Z"
+  },
+  {
+    "id": 2,
+    "name": "Zubair Al-Hashmi",
+    "email": "zubair.hashmi@yahoo.com",
+    "whatsapp": "+1 647 889 0123",
+    "country": "Canada",
+    "course_title": "Online Quran Reading with Tajweed",
+    "status": "contacted",
+    "message": "Interested in 3 classes per week for Tajweed correction.",
+    "timezone": "America/Toronto",
+    "created_at": "2026-10-19T18:28:06.431Z"
+  },
+  {
+    "id": 3,
+    "name": "Tariq Mehmood",
+    "email": "tariq.m@outlook.com",
+    "whatsapp": "+1 713 555 0192",
+    "country": "United States",
+    "course_title": "Online Quran Hifz Program",
+    "status": "enrolled",
+    "message": "Enrolling 10-year-old son for daily Hifz memorization.",
+    "timezone": "America/Chicago",
+    "created_at": "2026-10-18T18:28:06.431Z"
+  },
+  {
+    "id": 4,
+    "name": "Fatima Al-Zahra",
+    "email": "fatima.zahra@gmail.com",
+    "whatsapp": "+971 50 123 4567",
+    "country": "United Arab Emirates",
+    "course_title": "Islamic Studies for Kids Online",
+    "status": "enrolled",
+    "message": "Weekend Islamic studies and basic Arabic.",
+    "timezone": "Asia/Dubai",
+    "created_at": "2026-10-17T18:28:06.431Z"
+  }
+]

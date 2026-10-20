@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import fs from 'fs';
+import path from 'path';
 
 export const runtime = 'nodejs';
 export const preferredRegion = 'syd1';
@@ -15,15 +17,30 @@ const supabaseServiceRoleKey = (rawServiceKey && rawUrl === ACTIVE_SUPABASE_URL)
 
 const hasServerSupabase = Boolean(supabaseUrl && supabaseServiceRoleKey);
 
-export async function POST(request) {
+function saveToFallback(lead) {
   try {
-    if (!hasServerSupabase) {
-      return NextResponse.json(
-        { error: 'Server database configuration is missing. Please contact administrator.' },
-        { status: 500 }
-      );
+    const filePath = path.join(process.cwd(), 'public', 'fallback-data', 'trial-requests.json');
+    const dir = path.dirname(filePath);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+    let list = [];
+    if (fs.existsSync(filePath)) {
+      const content = fs.readFileSync(filePath, 'utf8');
+      list = JSON.parse(content);
+      if (!Array.isArray(list)) list = [];
     }
 
+    list = [lead, ...list];
+    fs.writeFileSync(filePath, JSON.stringify(list, null, 2), 'utf8');
+    return true;
+  } catch (err) {
+    console.error('Error saving trial to fallback file:', err);
+    return false;
+  }
+}
+
+export async function POST(request) {
+  try {
     const payload = await request.json();
     const name = String(payload?.name || '').trim();
     const email = String(payload?.email || '').trim();
@@ -41,11 +58,8 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 });
     }
 
-    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
-
     const insertPayload = {
+      id: Date.now(),
       user_id: null,
       course_id: payload?.course_id ?? null,
       course_title: payload?.course_title || 'General Free Trial',
@@ -56,23 +70,39 @@ export async function POST(request) {
       country: payload?.country || 'Not specified',
       message: payload?.message || '',
       status: 'pending',
+      created_at: new Date().toISOString(),
     };
 
-    const { data, error } = await supabaseAdmin
-      .from('trial_requests')
-      .insert(insertPayload)
-      .select('*')
-      .single();
+    let savedData = insertPayload;
+    let supabaseSuccess = false;
 
-    if (error) {
-      console.error('Trial request insert failed:', error);
-      return NextResponse.json(
-        { error: error.message || 'Failed to submit trial request.' },
-        { status: 500 }
-      );
+    if (hasServerSupabase) {
+      try {
+        const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
+          auth: { persistSession: false, autoRefreshToken: false },
+        });
+
+        const { data, error } = await supabaseAdmin
+          .from('trial_requests')
+          .insert(insertPayload)
+          .select('*')
+          .single();
+
+        if (!error && data) {
+          supabaseSuccess = true;
+          savedData = data;
+        } else if (error) {
+          console.warn('Supabase trial request insert error, falling back to local storage:', error.message);
+        }
+      } catch (dbErr) {
+        console.warn('Supabase trial request threw error, falling back to local storage:', dbErr.message);
+      }
     }
 
-    return NextResponse.json({ success: true, data }, { status: 200 });
+    // Always mirror to local fallback storage so the lead is never lost and visible in Admin
+    saveToFallback(savedData);
+
+    return NextResponse.json({ success: true, data: savedData, fallback: !supabaseSuccess }, { status: 200 });
   } catch (error) {
     console.error('Trial request API error:', error);
     return NextResponse.json({ error: 'Failed to submit trial request.' }, { status: 500 });

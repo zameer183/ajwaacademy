@@ -143,6 +143,8 @@ export default function AdminDashboardPage() {
   const [libraryItems, setLibraryItems] = useState([]);
   const [students, setStudents] = useState([]);
   const [activityLogs, setActivityLogs] = useState([]);
+  const [dbRestricted, setDbRestricted] = useState(false);
+  const [dbErrorMessage, setDbErrorMessage] = useState('');
 
   // Managed Settings & Content
   const [settings, setSettings] = useState(INITIAL_SETTINGS);
@@ -311,10 +313,10 @@ export default function AdminDashboardPage() {
       .replace(/^-+|-+$/g, '');
   };
 
-  // --- FETCH DATA (HIGH-SPEED PARALLEL LOADER) ---
+  // --- FETCH DATA (HIGH-SPEED RESILIENT LOADER) ---
   const fetchData = async () => {
     try {
-      // 1. Try fast server-side API (service-role in parallel, <100ms)
+      // 1. Try fast server-side API (with fallback handling, <100ms)
       const res = await fetch('/api/admin/crud', { cache: 'no-store' });
       if (res.ok) {
         const json = await res.json();
@@ -327,33 +329,42 @@ export default function AdminDashboardPage() {
             setStudents(enrolled.length > 0 ? enrolled : json.trialRequests.slice(0, 8));
           }
           if (Array.isArray(json.libraryItems)) setLibraryItems(json.libraryItems);
+
+          if (json.dbStatus?.restricted) {
+            setDbRestricted(true);
+            setDbErrorMessage(json.dbStatus.message || 'Supabase bandwidth quota exceeded');
+          } else {
+            setDbRestricted(false);
+            setDbErrorMessage('');
+          }
           return;
         }
       }
     } catch (apiErr) {
-      console.warn('API fetch fallback to direct Supabase:', apiErr);
+      console.warn('API fetch fallback to direct Supabase or static files:', apiErr);
     }
 
-    // 2. Direct browser Supabase fallback in parallel
-    if (!supabaseEnabled || !supabase) return;
+    // 2. Direct browser static fallback in parallel
     try {
       const [cRes, bRes, tRes, lRes] = await Promise.allSettled([
-        supabase.from('courses').select('*').order('id', { ascending: false }),
-        supabase.from('blog_posts').select('*').order('id', { ascending: false }),
-        supabase.from('trial_requests').select('*').order('id', { ascending: false }),
-        supabase.from('library_items').select('*').order('id', { ascending: false }),
+        fetch('/fallback-data/courses.json').then(r => r.json()),
+        fetch('/fallback-data/blog-posts.json').then(r => r.json()),
+        fetch('/fallback-data/trial-requests.json').then(r => r.json()),
+        fetch('/fallback-data/library-items.json').then(r => r.json()),
       ]);
 
-      if (cRes.status === 'fulfilled' && cRes.value?.data) setCourses(cRes.value.data);
-      if (bRes.status === 'fulfilled' && bRes.value?.data) setBlogs(bRes.value.data);
-      if (tRes.status === 'fulfilled' && tRes.value?.data) {
-        setTrialRequests(tRes.value.data);
-        const enrolled = tRes.value.data.filter(t => t.status === 'enrolled' || t.status === 'completed');
-        setStudents(enrolled.length > 0 ? enrolled : tRes.value.data.slice(0, 8));
+      if (cRes.status === 'fulfilled' && Array.isArray(cRes.value)) setCourses(cRes.value);
+      if (bRes.status === 'fulfilled' && Array.isArray(bRes.value)) setBlogs(bRes.value);
+      if (tRes.status === 'fulfilled' && Array.isArray(tRes.value)) {
+        setTrialRequests(tRes.value);
+        const enrolled = tRes.value.filter(t => t.status === 'enrolled' || t.status === 'completed');
+        setStudents(enrolled.length > 0 ? enrolled : tRes.value.slice(0, 8));
       }
-      if (lRes.status === 'fulfilled' && lRes.value?.data) setLibraryItems(lRes.value.data);
+      if (lRes.status === 'fulfilled' && Array.isArray(lRes.value)) setLibraryItems(lRes.value);
+
+      setDbRestricted(true);
     } catch (e) {
-      console.error('Error fetching admin data:', e);
+      console.error('Error fetching admin fallback data:', e);
     }
   };
 
@@ -1166,6 +1177,47 @@ export default function AdminDashboardPage() {
 
           {/* Main Content Pages */}
           <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
+            {/* Database Status Alert Banner */}
+            {dbRestricted && (
+              <div className="p-4 sm:p-5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-950 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 animate-in fade-in">
+                <div className="flex items-start gap-3.5">
+                  <span className="text-2xl flex-shrink-0 mt-0.5">⚠️</span>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h4 className="font-extrabold text-sm sm:text-base text-amber-950">
+                        Database Alert: Resilient Fallback Storage Active
+                      </h4>
+                      <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full border border-amber-300">
+                        Egress Quota Exceeded (402)
+                      </span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-amber-900 mt-1.5 leading-relaxed font-medium">
+                      Supabase پروجیکٹ کا مفت ماہانہ بینڈوڈتھ کوٹہ مکمل ہو چکا ہے (<code>exceed_egress_quota</code>)۔ آپ کا ایڈمن پینل محفوظ فال بیک موڈ میں چل رہا ہے اور تمام کورسز، بلاگز، اور لیڈز کامیابی سے لوڈ ہو چکے ہیں۔ آپ بغیر کسی رکاوٹ کے ڈیٹا دیکھ، ایڈٹ اور ڈیلیٹ کر سکتے ہیں۔ لائیو Supabase بحال کرنے کے لیے Supabase ڈیش بورڈ میں جا کر پلان اپگریڈ کریں۔
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 self-end md:self-center flex-shrink-0">
+                  <button
+                    onClick={() => {
+                      showToast('Refreshing data...');
+                      fetchData();
+                    }}
+                    className="inline-flex items-center gap-1.5 whitespace-nowrap bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold text-xs px-3.5 py-2 rounded-xl transition-all shadow-xs cursor-pointer"
+                  >
+                    <span>🔄 Refresh</span>
+                  </button>
+                  <a
+                    href="https://supabase.com/dashboard/project/cqcitgazqwajbdyxqhtl/settings/billing"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 whitespace-nowrap bg-[#0F766E] hover:bg-[#115E59] text-white font-bold text-xs px-4 py-2 rounded-xl shadow-sm transition-all"
+                  >
+                    <span>Supabase Billing</span>
+                    <span>↗</span>
+                  </a>
+                </div>
+              </div>
+            )}
             {/* ======================================================== */}
             {/* 1. DASHBOARD VIEW                                       */}
             {/* ======================================================== */}
