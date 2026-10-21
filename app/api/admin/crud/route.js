@@ -174,9 +174,13 @@ export async function POST(request) {
 
     try {
       if (action === 'create') {
+        const insertData = { ...data };
+        if (table === 'trial_requests' && insertData.id) {
+          delete insertData.id;
+        }
         const { data: created, error } = await supabaseAdmin
           .from(table)
-          .insert(data)
+          .insert(insertData)
           .select()
           .single();
         if (!error && created) {

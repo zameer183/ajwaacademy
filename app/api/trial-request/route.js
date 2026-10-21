@@ -62,8 +62,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 });
     }
 
-    const insertPayload = {
-      id: Date.now(),
+    const supabasePayload = {
       user_id: null,
       course_id: payload?.course_id ?? null,
       course_title: payload?.course_title || 'General Free Trial',
@@ -77,7 +76,7 @@ export async function POST(request) {
       created_at: new Date().toISOString(),
     };
 
-    let savedData = insertPayload;
+    let savedData = { ...supabasePayload, id: Date.now() };
     let supabaseSuccess = false;
 
     if (hasServerSupabase) {
@@ -88,7 +87,7 @@ export async function POST(request) {
 
         const { data, error } = await supabaseAdmin
           .from('trial_requests')
-          .insert(insertPayload)
+          .insert(supabasePayload)
           .select('*')
           .single();
 
