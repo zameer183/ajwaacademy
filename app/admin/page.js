@@ -1207,7 +1207,7 @@ export default function AdminDashboardPage() {
                     <span>🔄 Refresh</span>
                   </button>
                   <a
-                    href="https://supabase.com/dashboard/project/cqcitgazqwajbdyxqhtl/settings/billing"
+                    href="https://supabase.com/dashboard/project/vdzwhurilkucadjgcshv/settings/billing"
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-1.5 whitespace-nowrap bg-[#0F766E] hover:bg-[#115E59] text-white font-bold text-xs px-4 py-2 rounded-xl shadow-sm transition-all"
@@ -2075,7 +2075,7 @@ export default function AdminDashboardPage() {
                   </div>
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-500 font-medium">Database Access:</span>
-                    <span className="text-[#14B8A6] font-mono font-bold">Connected (cqcitgazqwajbdyxqhtl)</span>
+                    <span className="text-[#14B8A6] font-mono font-bold">Connected (vdzwhurilkucadjgcshv)</span>
                   </div>
                 </div>
               </div>

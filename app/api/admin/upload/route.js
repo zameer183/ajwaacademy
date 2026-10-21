@@ -1,14 +1,18 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const ACTIVE_SUPABASE_URL = 'https://cqcitgazqwajbdyxqhtl.supabase.co';
-const ACTIVE_SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxY2l0Z2F6cXdhamJkeXhxaHRsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MTAyNjg0NywiZXhwIjoyMTA2NjAyODQ3fQ.lWH89WCLiz0iZVg7GFnshv_nyUBvK2wJB2vRLnOCk8g';
+const ACTIVE_SUPABASE_URL = 'https://vdzwhurilkucadjgcshv.supabase.co';
+const ACTIVE_SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkendodXJpbGt1Y2Fkamdjc2h2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTUzNDM3MSwiZXhwIjoyMDkxMTEwMzcxfQ.3kdnvWjK3RS6urt-ns3KHyrU-0GkTeTCJs3op6g3Rzs';
 
 const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 const rawKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 
-const supabaseUrl = (rawUrl && rawUrl === ACTIVE_SUPABASE_URL) ? rawUrl : ACTIVE_SUPABASE_URL;
-const supabaseKey = (rawKey && rawUrl === ACTIVE_SUPABASE_URL) ? rawKey : ACTIVE_SERVICE_ROLE_KEY;
+const isRestrictedInstance = Boolean(
+  rawUrl && (rawUrl.includes('cqcitgazqwajbdyxqhtl') || rawUrl.includes('xydbeeyzsuqsdrygndhe') || rawUrl.includes('aawqtepmkpsiynxxokxn'))
+);
+
+const supabaseUrl = (!rawUrl || isRestrictedInstance) ? ACTIVE_SUPABASE_URL : rawUrl;
+const supabaseKey = (!rawKey || isRestrictedInstance) ? ACTIVE_SERVICE_ROLE_KEY : rawKey;
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseKey, {
   auth: { persistSession: false },
