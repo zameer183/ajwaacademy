@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { libraryAPI } from '@/lib/static-api';
 import LibraryClient from '@/components/LibraryClient';
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export const metadata = {
   title: 'Digital Islamic Library & PDF Reader | Ajwa Academy',

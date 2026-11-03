@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 import { fetchBlogPostBySlug } from '../../../lib/static-api';
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
   try {

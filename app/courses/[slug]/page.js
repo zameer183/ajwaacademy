@@ -7,7 +7,7 @@ import LessonAccessButton from '@/components/LessonAccessButton';
 import RevealOnScroll from '@/components/RevealOnScroll';
 import CourseFaqSection from '@/components/CourseFaqSection';
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 const SITE_URL = 'https://www.ajwaacademy.com';
 
