@@ -40,12 +40,40 @@ export default async function sitemap() {
   const supabaseAnonKey = (!rawAnonKey || isRestrictedInstance) ? ACTIVE_SUPABASE_ANON_KEY : rawAnonKey;
 
   try {
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    let courseSlugs = [];
+    let blogSlugs = [];
 
-    const [{ data: courseSlugs }, { data: blogSlugs }] = await Promise.all([
-      supabase.from("courses").select("slug, created_at").not("slug", "is", null),
-      supabase.from("blog_posts").select("slug, created_at").not("slug", "is", null),
-    ]);
+    try {
+      const supabase = createClient(supabaseUrl, supabaseAnonKey);
+      const [cRes, bRes] = await Promise.all([
+        supabase.from("courses").select("slug, created_at").not("slug", "is", null),
+        supabase.from("blog_posts").select("slug, created_at").not("slug", "is", null),
+      ]);
+      courseSlugs = cRes.data || [];
+      blogSlugs = bRes.data || [];
+    } catch (e) {}
+
+    // Fallback from local data if database query returns empty
+    if (!courseSlugs.length) {
+      try {
+        const fsMod = 'fs';
+        const pathMod = 'path';
+        const fs = await import(/* webpackIgnore: true */ fsMod);
+        const path = await import(/* webpackIgnore: true */ pathMod);
+        const cPath = path.join(process.cwd(), 'public/fallback-data/courses.json');
+        if (fs.existsSync(cPath)) courseSlugs = JSON.parse(fs.readFileSync(cPath, 'utf8'));
+      } catch (e) {}
+    }
+    if (!blogSlugs.length) {
+      try {
+        const fsMod = 'fs';
+        const pathMod = 'path';
+        const fs = await import(/* webpackIgnore: true */ fsMod);
+        const path = await import(/* webpackIgnore: true */ pathMod);
+        const bPath = path.join(process.cwd(), 'public/fallback-data/blog-posts.json');
+        if (fs.existsSync(bPath)) blogSlugs = JSON.parse(fs.readFileSync(bPath, 'utf8'));
+      } catch (e) {}
+    }
 
     const courseUrls = (courseSlugs || [])
       .filter((item) => item.slug)

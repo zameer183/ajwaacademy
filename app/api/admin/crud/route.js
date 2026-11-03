@@ -5,22 +5,28 @@ import path from 'path';
 
 export const runtime = 'nodejs';
 
-const ACTIVE_SUPABASE_URL = 'https://vdzwhurilkucadjgcshv.supabase.co';
-const ACTIVE_SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkendodXJpbGt1Y2Fkamdjc2h2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTUzNDM3MSwiZXhwIjoyMDkxMTEwMzcxfQ.3kdnvWjK3RS6urt-ns3KHyrU-0GkTeTCJs3op6g3Rzs';
+// Database 1: Core Database (Courses, Student Leads, Library)
+const CORE_SUPABASE_URL = process.env.SUPABASE_CORE_URL?.trim() || process.env.NEXT_PUBLIC_SUPABASE_CORE_URL?.trim() || 'https://vdzwhurilkucadjgcshv.supabase.co';
+const CORE_SERVICE_ROLE_KEY = process.env.SUPABASE_CORE_SERVICE_ROLE_KEY?.trim() || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkendodXJpbGt1Y2Fkamdjc2h2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTUzNDM3MSwiZXhwIjoyMDkxMTEwMzcxfQ.3kdnvWjK3RS6urt-ns3KHyrU-0GkTeTCJs3op6g3Rzs';
 
-const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-const rawKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+// Database 2: Blogs Database (Articles, Media, Categories)
+const BLOGS_SUPABASE_URL = process.env.SUPABASE_BLOGS_URL?.trim() || process.env.NEXT_PUBLIC_SUPABASE_BLOGS_URL?.trim() || 'https://cqcitgazqwajbdyxqhtl.supabase.co';
+const BLOGS_SERVICE_ROLE_KEY = process.env.SUPABASE_BLOGS_SERVICE_ROLE_KEY?.trim() || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxY2l0Z2F6cXdhamJkeXhxaHRsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MTAyNjg0NywiZXhwIjoyMTA2NjAyODQ3fQ.lWH89WCLiz0iZVg7GFnshv_nyUBvK2wJB2vRLnOCk8g';
 
-const isRestrictedInstance = Boolean(
-  rawUrl && (rawUrl.includes('cqcitgazqwajbdyxqhtl') || rawUrl.includes('xydbeeyzsuqsdrygndhe') || rawUrl.includes('aawqtepmkpsiynxxokxn'))
-);
-
-const supabaseUrl = (!rawUrl || isRestrictedInstance) ? ACTIVE_SUPABASE_URL : rawUrl;
-const supabaseKey = (!rawKey || isRestrictedInstance) ? ACTIVE_SERVICE_ROLE_KEY : rawKey;
-
-const supabaseAdmin = createClient(supabaseUrl, supabaseKey, {
+const supabaseAdminCore = createClient(CORE_SUPABASE_URL, CORE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false },
 });
+
+const supabaseAdminBlogs = createClient(BLOGS_SUPABASE_URL, BLOGS_SERVICE_ROLE_KEY, {
+  auth: { persistSession: false },
+});
+
+function getAdminClient(table) {
+  if (table === 'blog_posts' || table === 'blog_categories') {
+    return supabaseAdminBlogs;
+  }
+  return supabaseAdminCore;
+}
 
 function getFallbackPath(table) {
   const map = {
@@ -72,10 +78,10 @@ export async function GET() {
 
   try {
     const [coursesRes, blogsRes, trialsRes, libraryRes] = await Promise.allSettled([
-      supabaseAdmin.from('courses').select('*').order('id', { ascending: false }),
-      supabaseAdmin.from('blog_posts').select('*').order('id', { ascending: false }),
-      supabaseAdmin.from('trial_requests').select('*').order('id', { ascending: false }),
-      supabaseAdmin.from('library_items').select('*').order('id', { ascending: false }),
+      supabaseAdminCore.from('courses').select('*').order('id', { ascending: false }),
+      supabaseAdminBlogs.from('blog_posts').select('*').order('id', { ascending: false }),
+      supabaseAdminCore.from('trial_requests').select('*').order('id', { ascending: false }),
+      supabaseAdminCore.from('library_items').select('*').order('id', { ascending: false }),
     ]);
 
     // 1. Courses
@@ -173,12 +179,14 @@ export async function POST(request) {
     let updatedRecord = null;
 
     try {
+      const client = getAdminClient(table);
+
       if (action === 'create') {
         const insertData = { ...data };
         if (table === 'trial_requests' && insertData.id) {
           delete insertData.id;
         }
-        const { data: created, error } = await supabaseAdmin
+        const { data: created, error } = await client
           .from(table)
           .insert(insertData)
           .select()
@@ -188,7 +196,7 @@ export async function POST(request) {
           createdRecord = created;
         }
       } else if (action === 'update') {
-        const { data: updated, error } = await supabaseAdmin
+        const { data: updated, error } = await client
           .from(table)
           .update(data)
           .eq('id', id)
@@ -199,7 +207,7 @@ export async function POST(request) {
           updatedRecord = updated;
         }
       } else if (action === 'delete') {
-        const { error } = await supabaseAdmin.from(table).delete().eq('id', id);
+        const { error } = await client.from(table).delete().eq('id', id);
         if (!error) {
           supabaseSuccess = true;
         }
