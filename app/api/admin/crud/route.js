@@ -5,19 +5,37 @@ import path from 'path';
 
 export const runtime = 'nodejs';
 
+// Healthy Supabase Instance (Active, Unpaused, No Quota Exhaustion)
+const HEALTHY_SUPABASE_URL = 'https://cqcitgazqwajbdyxqhtl.supabase.co';
+const HEALTHY_SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxY2l0Z2F6cXdhamJkeXhxaHRsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MTAyNjg0NywiZXhwIjoyMTA2NjAyODQ3fQ.lWH89WCLiz0iZVg7GFnshv_nyUBvK2wJB2vRLnOCk8g';
+
+const isRestrictedUrl = (url) => {
+  return !url || url.includes('vdzwhurilkucadjgcshv') || url.includes('xydbeeyzsuqsdrygndhe') || url.includes('aawqtepmkpsiynxxokxn');
+};
+
 // Database 1: Core Database (Courses, Student Leads, Library)
-const CORE_SUPABASE_URL = process.env.SUPABASE_CORE_URL?.trim() || process.env.NEXT_PUBLIC_SUPABASE_CORE_URL?.trim() || 'https://vdzwhurilkucadjgcshv.supabase.co';
-const CORE_SERVICE_ROLE_KEY = process.env.SUPABASE_CORE_SERVICE_ROLE_KEY?.trim() || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkendodXJpbGt1Y2Fkamdjc2h2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTUzNDM3MSwiZXhwIjoyMDkxMTEwMzcxfQ.3kdnvWjK3RS6urt-ns3KHyrU-0GkTeTCJs3op6g3Rzs';
+const rawCoreUrl = process.env.SUPABASE_CORE_URL?.trim() || process.env.NEXT_PUBLIC_SUPABASE_CORE_URL?.trim() || process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+const rawCoreKey = process.env.SUPABASE_CORE_SERVICE_ROLE_KEY?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+
+const CORE_SUPABASE_URL = !isRestrictedUrl(rawCoreUrl) ? rawCoreUrl : HEALTHY_SUPABASE_URL;
+const CORE_SERVICE_ROLE_KEY = !isRestrictedUrl(rawCoreUrl) && rawCoreKey ? rawCoreKey : HEALTHY_SERVICE_ROLE_KEY;
 
 // Database 2: Blogs Database (Articles, Media, Categories)
-const BLOGS_SUPABASE_URL = process.env.SUPABASE_BLOGS_URL?.trim() || process.env.NEXT_PUBLIC_SUPABASE_BLOGS_URL?.trim() || 'https://cqcitgazqwajbdyxqhtl.supabase.co';
-const BLOGS_SERVICE_ROLE_KEY = process.env.SUPABASE_BLOGS_SERVICE_ROLE_KEY?.trim() || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxY2l0Z2F6cXdhamJkeXhxaHRsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MTAyNjg0NywiZXhwIjoyMTA2NjAyODQ3fQ.lWH89WCLiz0iZVg7GFnshv_nyUBvK2wJB2vRLnOCk8g';
+const rawBlogsUrl = process.env.SUPABASE_BLOGS_URL?.trim() || process.env.NEXT_PUBLIC_SUPABASE_BLOGS_URL?.trim();
+const rawBlogsKey = process.env.SUPABASE_BLOGS_SERVICE_ROLE_KEY?.trim();
+
+const BLOGS_SUPABASE_URL = !isRestrictedUrl(rawBlogsUrl) ? (rawBlogsUrl || HEALTHY_SUPABASE_URL) : HEALTHY_SUPABASE_URL;
+const BLOGS_SERVICE_ROLE_KEY = !isRestrictedUrl(rawBlogsUrl) && rawBlogsKey ? rawBlogsKey : HEALTHY_SERVICE_ROLE_KEY;
 
 const supabaseAdminCore = createClient(CORE_SUPABASE_URL, CORE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false },
 });
 
 const supabaseAdminBlogs = createClient(BLOGS_SUPABASE_URL, BLOGS_SERVICE_ROLE_KEY, {
+  auth: { persistSession: false },
+});
+
+const supabaseAdminHealthy = createClient(HEALTHY_SUPABASE_URL, HEALTHY_SERVICE_ROLE_KEY, {
   auth: { persistSession: false },
 });
 
@@ -88,42 +106,63 @@ export async function GET() {
     if (coursesRes.status === 'fulfilled' && !coursesRes.value.error && Array.isArray(coursesRes.value.data) && coursesRes.value.data.length > 0) {
       courses = coursesRes.value.data;
     } else {
-      if (coursesRes.status === 'fulfilled' && coursesRes.value?.error) {
-        isDbRestricted = true;
-        dbErrorMessage = coursesRes.value.error.message || 'Supabase access restricted';
+      // Try healthy fallback client if core returned an error
+      const healthyCourseRes = await supabaseAdminHealthy.from('courses').select('*').order('id', { ascending: false });
+      if (!healthyCourseRes.error && Array.isArray(healthyCourseRes.data) && healthyCourseRes.data.length > 0) {
+        courses = healthyCourseRes.data;
+      } else {
+        if (coursesRes.status === 'fulfilled' && coursesRes.value?.error) {
+          isDbRestricted = true;
+          dbErrorMessage = coursesRes.value.error.message || 'Supabase access restricted';
+        }
+        courses = loadFallback('courses');
       }
-      courses = loadFallback('courses');
     }
 
     // 2. Blog Posts
     if (blogsRes.status === 'fulfilled' && !blogsRes.value.error && Array.isArray(blogsRes.value.data) && blogsRes.value.data.length > 0) {
       blogs = blogsRes.value.data;
     } else {
-      if (blogsRes.status === 'fulfilled' && blogsRes.value?.error) {
-        isDbRestricted = true;
-        if (!dbErrorMessage) dbErrorMessage = blogsRes.value.error.message;
+      const healthyBlogsRes = await supabaseAdminHealthy.from('blog_posts').select('*').order('id', { ascending: false });
+      if (!healthyBlogsRes.error && Array.isArray(healthyBlogsRes.data) && healthyBlogsRes.data.length > 0) {
+        blogs = healthyBlogsRes.data;
+      } else {
+        if (blogsRes.status === 'fulfilled' && blogsRes.value?.error) {
+          isDbRestricted = true;
+          if (!dbErrorMessage) dbErrorMessage = blogsRes.value.error.message;
+        }
+        blogs = loadFallback('blog_posts');
       }
-      blogs = loadFallback('blog_posts');
     }
 
     // 3. Trial Requests
     if (trialsRes.status === 'fulfilled' && !trialsRes.value.error && Array.isArray(trialsRes.value.data) && trialsRes.value.data.length > 0) {
       trialRequests = trialsRes.value.data;
     } else {
-      if (trialsRes.status === 'fulfilled' && trialsRes.value?.error) {
-        isDbRestricted = true;
+      const healthyTrialsRes = await supabaseAdminHealthy.from('trial_requests').select('*').order('id', { ascending: false });
+      if (!healthyTrialsRes.error && Array.isArray(healthyTrialsRes.data) && healthyTrialsRes.data.length > 0) {
+        trialRequests = healthyTrialsRes.data;
+      } else {
+        if (trialsRes.status === 'fulfilled' && trialsRes.value?.error) {
+          isDbRestricted = true;
+        }
+        trialRequests = loadFallback('trial_requests');
       }
-      trialRequests = loadFallback('trial_requests');
     }
 
     // 4. Library Items
     if (libraryRes.status === 'fulfilled' && !libraryRes.value.error && Array.isArray(libraryRes.value.data) && libraryRes.value.data.length > 0) {
       libraryItems = libraryRes.value.data;
     } else {
-      if (libraryRes.status === 'fulfilled' && libraryRes.value?.error) {
-        isDbRestricted = true;
+      const healthyLibRes = await supabaseAdminHealthy.from('library_items').select('*').order('id', { ascending: false });
+      if (!healthyLibRes.error && Array.isArray(healthyLibRes.data) && healthyLibRes.data.length > 0) {
+        libraryItems = healthyLibRes.data;
+      } else {
+        if (libraryRes.status === 'fulfilled' && libraryRes.value?.error) {
+          isDbRestricted = true;
+        }
+        libraryItems = loadFallback('library_items');
       }
-      libraryItems = loadFallback('library_items');
     }
 
     return NextResponse.json({
